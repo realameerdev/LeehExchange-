@@ -6,8 +6,6 @@ One platform. Multiple possibilities.
 
 A digital exchange platform bringing cryptocurrency, gift cards, and everyday digital services into one seamless experience.
 
-"Website" (https://leehexchange.com/) · "Telegram Bot" (https://t.me/LeehExchangeBot) · "Developer" (https://devameer.xyz/)
-
 ---
 
 Simplifying digital transactions through technology, accessibility, and trust.
