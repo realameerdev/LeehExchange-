@@ -20,56 +20,48 @@ from functools import wraps
 ROLES = {
     'transaction_manager': {
         'label': 'Transaction Manager',
-        'icon': '💳',
         'description': 'Approve, reject and manage all buy/sell transactions',
         'color': '#007AFF',
         'permissions': ['transactions'],
     },
     'support_agent': {
         'label': 'Support Agent',
-        'icon': '🎧',
         'description': 'View transactions and user profiles — read-only, no approval access',
         'color': '#34C759',
         'permissions': ['transactions_view', 'users'],
     },
     'email_manager': {
         'label': 'Email Manager',
-        'icon': '📧',
         'description': 'Send email blasts, manage subscribers and review the email log',
         'color': '#FF9500',
         'permissions': ['emails'],
     },
     'giveaway_manager': {
         'label': 'Giveaway Manager',
-        'icon': '🎁',
         'description': 'Verify and manage all giveaway claims and codes',
         'color': '#AF52DE',
         'permissions': ['giveaway'],
     },
     'content_manager': {
         'label': 'Content Manager',
-        'icon': '📢',
         'description': 'Send broadcast messages and announcements to bot users',
         'color': '#FF3B30',
         'permissions': ['broadcast'],
     },
     'analyst': {
         'label': 'Analyst',
-        'icon': '📊',
         'description': 'Read-only access to all data — stats, transactions, users and rates',
         'color': '#5AC8FA',
         'permissions': ['transactions_view', 'users', 'rates', 'giveaway_view'],
     },
     'moderator': {
         'label': 'Moderator',
-        'icon': '🛡️',
         'description': 'Full operations access — manages transactions, giveaways and users',
         'color': '#8E44AD',
         'permissions': ['transactions', 'giveaway', 'users'],
     },
     'full_access': {
         'label': 'Full Access',
-        'icon': '🔓',
         'description': 'Complete access to all sections — same as super admin except Settings',
         'color': '#FF6B00',
         'permissions': [
@@ -81,15 +73,15 @@ ROLES = {
 
 # All possible grantable permissions with labels (for the invite UI)
 ALL_PERMISSIONS = [
-    ('dashboard',         '🏠', 'Dashboard',          'Overview stats & summary cards'),
-    ('transactions',      '💳', 'Transactions',        'Approve, reject & manage orders'),
-    ('transactions_view', '👁️', 'Transactions (view)', 'View orders — read-only'),
-    ('giveaway',          '🎁', 'Giveaway',            'Manage & verify giveaway claims'),
-    ('giveaway_view',     '👁️', 'Giveaway (view)',     'View giveaway claims — read-only'),
-    ('broadcast',         '📢', 'Broadcast',           'Send messages to all bot users'),
-    ('emails',            '📧', 'Emails',              'Send bulk emails & manage subscribers'),
-    ('users',             '👥', 'Users',               'View bot user profiles & activity'),
-    ('rates',             '📊', 'Crypto Rates',        'View live cryptocurrency rates'),
+    ('dashboard',         'Dashboard',          'Overview stats & summary cards'),
+    ('transactions',      'Transactions',        'Approve, reject & manage orders'),
+    ('transactions_view', 'Transactions (view)', 'View orders — read-only'),
+    ('giveaway',          'Giveaway',            'Manage & verify giveaway claims'),
+    ('giveaway_view',     'Giveaway (view)',     'View giveaway claims — read-only'),
+    ('broadcast',         'Broadcast',           'Send messages to all bot users'),
+    ('emails',            'Emails',              'Send bulk emails & manage subscribers'),
+    ('users',             'Users',               'View bot user profiles & activity'),
+    ('rates',             'Crypto Rates',        'View live cryptocurrency rates'),
 ]
 
 # All permissions a super admin has
