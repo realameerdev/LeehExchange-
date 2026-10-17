@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Broadcast | LEEH Exchange{% endblock %}
+{% block content %}
+
+<div class="max-w-4xl mx-auto space-y-14 animate-reveal">
+    <!-- Header Section -->
+    <div class="text-center space-y-5">
+        <span class="inline-flex items-center px-4 py-2 rounded-full bg-[#007AFF]/10 text-[#007AFF] text-[11px] font-semibold uppercase tracking-wider">
+            System Communications
+        </span>
+        <h1 class="text-4xl md:text-5xl font-bold text-[#1C1C1E] tracking-tight">
+            Broadcast
+        </h1>
+        <p class="text-[#8E8E93] text-lg font-medium max-w-xl mx-auto leading-relaxed">
+            Dispatch high-priority notifications to all users.
+        </p>
+    </div>
+
+    <!-- Main Content -->
+    <div class="max-w-2xl mx-auto">
+        <div class="card-premium p-10 relative overflow-hidden">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="mb-8 p-5 rounded-2xl {% if category == 'success' %}bg-[#34C759]/10 text-[#34C759]{% else %}bg-[#FF3B30]/10 text-[#FF3B30]{% endif %} text-sm font-semibold flex items-center gap-4">
+                            <span class="text-xl">{% if category == 'success' %}✅{% else %}⚠️{% endif %}</span>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            <form method="POST" enctype="multipart/form-data" class="space-y-10">
+                <div class="space-y-4">
+                    <label class="text-[12px] font-semibold text-[#8E8E93] uppercase tracking-wider ml-1">Media Attachment</label>
+                    <div class="grid grid-cols-1 gap-5">
+                        <div class="relative group">
+                            <input type="file" name="image_file" id="image_file" accept="image/*" class="hidden">
+                            <label for="image_file" class="flex flex-col items-center justify-center w-full h-40 bg-[#F2F2F7] rounded-2xl border-2 border-dashed border-[#C7C7CC] cursor-pointer hover:bg-[#E5E5EA] transition-all">
+                                <span class="text-3xl mb-2">🖼️</span>
+                                <span class="text-[14px] font-medium text-[#1C1C1E]">Tap to upload photo</span>
+                                <span class="text-[12px] text-[#8E8E93] mt-1.5">Direct file upload</span>
+                            </label>
+                        </div>
+                        <input type="url" name="image_url" placeholder="Or paste image URL here..." class="input-premium">
+                    </div>
+                </div>
+
+                <div class="space-y-4">
+                    <label class="text-[12px] font-semibold text-[#8E8E93] uppercase tracking-wider ml-1">Message Body</label>
+                    <textarea name="message" 
+                              placeholder="Write your update here..." 
+                              required 
+                              class="input-premium min-h-[220px] leading-relaxed"
+                    ></textarea>
+                </div>
+
+                <button type="submit" 
+                        onclick="return confirm('Send this to all users?')" 
+                        class="btn-primary w-full gap-3"
+                >
+                    <span>Dispatch Signal</span>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+                    </svg>
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

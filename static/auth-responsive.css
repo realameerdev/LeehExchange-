@@ -1,0 +1,101 @@
+html {
+    min-width: 320px;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    min-width: 320px;
+    overflow-x: hidden;
+}
+
+.login-shell {
+    min-width: 0;
+}
+
+.login-main, .login-aside, .form-card, .field, .field-input-wrap {
+    min-width: 0;
+}
+
+.field-input, .btn-submit {
+    min-height: 48px;
+}
+
+.login-main {
+    overflow-wrap: anywhere;
+}
+
+.page-footer {
+    line-height: 1.6;
+}
+
+.auth-page {
+    width: 100%;
+}
+
+.invite-shell {
+    width: min(460px, 100%);
+    min-width: 0;
+}
+
+.invite-shell input {
+    width: 100%;
+    min-height: 48px;
+    min-width: 0;
+    font-size: 16px;
+}
+
+.invite-shell button, .invite-shell a {
+    min-height: 44px;
+}
+
+@media (max-width: 720px) {
+    .login-page {
+        display: block;
+        padding: 16px;
+    }
+    .login-shell { width: 100%; margin: 0 auto; }
+    .login-aside { min-height: 210px; }
+    .aside-copy { margin-top: 40px; }
+}
+
+@media (max-width: 420px) {
+    .login-page { padding: 12px; }
+    .login-aside { min-height: 188px; padding: 22px 20px; }
+    .aside-copy { margin-top: 32px; }
+    .aside-status {
+        position: static;
+        margin-top: 14px;
+        padding-top: 0;
+        border-top: 0;
+    }
+    .aside-title { font-size: 27px; }
+    .aside-status { right: 20px; bottom: 19px; left: 20px; font-size: 10px; }
+    .login-main { padding: 28px 19px 24px; }
+    .heading-title { font-size: 27px; }
+    .form-card { margin-top: 22px; }
+}
+
+@media (max-width: 520px) {
+    .invite-page {
+        display: block !important;
+        padding:
+            max(14px, env(safe-area-inset-top))
+            max(12px, env(safe-area-inset-right))
+            max(14px, env(safe-area-inset-bottom))
+            max(12px, env(safe-area-inset-left)) !important;
+    }
+    .invite-shell { margin: 0 auto; }
+    .invite-shell .px-8 { padding-inline: 20px; }
+    .invite-shell .py-8 { padding-block: 25px; }
+    .invite-shell .py-10 { padding-block: 30px; }
+    .invite-shell form { padding-inline: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}

@@ -1,0 +1,19 @@
+# Runtime secrets and private user data
+.env
+.env.*
+*.json
+*.csv
+*.pkl
+*.pickle
+*.db
+*.sqlite*
+*.log
+*.pem
+*.key
+/static/uploads/
+/.agents/
+/.local/
+/attached_assets/
+/screenshots/
+__pycache__/
+*.py[cod]

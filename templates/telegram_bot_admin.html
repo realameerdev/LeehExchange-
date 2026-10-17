@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Telegram Bot Admin | LEEH Exchange{% endblock %}
+{% block content %}
+<div class="animate-reveal space-y-5">
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+            <h1 class="text-xl font-black text-[#1E293B]">Telegram Bot Admin</h1>
+            <p class="text-[13px] text-[#64748B] mt-0.5">Monitor and manage the LEEH Exchange Telegram bot</p>
+        </div>
+        <a href="/broadcast" class="btn-primary text-[12px] gap-2 shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
+            Send Broadcast
+        </a>
+    </div>
+
+    <!-- Bot Status Card -->
+    <div class="card-premium p-6" style="background:linear-gradient(135deg,#1E3A5F,#0F172A)">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0" style="background:rgba(255,255,255,.12)">
+                <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/>
+                </svg>
+            </div>
+            <div class="flex-1">
+                <h2 class="text-white font-black text-[16px]">@LEEHExchangeBot</h2>
+                <p class="text-white/60 text-[12px] mt-0.5">LEEH Exchange Trading Bot</p>
+            </div>
+            <div class="flex items-center gap-2 px-3 py-2 rounded-xl" style="background:rgba(16,185,129,.2)">
+                <span class="w-2 h-2 rounded-full bg-[#10B981] animate-pulse"></span>
+                <span class="text-[#10B981] text-[11px] font-bold">Online</span>
+            </div>
+        </div>
+        <div class="grid grid-cols-3 gap-4 mt-6 pt-5 border-t border-white/10">
+            <div class="text-center">
+                <p class="text-white/50 text-[10px] font-semibold uppercase">Total Users</p>
+                <p class="text-white font-black text-[18px] mt-0.5">{{ bot_user_count }}</p>
+            </div>
+            <div class="text-center">
+                <p class="text-white/50 text-[10px] font-semibold uppercase">Total Messages</p>
+                <p class="text-white font-black text-[18px] mt-0.5">{{ total_messages }}</p>
+            </div>
+            <div class="text-center">
+                <p class="text-white/50 text-[10px] font-semibold uppercase">Uptime</p>
+                <p class="text-white font-black text-[18px] mt-0.5">99.9%</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats Grid -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="card-premium p-4">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase">Bot Users</p>
+            <p class="text-[20px] font-black text-[#1E293B] mt-1">{{ bot_user_count }}</p>
+        </div>
+        <div class="card-premium p-4">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase">Interactions</p>
+            <p class="text-[20px] font-black text-[#2563EB] mt-1">{{ total_messages }}</p>
+        </div>
+        <div class="card-premium p-4">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase">Response Mode</p>
+            <p class="text-[16px] font-black text-[#10B981] mt-1">Polling</p>
+        </div>
+        <div class="card-premium p-4">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase">Parse Mode</p>
+            <p class="text-[16px] font-black text-[#8B5CF6] mt-1">Markdown</p>
+        </div>
+    </div>
+
+    <!-- Bot Features -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div class="card-premium p-5">
+            <h2 class="text-[15px] font-black text-[#1E293B] mb-4">Bot Features</h2>
+            <div class="space-y-3">
+                {% for feat in [
+                    ('Buy Cryptocurrency', 'BTC, ETH, BNB, SOL, XRP &amp; more', '#2563EB', 'bg-[#DBEAFE]'),
+                    ('Sell Cryptocurrency', 'Instant sell with best rates', '#10B981', 'bg-[#D1FAE5]'),
+                    ('Gift Cards', 'Amazon, iTunes, Google Play &amp; more', '#F59E0B', 'bg-[#FEF3C7]'),
+                    ('Airtime &amp; Data', 'All Nigerian networks', '#8B5CF6', 'bg-[#EDE9FE]'),
+                    ('Order Tracking', 'Real-time status updates', '#06B6D4', 'bg-[#CFFAFE]'),
+                    ('Live Rates', 'CoinGecko-powered pricing', '#EF4444', 'bg-[#FEE2E2]'),
+                ] %}
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 {{ feat[3] }}">
+                        <svg class="w-4 h-4" style="color:{{ feat[2] }}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    </div>
+                    <div>
+                        <p class="text-[12.5px] font-bold text-[#1E293B]">{{ feat[0] }}</p>
+                        <p class="text-[11px] text-[#64748B]">{{ feat[1] }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="card-premium p-5">
+            <h2 class="text-[15px] font-black text-[#1E293B] mb-4">Quick Actions</h2>
+            <div class="space-y-2">
+                <a href="/broadcast" class="flex items-center gap-3 p-3 rounded-xl bg-[#EFF6FF] hover:bg-[#DBEAFE] transition-colors">
+                    <div class="w-8 h-8 bg-[#2563EB] rounded-xl flex items-center justify-center"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg></div>
+                    <div>
+                        <p class="text-[12.5px] font-bold text-[#1E293B]">Send Broadcast Message</p>
+                        <p class="text-[11px] text-[#64748B]">Message all bot users at once</p>
+                    </div>
+                </a>
+                <a href="/users" class="flex items-center gap-3 p-3 rounded-xl bg-[#F0FDF4] hover:bg-[#D1FAE5] transition-colors">
+                    <div class="w-8 h-8 bg-[#10B981] rounded-xl flex items-center justify-center"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0z"/></svg></div>
+                    <div>
+                        <p class="text-[12.5px] font-bold text-[#1E293B]">View User Activity</p>
+                        <p class="text-[11px] text-[#64748B]">Monitor all registered users</p>
+                    </div>
+                </a>
+                <a href="/transactions" class="flex items-center gap-3 p-3 rounded-xl bg-[#FFFBEB] hover:bg-[#FEF3C7] transition-colors">
+                    <div class="w-8 h-8 bg-[#F59E0B] rounded-xl flex items-center justify-center"><svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12"/></svg></div>
+                    <div>
+                        <p class="text-[12.5px] font-bold text-[#1E293B]">Manage Transactions</p>
+                        <p class="text-[11px] text-[#64748B]">Approve &amp; reject pending orders</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

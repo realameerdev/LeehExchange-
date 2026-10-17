@@ -1,0 +1,1078 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="LEEH Exchange Admin Dashboard">
+    <meta name="theme-color" content="#2563EB">
+    <link rel="icon" type="image/png" href="/static/leeh_icon.png">
+    <title>{% block title %}LEEH Exchange Admin{% endblock %}</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 50: '#EFF6FF', 100: '#DBEAFE', 200: '#BFDBFE', 300: '#93C5FD', 400: '#60A5FA', 500: '#3B82F6', 600: '#2563EB', 700: '#1D4ED8', 800: '#1E40AF', 900: '#1E3A8A' },
+                        secondary: { 50: '#F8FAFC', 500: '#0F172A', 600: '#1E293B' },
+                        danger: { 50: '#FFF1F2', 500: '#EF4444', 600: '#DC2626' },
+                        success: { 50: '#F0FDF4', 500: '#10B981', 600: '#059669' },
+                        warning: { 50: '#FFFBEB', 500: '#F59E0B', 600: '#D97706' },
+                    },
+                    fontFamily: {
+                        'sans': ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', 'Arial', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+
+    <style>
+        * { -webkit-font-smoothing: antialiased; box-sizing: border-box; }
+
+        html, body { height: 100%; overflow: hidden; margin: 0; padding: 0; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-size: 13px;
+            color: #1E293B;
+            background: #F1F5F9;
+        }
+
+        /* ── App Shell ── */
+        .app-shell { display: flex; height: 100vh; height: 100dvh; overflow: hidden; }
+
+        /* ── Sidebar ── */
+        #sidebar {
+            width: 248px;
+            min-width: 248px;
+            background: #ffffff;
+            border-right: 1px solid #E8EDF5;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            flex-shrink: 0;
+            transition: transform .28s cubic-bezier(.4,0,.2,1), min-width .28s, width .28s;
+            z-index: 100;
+        }
+        #sidebar.collapsed { width: 0; min-width: 0; border-right: none; }
+
+        .sidebar-body { flex: 1; overflow-y: auto; padding: 8px 10px; }
+        .sidebar-body::-webkit-scrollbar { width: 3px; }
+        .sidebar-body::-webkit-scrollbar-thumb { background: rgba(0,0,0,.08); border-radius: 99px; }
+
+        .sidebar-footer { padding: 10px; flex-shrink: 0; }
+
+        /* Sidebar overlay */
+        #sidebar-overlay {
+            display: none;
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.45);
+            z-index: 99;
+            backdrop-filter: blur(2px);
+        }
+        #sidebar-overlay.active { display: block; }
+
+        /* ── Nav items ── */
+        .nav-lbl {
+            font-size: 9.5px; font-weight: 700; color: #94A3B8;
+            letter-spacing: .1em; text-transform: uppercase;
+            padding: 12px 8px 3px;
+        }
+        .nav-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 10px; border-radius: 9px;
+            font-size: 13px; font-weight: 600; color: #475569;
+            text-decoration: none; transition: all .13s;
+            margin: 1px 0; cursor: pointer; white-space: nowrap;
+        }
+        .nav-item:hover { background: #F1F5F9; color: #1E293B; }
+        .nav-item.active { background: #2563EB; color: #fff; }
+        .nav-ico { width: 16px; height: 16px; flex-shrink: 0; }
+        .nav-badge {
+            margin-left: auto;
+            background: #EF4444; color: #fff;
+            font-size: 9.5px; font-weight: 800;
+            min-width: 17px; height: 17px; padding: 0 5px;
+            border-radius: 100px;
+            display: inline-flex; align-items: center; justify-content: center;
+        }
+
+        /* ── Main wrapper ── */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+        /* ── Top bar ── */
+        .topbar {
+            height: 60px;
+            background: #ffffff;
+            border-bottom: 1px solid #E8EDF5;
+            display: flex; align-items: center;
+            padding: 0 16px; gap: 10px;
+            flex-shrink: 0; z-index: 10;
+        }
+
+        /* ── Page content ── */
+        .page-scroll { flex: 1; overflow-y: auto; background: #F1F5F9; }
+        .page-scroll::-webkit-scrollbar { width: 5px; }
+        .page-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,.10); border-radius: 99px; }
+        .page-inner { padding: 24px; max-width: 1600px; }
+
+        /* ── Bottom tab bar ── */
+        .bottom-tabs {
+            display: none;
+            position: fixed; bottom: 0; left: 0; right: 0;
+            height: 62px;
+            background: #ffffff;
+            border-top: 1px solid #E8EDF5;
+            z-index: 98;
+        }
+        .tab-btn {
+            flex: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 2px;
+            font-size: 9.5px; font-weight: 600; color: #94A3B8;
+            text-decoration: none; border: none; background: none; cursor: pointer;
+            transition: color .13s; padding: 6px 2px;
+        }
+        .tab-btn.active { color: #2563EB; }
+        .tab-btn svg { width: 21px; height: 21px; }
+
+        /* ── More menu sheet ── */
+        #more-menu {
+            position: fixed; bottom: 62px; left: 0; right: 0;
+            background: #fff; border-top: 1px solid #E8EDF5;
+            z-index: 97; padding: 10px;
+            transform: translateY(100%);
+            transition: transform .22s ease;
+        }
+        #more-menu.open { transform: translateY(0); }
+        .more-item {
+            display: flex; flex-direction: column;
+            align-items: center; gap: 4px;
+            padding: 10px 6px; border-radius: 10px;
+            font-size: 10px; font-weight: 600; color: #475569;
+            text-decoration: none; transition: background .13s;
+        }
+        .more-item:hover, .more-item:active { background: #F1F5F9; }
+        .more-item svg { width: 20px; height: 20px; }
+
+        /* ── Cards ── */
+        .card-premium {
+            background: #ffffff; border-radius: 16px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.06), 0 4px 20px rgba(0,0,0,.04);
+            transition: box-shadow .2s, transform .2s;
+        }
+        .card-premium:hover { box-shadow: 0 4px 16px rgba(0,0,0,.10); }
+
+        /* ── Buttons ── */
+        .btn-primary {
+            display: inline-flex; align-items: center; justify-content: center;
+            padding: 10px 20px; background: #2563EB; color: #fff;
+            font-weight: 700; border-radius: 10px; border: none; cursor: pointer;
+            transition: all .15s; text-decoration: none; font-size: 13px;
+        }
+        .btn-primary:hover { background: #1D4ED8; }
+        .btn-primary:active { transform: scale(.97); }
+
+        /* ── Inputs ── */
+        .input-premium {
+            width: 100%; padding: 10px 14px;
+            background: #F8FAFC; border: 1.5px solid #E2E8F0;
+            border-radius: 10px; font-size: 13px; color: #1E293B;
+            outline: none; transition: all .15s; font-family: inherit;
+        }
+        .input-premium:focus { background: #fff; border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37,99,235,.12); }
+        .input-premium::placeholder { color: #94A3B8; }
+
+        /* ── iOS-style tab segments ── */
+        .ios-tab-active { background: #fff; color: #2563EB; box-shadow: 0 1px 4px rgba(0,0,0,.08); border-radius: 8px; }
+        .ios-tab-inactive { color: #64748B; }
+        .ios-tab-inactive:hover { color: #1E293B; }
+
+        /* ── Animation ── */
+        @keyframes iosReveal { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-reveal { animation: iosReveal .4s cubic-bezier(.2,.8,.2,1) forwards; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,.10); border-radius: 99px; }
+
+        /* ── Badges ── */
+        .badge-success { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; background: #DCFCE7; color: #16A34A; border-radius: 100px; font-size: 11px; font-weight: 700; }
+        .badge-danger  { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; background: #FEE2E2; color: #DC2626; border-radius: 100px; font-size: 11px; font-weight: 700; }
+        .badge-warning { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; background: #FEF3C7; color: #D97706; border-radius: 100px; font-size: 11px; font-weight: 700; }
+        .badge-primary { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; background: #DBEAFE; color: #2563EB; border-radius: 100px; font-size: 11px; font-weight: 700; }
+
+        /* Status badges */
+        .status-approved, .status-completed { background: #DCFCE7; color: #16A34A; }
+        .status-pending   { background: #FEF3C7; color: #D97706; }
+        .status-rejected, .status-failed    { background: #FEE2E2; color: #DC2626; }
+        .status-processing { background: #DBEAFE; color: #2563EB; }
+
+        /* ── DARK MODE ── */
+        body.dark { background: #0F172A; color: #E2E8F0; }
+        body.dark #sidebar { background: #1E293B; border-color: rgba(255,255,255,.07); }
+        body.dark .topbar { background: #1E293B; border-color: rgba(255,255,255,.07); }
+        body.dark .bottom-tabs { background: #1E293B; border-color: rgba(255,255,255,.07); }
+        body.dark #more-menu { background: #1E293B; border-color: rgba(255,255,255,.07); }
+        body.dark .card-premium { background: #1E293B; box-shadow: 0 2px 12px rgba(0,0,0,.4); }
+        body.dark .nav-item { color: #94A3B8; }
+        body.dark .nav-item:hover { background: #0F172A; color: #E2E8F0; }
+        body.dark .nav-lbl { color: #475569; }
+        body.dark .page-scroll { background: #0F172A; }
+        body.dark .tab-btn { color: #475569; }
+        body.dark .tab-btn.active { color: #60A5FA; }
+        body.dark .input-premium { background: #0F172A; border-color: #334155; color: #E2E8F0; }
+        body.dark .input-premium:focus { border-color: #3B82F6; box-shadow: 0 0 0 3px rgba(59,130,246,.15); }
+        body.dark .more-item { color: #94A3B8; }
+        body.dark .more-item:hover { background: #0F172A; }
+        body.dark .bg-white { background-color: #1E293B !important; }
+        body.dark .bg-\[\#F1F5F9\] { background-color: #0F172A !important; }
+        body.dark .bg-\[\#F8FAFC\] { background-color: #0F172A !important; }
+        body.dark .bg-slate-50 { background-color: #0F172A !important; }
+        body.dark .text-\[\#1E293B\] { color: #E2E8F0 !important; }
+        body.dark .text-\[\#475569\] { color: #94A3B8 !important; }
+        body.dark .text-\[\#64748B\] { color: #64748B !important; }
+        body.dark .text-slate-900 { color: #E2E8F0 !important; }
+        body.dark .text-slate-700 { color: #CBD5E1 !important; }
+        body.dark .text-slate-500 { color: #64748B !important; }
+        body.dark .border-\[\#E8EDF5\] { border-color: rgba(255,255,255,.07) !important; }
+        body.dark .border-\[\#E2E8F0\] { border-color: rgba(255,255,255,.07) !important; }
+        body.dark .divide-\[\#E8EDF5\] > * + * { border-color: rgba(255,255,255,.06) !important; }
+        body.dark .text-\[\#1C1C1E\] { color: #E2E8F0 !important; }
+        body.dark .text-\[\#8E8E93\] { color: #6B7280 !important; }
+
+        /* Theme toggle */
+        .theme-toggle {
+            width: 36px; height: 36px; border-radius: 10px;
+            display: inline-flex; align-items: center; justify-content: center;
+            background: #F1F5F9; color: #475569;
+            border: none; cursor: pointer; transition: all .15s; flex-shrink: 0;
+        }
+        .theme-toggle:hover { background: #E2E8F0; }
+        body.dark .theme-toggle { background: #0F172A; color: #94A3B8; }
+        .theme-toggle .icon-sun { display: none; }
+        .theme-toggle .icon-moon { display: block; }
+        body.dark .theme-toggle .icon-sun { display: block; }
+        body.dark .theme-toggle .icon-moon { display: none; }
+
+        /* Mobile responsive */
+        @media (max-width: 1023px) {
+            #sidebar {
+                position: fixed; left: 0; top: 0; height: 100%;
+                transform: translateX(-100%);
+                width: 280px; min-width: 280px;
+                z-index: 101;
+                transition: transform .28s cubic-bezier(.4,0,.2,1);
+            }
+            #sidebar.is-open { transform: translateX(0); }
+            #sidebar.collapsed { transform: translateX(-100%); }
+            .main-wrapper { margin-left: 0 !important; }
+            .bottom-tabs { display: flex; }
+            .page-inner { padding: 16px; padding-bottom: 78px; }
+        }
+
+        /* ── LeehExchange operations console skin ── */
+        :root {
+            --lx-ink: #0B1736;
+            --lx-muted: #65728A;
+            --lx-soft: #F5F8FC;
+            --lx-line: #E3EAF3;
+            --lx-blue: #1769E0;
+            --lx-blue-dark: #0B2A66;
+            --lx-blue-soft: #EAF2FF;
+        }
+        body {
+            font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--lx-ink);
+            background: var(--lx-soft);
+        }
+        #sidebar {
+            width: 264px;
+            min-width: 264px;
+            background: var(--lx-blue-dark);
+            border-right-color: rgba(255,255,255,.10);
+        }
+        #sidebar.collapsed { width: 0; min-width: 0; }
+        #sidebar > div:first-child {
+            border-bottom-color: rgba(255,255,255,.12) !important;
+            padding: 18px 17px !important;
+        }
+        #sidebar > div:first-child .text-\[\#1E293B\] {
+            color: #fff !important;
+            font-family: "Manrope", sans-serif;
+            letter-spacing: -.03em;
+        }
+        #sidebar > div:first-child .text-\[\#94A3B8\] { color: #A9C9F8 !important; }
+        .sidebar-body { padding: 13px 11px; }
+        .sidebar-footer { padding: 12px; }
+        .nav-lbl {
+            color: rgba(255,255,255,.42);
+            padding: 16px 10px 5px;
+            letter-spacing: .14em;
+        }
+        .nav-item {
+            color: rgba(255,255,255,.68);
+            border-radius: 7px;
+            padding: 9px 10px;
+            font-weight: 700;
+        }
+        .nav-item:hover { background: rgba(255,255,255,.09); color: #fff; }
+        .nav-item.active {
+            background: var(--lx-blue);
+            color: #fff;
+            box-shadow: 0 8px 18px rgba(0,0,0,.16);
+        }
+        .nav-badge { background: #F05D67; }
+        .main-wrapper { background: var(--lx-soft); }
+        .topbar {
+            height: 72px;
+            background: rgba(255,255,255,.92);
+            border-bottom-color: var(--lx-line);
+            padding: 0 24px;
+            backdrop-filter: blur(16px);
+        }
+        .topbar > #sidebar-toggle {
+            border: 1px solid var(--lx-line);
+            background: var(--lx-soft);
+        }
+        .topbar > #sidebar-toggle:hover,
+        .topbar a:hover,
+        .topbar button:hover { background: var(--lx-blue-soft) !important; }
+        .topbar .text-\[\#475569\] { color: var(--lx-muted) !important; }
+        .topbar .text-\[\#1E293B\] { color: var(--lx-ink) !important; }
+        .topbar input { font-family: "DM Sans", sans-serif; }
+        .page-scroll { background: var(--lx-soft); }
+        .page-inner { padding: 30px; }
+        .card-premium {
+            border: 1px solid var(--lx-line);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(11,42,102,.06);
+        }
+        .card-premium:hover { box-shadow: 0 12px 30px rgba(11,42,102,.09); }
+        .btn-primary { background: var(--lx-blue); border-radius: 8px; }
+        .btn-primary:hover { background: #0D55C0; }
+        .input-premium {
+            background: #fff;
+            border-color: var(--lx-line);
+            border-radius: 8px;
+        }
+        .input-premium:focus { border-color: var(--lx-blue); }
+        .bottom-tabs {
+            background: rgba(255,255,255,.96);
+            border-top-color: var(--lx-line);
+            backdrop-filter: blur(16px);
+        }
+        .tab-btn.active { color: var(--lx-blue); }
+        .more-item:hover, .more-item:active { background: var(--lx-blue-soft); }
+        .sidebar-footer > div {
+            background: linear-gradient(145deg, #174A9C, #0B2A66) !important;
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 10px !important;
+        }
+        .sidebar-footer .text-\[15px\] { display: none; }
+        .sidebar-footer button {
+            background: #fff !important;
+            color: var(--lx-blue-dark) !important;
+            border-radius: 7px !important;
+        }
+        #sidebar-overlay { background: rgba(7,26,66,.42); }
+        body.dark #sidebar { background: #071A42; }
+        body.dark .main-wrapper, body.dark .page-scroll { background: #071A42; }
+        body.dark .topbar { background: rgba(11,42,102,.94); border-color: rgba(255,255,255,.12); }
+        body.dark .card-premium { border-color: rgba(255,255,255,.10); }
+        @media (max-width: 1023px) {
+            #sidebar { width: 286px; min-width: 286px; }
+            .page-inner { padding: 18px 16px 82px; }
+            .topbar { height: 62px; padding: 0 14px; }
+        }
+    </style>
+    <script>
+        (function() {
+            try {
+                const t = localStorage.getItem('leeh-theme') || 'light';
+                if (t === 'dark') document.documentElement.classList.add('dark-pre');
+            } catch(e) {}
+        })();
+    </script>
+    <style>
+        html.dark-pre body { background: #0F172A; }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin-responsive.css') }}">
+</head>
+<body>
+
+<div class="app-shell">
+
+    <!-- ══════════════════════════════════════════════
+         SIDEBAR
+    ══════════════════════════════════════════════ -->
+    <aside id="sidebar">
+        <!-- Logo header -->
+        <div class="flex items-center gap-2.5 px-4 py-3.5 border-b border-[#E8EDF5] flex-shrink-0">
+            <img src="/static/leeh_icon.png" class="w-8 h-8 rounded-xl object-contain" alt="LeehExchange">
+            <div class="min-w-0 flex-1">
+                <div class="font-black text-[13px] text-[#1E293B] leading-tight">LeehExchange</div>
+                <div class="text-[10px] text-[#94A3B8] font-medium leading-tight">Smart Exchange. Real Value.</div>
+            </div>
+        </div>
+
+        <!-- Scrollable nav -->
+        <div class="sidebar-body">
+
+            <!-- Core -->
+            <div class="nav-lbl">Core</div>
+
+            {% if is_super_admin %}
+            <a href="/dashboard" class="nav-item {% if request.path == '/dashboard' %}active{% endif %}">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/>
+                </svg>
+                Dashboard
+            </a>
+            {% endif %}
+
+            {% if is_super_admin or 'transactions' in admin_permissions or 'transactions_view' in admin_permissions %}
+            <a href="/transactions" class="nav-item {% if request.path == '/transactions' %}active{% endif %}">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
+                </svg>
+                Transactions
+            </a>
+            {% endif %}
+
+            {% if is_super_admin or 'transactions' in admin_permissions or 'transactions_view' in admin_permissions %}
+            <a href="/crypto-orders" class="nav-item {% if request.path == '/crypto-orders' %}active{% endif %}">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/>
+                </svg>
+                Crypto Orders
+            </a>
+            {% endif %}
+
+            {% if is_super_admin or 'giveaway' in admin_permissions or 'giveaway_view' in admin_permissions %}
+            <a href="/gift-card-orders" class="nav-item {% if request.path == '/gift-card-orders' %}active{% endif %}">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1014.625 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 119.375 7.5H12m0 0H7.875m4.125 0h2.25M7.875 7.5a1.5 1.5 0 00-1.5 1.5v1.5m-1.5-3H5.25m0 0H3.75a1.5 1.5 0 00-1.5 1.5v1.5m14.25-3H18m0 0h1.5a1.5 1.5 0 011.5 1.5v1.5m-3-3v3m-12 0v-3"/>
+                </svg>
+                Gift Card Orders
+            </a>
+            {% endif %}
+
+            {% if is_super_admin or 'transactions' in admin_permissions %}
+            <a href="/bank-withdrawals" class="nav-item {% if request.path == '/bank-withdrawals' %}active{% endif %}">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"/>
+                </svg>
+                Bank Withdrawals
+            </a>
+            {% endif %}
+
+            {% if is_super_admin or 'users' in admin_permissions %}
+            <a href="/users" class="nav-item {% if request.path == '/users' %}active{% endif %}">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>
+                </svg>
+                Users
+            </a>
+            {% endif %}
+
+            <!-- Services -->
+            <div class="nav-lbl">Services</div>
+
+            {% if is_super_admin %}
+            <a href="/telegram-bot-admin" class="nav-item {% if request.path == '/telegram-bot-admin' %}active{% endif %}">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/>
+                </svg>
+                Telegram Bot
+            </a>
+            {% endif %}
+
+            {% if is_super_admin %}
+            <a href="/payment-gateway" class="nav-item {% if request.path == '/payment-gateway' %}active{% endif %}">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/>
+                </svg>
+                Payment Gateway
+            </a>
+            {% endif %}
+
+            {% if is_super_admin %}
+            <a href="/chat" class="nav-item {% if request.path == '/chat' %}active{% endif %}">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z"/>
+                </svg>
+                Venora AI
+            </a>
+            {% endif %}
+
+            {% if is_super_admin %}
+            <a href="/venora-mini-chat" class="nav-item {% if request.path == '/venora-mini-chat' %}active{% endif %}">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/>
+                </svg>
+                Venora Mini
+            </a>
+            {% endif %}
+
+            {% if is_super_admin %}
+            <a href="/venora-flash-chat" class="nav-item {% if request.path == '/venora-flash-chat' %}active{% endif %}">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>
+                </svg>
+                Venora Flash
+            </a>
+            {% endif %}
+
+            {% if is_super_admin %}
+            <a href="/developers" target="_blank" class="nav-item">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/>
+                </svg>
+                Developers
+            </a>
+            {% endif %}
+
+            <!-- Management -->
+            <div class="nav-lbl">Management</div>
+
+            {% if is_super_admin or 'emails' in admin_permissions %}
+            <a href="/emails" class="nav-item {% if request.path == '/emails' %}active{% endif %}">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/>
+                </svg>
+                Emails
+            </a>
+            {% endif %}
+
+            {% if is_super_admin or 'rates' in admin_permissions %}
+            <a href="/analytics" class="nav-item {% if request.path == '/analytics' %}active{% endif %}">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+                </svg>
+                Analytics
+            </a>
+            {% endif %}
+
+            {% if is_super_admin %}
+            <a href="/support-tickets" class="nav-item {% if request.path == '/support-tickets' %}active{% endif %}">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z"/>
+                </svg>
+                Support Tickets
+            </a>
+            {% endif %}
+
+            {% if is_super_admin %}
+            <a href="/notifications" class="nav-item {% if request.path == '/notifications' %}active{% endif %}">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
+                </svg>
+                Notifications
+                {% if notification_count and notification_count > 0 %}<span class="nav-badge">{{ notification_count }}</span>{% endif %}
+            </a>
+            {% endif %}
+
+            <!-- Account -->
+            <div class="nav-lbl">Account</div>
+
+            {% if is_super_admin %}
+            <a href="/settings" class="nav-item {% if request.path == '/settings' %}active{% endif %}">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+                Settings
+            </a>
+            {% endif %}
+
+            <a href="/logout" class="nav-item" style="color:#EF4444;">
+                <svg class="nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/>
+                </svg>
+                Logout
+            </a>
+        </div>
+
+        <!-- Pro Upgrade Card -->
+        <div class="sidebar-footer">
+            <div style="background:linear-gradient(135deg,#1E3A5F,#0F172A)" class="rounded-2xl p-4">
+                <div class="flex items-center gap-1.5 mb-1">
+                    <span class="text-[15px]">👑</span>
+                    <span class="text-white font-black text-[12px]">LeehExchange Pro</span>
+                </div>
+                <p class="text-white/55 text-[10.5px] leading-snug mb-3">Unlock premium features and advanced analytics.</p>
+                <button class="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white text-[11px] font-bold py-2 rounded-xl transition-colors">Upgrade Now</button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Sidebar overlay -->
+    <div id="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <!-- ══════════════════════════════════════════════
+         MAIN WRAPPER
+    ══════════════════════════════════════════════ -->
+    <div class="main-wrapper" id="main-wrapper">
+
+        <!-- TOP BAR -->
+        <header class="topbar">
+            <button id="sidebar-toggle" onclick="toggleSidebar()" class="w-9 h-9 rounded-xl flex items-center justify-center hover:bg-[#F1F5F9] transition-colors flex-shrink-0">
+                <svg class="w-5 h-5 text-[#475569]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/>
+                </svg>
+            </button>
+
+            <!-- Mobile logo -->
+            <div class="flex lg:hidden items-center gap-2 flex-shrink-0">
+                <img src="/static/leeh_icon.png" class="w-7 h-7 rounded-lg object-contain" alt="">
+                <span class="font-black text-[13px] text-[#1E293B]">LeehExchange</span>
+            </div>
+
+            <!-- Desktop search -->
+            <div class="hidden lg:flex flex-1 max-w-sm items-center gap-2 px-3 py-2 bg-[#F1F5F9] rounded-xl border border-[#E2E8F0]">
+                <svg class="w-4 h-4 text-[#94A3B8] flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/>
+                </svg>
+                <input type="text" placeholder="Search anything..." class="flex-1 bg-transparent outline-none text-[13px] text-[#1E293B] placeholder-[#94A3B8]">
+                <span class="text-[10px] text-[#94A3B8] font-semibold bg-white border border-[#E2E8F0] rounded px-1.5 py-0.5">⌘K</span>
+            </div>
+
+            <div class="flex-1"></div>
+
+            <div class="flex items-center gap-1.5">
+                <!-- Notifications -->
+                {% if is_super_admin %}
+                <a href="/notifications" class="relative w-9 h-9 rounded-xl flex items-center justify-center hover:bg-[#F1F5F9] transition-colors">
+                    <svg class="w-5 h-5 text-[#475569]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/>
+                    </svg>
+                    {% if notification_count and notification_count > 0 %}
+                    <span class="absolute -top-0.5 -right-0.5 bg-[#EF4444] text-white text-[9px] font-black rounded-full flex items-center justify-center leading-none" style="min-width:16px;height:16px;padding:0 4px">{{ notification_count }}</span>
+                    {% endif %}
+                </a>
+                {% endif %}
+
+                <!-- Fullscreen (desktop) -->
+                <button onclick="toggleFullscreen()" class="hidden lg:flex w-9 h-9 rounded-xl items-center justify-center hover:bg-[#F1F5F9] transition-colors">
+                    <svg class="w-4.5 h-4.5 text-[#475569]" style="width:18px;height:18px" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"/>
+                    </svg>
+                </button>
+
+                <!-- Theme toggle (desktop) -->
+                <button data-theme-toggle class="theme-toggle hidden lg:inline-flex">
+                    <svg class="icon-moon" style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/>
+                    </svg>
+                    <svg class="icon-sun" style="width:16px;height:16px" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v2.25m6.364.386l-1.591 1.591M21 12h-2.25m-.386 6.364l-1.591-1.591M12 18.75V21m-4.773-4.227l-1.591 1.591M5.25 12H3m4.227-4.773L5.636 5.636M15.75 12a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0z"/>
+                    </svg>
+                </button>
+
+                <!-- User chip -->
+                <div class="flex items-center gap-2 pl-1.5 ml-1 cursor-pointer">
+                    <div class="w-8 h-8 bg-[#2563EB] rounded-full flex items-center justify-center text-white font-black text-[12px] flex-shrink-0">
+                        {{ (current_admin_name or 'A')[0]|upper }}
+                    </div>
+                    <div class="hidden lg:block">
+                        <div class="text-[12px] font-bold text-[#1E293B] leading-tight">{{ current_admin_name }}</div>
+                        <div class="text-[10px] text-[#64748B] leading-tight">{{ admin_role_label }}</div>
+                    </div>
+                    <svg class="w-3.5 h-3.5 text-[#94A3B8] hidden lg:block" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
+                    </svg>
+                </div>
+            </div>
+        </header>
+
+        <!-- PAGE CONTENT -->
+        <main class="page-scroll">
+            <div class="page-inner">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     MOBILE BOTTOM TAB BAR
+══════════════════════════════════════════════ -->
+<nav class="bottom-tabs">
+    {% if is_super_admin %}
+    <a href="/dashboard" class="tab-btn {% if request.path == '/dashboard' %}active{% endif %}">
+        <svg fill="none" stroke="currentColor" stroke-width="{% if request.path == '/dashboard' %}2.5{% else %}1.75{% endif %}" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/>
+        </svg>
+        Dashboard
+    </a>
+    {% endif %}
+    {% if is_super_admin or 'transactions' in admin_permissions or 'transactions_view' in admin_permissions %}
+    <a href="/transactions" class="tab-btn {% if request.path == '/transactions' %}active{% endif %}">
+        <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12M3.75 6.75h.007v.008H3.75V6.75zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zM3.75 12h.007v.008H3.75V12zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm-.375 5.25h.007v.008H3.75v-.008zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
+        </svg>
+        Transactions
+    </a>
+    {% endif %}
+    {% if is_super_admin or 'transactions' in admin_permissions or 'transactions_view' in admin_permissions %}
+    <a href="/crypto-orders" class="tab-btn {% if request.path in ['/crypto-orders','/gift-card-orders','/bank-withdrawals'] %}active{% endif %}">
+        <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"/>
+        </svg>
+        Orders
+    </a>
+    {% endif %}
+    {% if is_super_admin or 'users' in admin_permissions %}
+    <a href="/users" class="tab-btn {% if request.path == '/users' %}active{% endif %}">
+        <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>
+        </svg>
+        Users
+    </a>
+    {% endif %}
+    <button class="tab-btn" onclick="toggleMoreMenu()">
+        <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM12.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0zM18.75 12a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/>
+        </svg>
+        More
+    </button>
+</nav>
+
+<!-- More menu sheet (mobile) -->
+<div id="more-menu">
+    <div class="grid grid-cols-4 gap-1">
+        {% if is_super_admin %}
+        <a href="/telegram-bot-admin" class="more-item">
+            <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5"/></svg>
+            Telegram
+        </a>
+        {% endif %}
+        {% if is_super_admin %}
+        <a href="/chat" class="more-item">
+            <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+            Venora AI
+        </a>
+        <a href="/venora-mini-chat" class="more-item">
+            <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+            V. Mini
+        </a>
+        <a href="/venora-flash-chat" class="more-item">
+            <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+            V. Flash
+        </a>
+        {% endif %}
+        {% if is_super_admin or 'emails' in admin_permissions %}
+        <a href="/emails" class="more-item">
+            <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+            Emails
+        </a>
+        {% endif %}
+        {% if is_super_admin or 'rates' in admin_permissions %}
+        <a href="/analytics" class="more-item">
+            <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+            Analytics
+        </a>
+        {% endif %}
+        {% if is_super_admin %}
+        <a href="/notifications" class="more-item">
+            <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>
+            Notifications
+        </a>
+        <a href="/support-tickets" class="more-item">
+            <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z"/></svg>
+            Tickets
+        </a>
+        <a href="/settings" class="more-item">
+            <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            Settings
+        </a>
+        {% endif %}
+        <a href="/logout" class="more-item" style="color:#EF4444">
+            <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15M12 9l-3 3m0 0l3 3m-3-3h12.75"/></svg>
+            Logout
+        </a>
+    </div>
+</div>
+
+{% block scripts %}{% endblock %}
+
+<!-- ══════════════════════════════════════════════
+     VENORA MINI — In-dashboard AI assistant
+══════════════════════════════════════════════ -->
+{% if is_super_admin %}
+<style>
+    #vm-btn {
+        position: fixed; bottom: 24px; right: 24px; z-index: 9000;
+        height: 50px; padding: 0 20px 0 16px; border-radius: 100px;
+        background: linear-gradient(135deg, #8B5CF6, #2563EB);
+        border: none; cursor: pointer;
+        display: flex; align-items: center; gap: 9px;
+        box-shadow: 0 8px 32px rgba(139,92,246,.45), 0 2px 8px rgba(0,0,0,.1);
+        transition: all .3s cubic-bezier(.34,1.56,.64,1);
+        animation: vm-pulse 3s ease-in-out infinite;
+        white-space: nowrap;
+    }
+    #vm-btn:hover { transform: translateY(-3px); box-shadow: 0 14px 48px rgba(139,92,246,.65); animation: none; }
+    #vm-btn.open { transform: scale(0.95); animation: none; }
+    @keyframes vm-pulse { 0%,100%{ box-shadow:0 8px 32px rgba(139,92,246,.45) } 50%{ box-shadow:0 12px 52px rgba(139,92,246,.7) } }
+    .vm-btn-icon { width: 30px; height: 30px; background: rgba(255,255,255,.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .vm-btn-label { font-size: 13px; font-weight: 800; color: #fff; letter-spacing: -.2px; }
+    .vm-btn-sub { font-size: 10px; font-weight: 600; color: rgba(255,255,255,.75); }
+    .vm-btn-text { display: flex; flex-direction: column; }
+    .vm-ico { width: 16px; height: 16px; transition: all .3s; }
+    .vm-ico-open { display: none; }
+    #vm-btn.open .vm-ico-close { display: none; }
+    #vm-btn.open .vm-ico-open { display: block; }
+    .vm-notif { position: absolute; top: -4px; right: -4px; width: 13px; height: 13px; border-radius: 50%; background: #EF4444; border: 2px solid #fff; animation: vm-b .6s ease infinite alternate; }
+    @keyframes vm-b { from{transform:scale(1)} to{transform:scale(1.2)} }
+    #vm-panel {
+        position: fixed; bottom: 100px; right: 28px; z-index: 8999;
+        width: 380px; max-width: calc(100vw - 40px);
+        height: 540px; max-height: calc(100vh - 140px);
+        background: #fff; border-radius: 20px;
+        border: 1px solid rgba(0,0,0,.08);
+        box-shadow: 0 24px 80px rgba(0,0,0,.2);
+        display: flex; flex-direction: column;
+        transform: scale(.9) translateY(20px); opacity: 0; pointer-events: none;
+        transition: all .35s cubic-bezier(.34,1.56,.64,1);
+        overflow: hidden;
+    }
+    #vm-panel.open { transform: scale(1) translateY(0); opacity: 1; pointer-events: all; }
+    .vm-header { padding: 14px 16px; background: linear-gradient(135deg,#8B5CF6,#2563EB); display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+    .vm-avatar { width: 34px; height: 34px; border-radius: 10px; background: rgba(255,255,255,.2); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+    .vm-header-info { flex: 1; min-width: 0; }
+    .vm-header-name { font-size: 13px; font-weight: 800; color: #fff; }
+    .vm-header-sub { font-size: 10px; color: rgba(255,255,255,.7); display: flex; align-items: center; gap: 4px; }
+    .vm-online-dot { width: 5px; height: 5px; background: #34D399; border-radius: 50%; }
+    .vm-clear-btn { background: rgba(255,255,255,.15); border: none; border-radius: 7px; padding: 5px 9px; font-size: 10px; font-weight: 700; color: rgba(255,255,255,.8); cursor: pointer; }
+    .vm-clear-btn:hover { background: rgba(255,255,255,.25); color: #fff; }
+    .vm-messages { flex: 1; overflow-y: auto; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #F8F9FF; }
+    .vm-messages::-webkit-scrollbar { width: 3px; }
+    .vm-messages::-webkit-scrollbar-thumb { background: rgba(0,0,0,.1); border-radius: 99px; }
+    .vm-msg { display: flex; gap: 7px; max-width: 100%; }
+    .vm-msg.user { flex-direction: row-reverse; }
+    .vm-msg-avatar { width: 26px; height: 26px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+    .vm-msg.bot .vm-msg-avatar { background: linear-gradient(135deg,#8B5CF6,#2563EB); }
+    .vm-msg.user .vm-msg-avatar { background: rgba(37,99,235,.12); }
+    .vm-bubble { padding: 9px 13px; border-radius: 14px; font-size: 12.5px; line-height: 1.55; max-width: calc(100% - 40px); word-wrap: break-word; }
+    .vm-msg.bot .vm-bubble { background: #fff; color: #1E293B; border: 1px solid rgba(0,0,0,.07); border-bottom-left-radius: 4px; box-shadow: 0 2px 6px rgba(0,0,0,.05); }
+    .vm-msg.user .vm-bubble { background: linear-gradient(135deg,#2563EB,#1D4ED8); color: #fff; border-bottom-right-radius: 4px; }
+    .vm-bubble strong { font-weight: 800; }
+    .vm-bubble code { background: rgba(0,0,0,.07); padding: 1px 5px; border-radius: 3px; font-family: monospace; font-size: 11px; }
+    .vm-typing { display: flex; gap: 3px; align-items: center; padding: 9px 13px; background: #fff; border: 1px solid rgba(0,0,0,.07); border-radius: 14px; border-bottom-left-radius: 4px; width: fit-content; }
+    .vm-typing span { width: 6px; height: 6px; background: rgba(0,0,0,.25); border-radius: 50%; animation: vm-t .9s ease-in-out infinite; }
+    .vm-typing span:nth-child(2) { animation-delay: .15s; }
+    .vm-typing span:nth-child(3) { animation-delay: .3s; }
+    @keyframes vm-t { 0%,80%,100%{transform:scale(1);opacity:.35} 40%{transform:scale(1.3);opacity:1} }
+    .vm-suggestions { padding: 8px 12px 5px; display: flex; gap: 5px; flex-wrap: wrap; flex-shrink: 0; border-top: 1px solid rgba(0,0,0,.05); background: #fff; }
+    .vm-sug { padding: 5px 10px; background: rgba(139,92,246,.08); border: 1px solid rgba(139,92,246,.15); border-radius: 100px; font-size: 10.5px; font-weight: 700; color: #8B5CF6; cursor: pointer; transition: all .15s; white-space: nowrap; }
+    .vm-sug:hover { background: rgba(139,92,246,.15); }
+    .vm-input-row { padding: 10px 12px; display: flex; gap: 7px; align-items: center; border-top: 1px solid rgba(0,0,0,.06); background: #fff; flex-shrink: 0; }
+    #vm-input { flex: 1; background: #F5F7FF; border: 1.5px solid rgba(0,0,0,.07); border-radius: 10px; padding: 8px 12px; font-size: 12.5px; color: #1E293B; outline: none; font-family: inherit; transition: border-color .15s; resize: none; max-height: 80px; }
+    #vm-input:focus { border-color: #8B5CF6; box-shadow: 0 0 0 3px rgba(139,92,246,.1); }
+    #vm-input::placeholder { color: rgba(0,0,0,.28); }
+    #vm-send { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg,#8B5CF6,#2563EB); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; flex-shrink: 0; }
+    #vm-send:hover { transform: scale(1.06); }
+    #vm-send:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    #vm-send svg { width: 16px; height: 16px; fill: #fff; }
+    @media(max-width:1023px) {
+        #vm-btn { bottom: 76px; right: 16px; }
+        #vm-panel { right: 12px; bottom: 148px; width: calc(100vw - 24px); }
+    }
+</style>
+<button id="vm-btn" aria-label="Venora Mini">
+    <div class="vm-notif"></div>
+    <div class="vm-btn-icon">
+        <svg class="vm-ico vm-ico-close" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+        <svg class="vm-ico vm-ico-open" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </div>
+    <div class="vm-btn-text">
+        <span class="vm-btn-label">Venora Mini</span>
+        <span class="vm-btn-sub">Dashboard AI</span>
+    </div>
+</button>
+<div id="vm-panel">
+    <div class="vm-header">
+        <div class="vm-avatar">✦</div>
+        <div class="vm-header-info">
+            <div class="vm-header-name">Venora Mini</div>
+            <div class="vm-header-sub"><span class="vm-online-dot"></span> Online · Dashboard AI</div>
+        </div>
+        <button class="vm-clear-btn" id="vm-clear">Clear</button>
+    </div>
+    <div class="vm-messages" id="vm-messages">
+        <div class="vm-msg bot">
+            <div class="vm-msg-avatar">✦</div>
+            <div class="vm-bubble">Hi! I'm <strong>Venora Mini</strong> 👋<br>Ask me anything about the LEEH Exchange admin — approving orders, managing team, crypto rates, or any section.<br><br>How can I help?</div>
+        </div>
+    </div>
+    <div class="vm-suggestions" id="vm-suggestions">
+        <button class="vm-sug" data-q="How do I approve a transaction?">Approve order</button>
+        <button class="vm-sug" data-q="How do I add a team member?">Add team admin</button>
+        <button class="vm-sug" data-q="How do I transfer admin ownership?">Transfer ownership</button>
+        <button class="vm-sug" data-q="What does the dashboard show?">Dashboard overview</button>
+    </div>
+    <div class="vm-input-row">
+        <textarea id="vm-input" placeholder="Ask anything about the dashboard…" rows="1"></textarea>
+        <button id="vm-send"><svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg></button>
+    </div>
+</div>
+
+<script>
+// ── Sidebar ──
+function toggleSidebar() {
+    const s = document.getElementById('sidebar');
+    const o = document.getElementById('sidebar-overlay');
+    if (window.innerWidth >= 1024) {
+        s.classList.toggle('collapsed');
+    } else {
+        s.classList.toggle('is-open');
+        o.classList.toggle('active');
+    }
+}
+function closeSidebar() {
+    document.getElementById('sidebar').classList.remove('is-open');
+    document.getElementById('sidebar-overlay').classList.remove('active');
+}
+
+// ── More menu ──
+function toggleMoreMenu() {
+    document.getElementById('more-menu').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+    const m = document.getElementById('more-menu');
+    if (m && !m.contains(e.target) && !e.target.closest('[onclick="toggleMoreMenu()"]')) {
+        m.classList.remove('open');
+    }
+});
+
+// ── Fullscreen ──
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(function(){});
+    } else { document.exitFullscreen(); }
+}
+
+// ── Session validity poll ──
+(function() {
+    var isSA = {{ 'true' if session.get('is_super_admin', True) else 'false' }};
+    if (!isSA) {
+        setInterval(function() {
+            fetch('/api/check-session').then(function(r){return r.json();}).then(function(d){
+                if (!d.valid) window.location.href = '/login';
+            }).catch(function(){});
+        }, 8000);
+    }
+})();
+
+// ── Theme toggle ──
+(function() {
+    function applyTheme(t) {
+        document.body.classList.toggle('dark', t === 'dark');
+    }
+    var saved = 'light';
+    try { saved = localStorage.getItem('leeh-theme') || 'light'; } catch(e) {}
+    applyTheme(saved);
+    document.querySelectorAll('[data-theme-toggle]').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            var next = document.body.classList.contains('dark') ? 'light' : 'dark';
+            try { localStorage.setItem('leeh-theme', next); } catch(e) {}
+            applyTheme(next);
+        });
+    });
+})();
+
+// ── Venora Mini ──
+(function() {
+    var btn = document.getElementById('vm-btn');
+    var panel = document.getElementById('vm-panel');
+    var msgs = document.getElementById('vm-messages');
+    var input = document.getElementById('vm-input');
+    var sendBtn = document.getElementById('vm-send');
+    var clearBtn = document.getElementById('vm-clear');
+    var isOpen = false, isTyping = false;
+
+    function toggle() {
+        isOpen = !isOpen;
+        btn.classList.toggle('open', isOpen);
+        panel.classList.toggle('open', isOpen);
+        if (isOpen) {
+            btn.querySelector('.vm-notif').style.display = 'none';
+            setTimeout(function(){input.focus();}, 300);
+            scrollBottom();
+        }
+    }
+    btn.addEventListener('click', toggle);
+    document.addEventListener('click', function(e) {
+        if (isOpen && !panel.contains(e.target) && e.target !== btn && !btn.contains(e.target)) {
+            isOpen = false; btn.classList.remove('open'); panel.classList.remove('open');
+        }
+    });
+    clearBtn.addEventListener('click', function() {
+        msgs.innerHTML = '';
+        addMsg('bot', 'Chat cleared! How can I help? 😊');
+    });
+    document.getElementById('vm-suggestions').addEventListener('click', function(e) {
+        var s = e.target.closest('.vm-sug');
+        if (!s) return;
+        input.value = s.dataset.q;
+        send();
+    });
+    sendBtn.addEventListener('click', send);
+    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+    });
+    input.addEventListener('input', function() {
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 80) + 'px';
+    });
+
+    function addMsg(role, text) {
+        var w = document.createElement('div'); w.className = 'vm-msg ' + role;
+        var av = document.createElement('div'); av.className = 'vm-msg-avatar';
+        av.textContent = role === 'bot' ? '✦' : '👤';
+        var b = document.createElement('div'); b.className = 'vm-bubble';
+        b.innerHTML = text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/`(.*?)`/g,'<code>$1</code>').replace(/\n/g,'<br>');
+        w.appendChild(av); w.appendChild(b); msgs.appendChild(w);
+        scrollBottom(); return w;
+    }
+    function scrollBottom() { requestAnimationFrame(function(){ msgs.scrollTop = msgs.scrollHeight; }); }
+    function showTyping() {
+        var w = document.createElement('div'); w.className = 'vm-msg bot'; w.id = 'vm-tw';
+        var av = document.createElement('div'); av.className = 'vm-msg-avatar'; av.textContent = '✦';
+        var t = document.createElement('div'); t.className = 'vm-typing';
+        t.innerHTML = '<span></span><span></span><span></span>';
+        w.appendChild(av); w.appendChild(t); msgs.appendChild(w); scrollBottom();
+    }
+    function removeTyping() { var t = document.getElementById('vm-tw'); if (t) t.remove(); }
+
+    async function send() {
+        var text = input.value.trim();
+        if (!text || isTyping) return;
+        input.value = ''; input.style.height = 'auto';
+        isTyping = true; sendBtn.disabled = true;
+        addMsg('user', text); showTyping();
+        try {
+            var r = await fetch('/api/venora-mini', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({message:text}) });
+            var d = await r.json();
+            removeTyping();
+            await new Promise(function(res){setTimeout(res, 250);});
+            addMsg('bot', d.response || "I'm having trouble right now. Please try again.");
+        } catch(err) {
+            removeTyping();
+            addMsg('bot', 'Connection error. Please try again.');
+        } finally {
+            isTyping = false; sendBtn.disabled = false; input.focus();
+        }
+    }
+})();
+</script>
+{% endif %}
+</body>
+</html>

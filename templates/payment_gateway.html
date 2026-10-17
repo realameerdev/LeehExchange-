@@ -1,0 +1,341 @@
+{% extends "base.html" %}
+{% block title %}Payment Gateway | LEEH Exchange{% endblock %}
+{% block content %}
+<div class="animate-reveal space-y-5">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+            <h1 class="text-xl font-black text-[#1E293B]">Payment Gateway</h1>
+            <p class="text-[13px] text-[#64748B] mt-0.5">Manage bank details and crypto wallet addresses — changes reflect in the bot</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <span id="save-indicator" class="hidden text-[12px] text-[#10B981] font-semibold flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Saved
+            </span>
+        </div>
+    </div>
+
+    <!-- Status Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="card-premium p-4 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-[#D1FAE5] flex items-center justify-center flex-shrink-0">
+                <svg class="w-4.5 h-4.5 text-[#10B981]" style="width:18px;height:18px" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+                <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">Crypto Gateway</p>
+                <p class="text-[13px] font-black text-[#10B981]">Operational</p>
+            </div>
+        </div>
+        <div class="card-premium p-4 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-[#D1FAE5] flex items-center justify-center flex-shrink-0">
+                <svg class="w-4.5 h-4.5 text-[#10B981]" style="width:18px;height:18px" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"/></svg>
+            </div>
+            <div>
+                <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">Bank Transfer</p>
+                <p class="text-[13px] font-black text-[#10B981]">Operational</p>
+            </div>
+        </div>
+        <div class="card-premium p-4 flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-[#D1FAE5] flex items-center justify-center flex-shrink-0">
+                <svg class="w-4.5 h-4.5 text-[#10B981]" style="width:18px;height:18px" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 006 3.75v16.5a2.25 2.25 0 002.25 2.25h7.5A2.25 2.25 0 0018 20.25V3.75a2.25 2.25 0 00-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 8.25h3m-3 3.75h3m-3 3.75h3"/></svg>
+            </div>
+            <div>
+                <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">VTpass (Airtime/Data)</p>
+                <p class="text-[13px] font-black text-[#10B981]">Operational</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ BANK DETAILS ═══ -->
+    <div class="card-premium p-5">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-[#EFF6FF] flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-[#2563EB]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0012 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75z"/></svg>
+                </div>
+                <div>
+                    <h2 class="text-[15px] font-black text-[#1E293B]">Bank Account Details</h2>
+                    <p class="text-[11px] text-[#64748B]">Shown to users making NGN transfers</p>
+                </div>
+            </div>
+            <button onclick="toggleBankEdit()" id="bank-edit-btn" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#EFF6FF] text-[#2563EB] text-[12px] font-bold hover:bg-[#DBEAFE] transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>
+                Edit
+            </button>
+        </div>
+
+        <!-- Display mode -->
+        <div id="bank-display" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                <p class="text-[10.5px] font-semibold text-[#94A3B8] uppercase tracking-wide mb-1">Bank Name</p>
+                <p class="text-[14px] font-black text-[#1E293B]" id="disp-bank-name">{{ payment_config.bank.bank_name }}</p>
+            </div>
+            <div class="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                <p class="text-[10.5px] font-semibold text-[#94A3B8] uppercase tracking-wide mb-1">Account Number</p>
+                <p class="text-[14px] font-black text-[#1E293B] font-mono" id="disp-account-number">{{ payment_config.bank.account_number }}</p>
+            </div>
+            <div class="p-3 rounded-xl bg-[#F8FAFC] border border-[#E2E8F0]">
+                <p class="text-[10.5px] font-semibold text-[#94A3B8] uppercase tracking-wide mb-1">Account Name</p>
+                <p class="text-[14px] font-black text-[#1E293B]" id="disp-account-name">{{ payment_config.bank.account_name }}</p>
+            </div>
+        </div>
+
+        <!-- Edit mode (hidden) -->
+        <div id="bank-edit" class="hidden space-y-3">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-[11px] font-bold text-[#475569] mb-1.5">Bank Name</label>
+                    <input id="edit-bank-name" type="text" class="input-premium" value="{{ payment_config.bank.bank_name }}" placeholder="e.g. Opay">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-[#475569] mb-1.5">Account Number</label>
+                    <input id="edit-account-number" type="text" class="input-premium font-mono" value="{{ payment_config.bank.account_number }}" placeholder="10-digit account number">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-[#475569] mb-1.5">Account Name</label>
+                    <input id="edit-account-name" type="text" class="input-premium" value="{{ payment_config.bank.account_name }}" placeholder="Full account name">
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="saveBankDetails()" class="btn-primary text-[12px] py-2 px-4 gap-2">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                    Save Bank Details
+                </button>
+                <button onclick="toggleBankEdit()" class="px-4 py-2 rounded-xl bg-[#F1F5F9] text-[#475569] text-[12px] font-semibold hover:bg-[#E2E8F0] transition-colors">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══ CRYPTO WALLETS ═══ -->
+    <div class="card-premium p-5">
+        <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-[#FEF3C7] flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-[#D97706]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 00-2.25-2.25H15a3 3 0 11-6 0H5.25A2.25 2.25 0 003 12m18 0v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6m18 0V9M3 12V9m18-3a2.25 2.25 0 00-2.25-2.25H5.25A2.25 2.25 0 003 6v3m18 0V6"/></svg>
+                </div>
+                <div>
+                    <h2 class="text-[15px] font-black text-[#1E293B]">Crypto Wallet Addresses</h2>
+                    <p class="text-[11px] text-[#64748B]">Receiving addresses shown to users who buy crypto</p>
+                </div>
+            </div>
+            <button onclick="showAddWallet()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#D1FAE5] text-[#059669] text-[12px] font-bold hover:bg-[#A7F3D0] transition-colors">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                Add Wallet
+            </button>
+        </div>
+
+        <!-- Add wallet form (hidden) -->
+        <div id="add-wallet-form" class="hidden mb-4 p-4 rounded-xl border-2 border-dashed border-[#BFDBFE] bg-[#EFF6FF]">
+            <p class="text-[12px] font-bold text-[#2563EB] mb-3">Add / Update Wallet Address</p>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div>
+                    <label class="block text-[11px] font-bold text-[#475569] mb-1.5">Coin Symbol</label>
+                    <input id="new-coin" type="text" class="input-premium uppercase" placeholder="e.g. BTC, ETH, SOL" maxlength="10">
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="block text-[11px] font-bold text-[#475569] mb-1.5">Wallet Address</label>
+                    <input id="new-address" type="text" class="input-premium font-mono text-[12px]" placeholder="Enter wallet address">
+                </div>
+            </div>
+            <div class="flex items-center gap-2 mt-3">
+                <button onclick="addWallet()" class="btn-primary text-[12px] py-2 px-4 gap-2">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15"/></svg>
+                    Add Wallet
+                </button>
+                <button onclick="hideAddWallet()" class="px-4 py-2 rounded-xl bg-[#F1F5F9] text-[#475569] text-[12px] font-semibold hover:bg-[#E2E8F0] transition-colors">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Wallet list -->
+        <div id="wallet-list" class="space-y-2">
+            {% set coin_icons = {'BTC': ('₿','#F59E0B','#FEF3C7'), 'ETH': ('Ξ','#8B5CF6','#EDE9FE'), 'SOL': ('◎','#10B981','#D1FAE5'), 'BNB': ('⬡','#F59E0B','#FEF3C7'), 'XRP': ('✕','#2563EB','#EFF6FF'), 'DOGE': ('Ð','#F59E0B','#FEF3C7'), 'TRX': ('◈','#EF4444','#FEE2E2'), 'POL': ('⬟','#8B5CF6','#EDE9FE'), 'TON': ('💎','#06B6D4','#CFFAFE'), 'SUI': ('🌊','#2563EB','#EFF6FF')} %}
+            {% for coin, address in payment_config.wallets.items() %}
+            {% set icon_data = coin_icons.get(coin, ('◈','#64748B','#F1F5F9')) %}
+            <div class="wallet-row flex items-center gap-3 p-3 rounded-xl border border-[#E2E8F0] group" data-coin="{{ coin }}">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center font-black text-[13px] flex-shrink-0" style="background:{{ icon_data[2] }};color:{{ icon_data[1] }}">{{ icon_data[0] }}</div>
+                <div class="min-w-0 flex-1">
+                    <div class="flex items-center gap-2 mb-0.5">
+                        <span class="text-[12.5px] font-black text-[#1E293B]">{{ coin }}</span>
+                        <span class="badge-success text-[10px]">Active</span>
+                    </div>
+                    <div class="wallet-display text-[11px] text-[#64748B] font-mono truncate" data-coin="{{ coin }}">{{ address }}</div>
+                    <div class="wallet-input-wrap hidden flex items-center gap-2 mt-1" data-coin="{{ coin }}">
+                        <input type="text" class="input-premium font-mono text-[11px] py-1.5" value="{{ address }}" data-edit-coin="{{ coin }}">
+                        <button onclick="saveWallet('{{ coin }}')" class="flex-shrink-0 px-3 py-1.5 rounded-lg bg-[#2563EB] text-white text-[11px] font-bold hover:bg-[#1D4ED8] transition-colors">Save</button>
+                        <button onclick="cancelEditWallet('{{ coin }}')" class="flex-shrink-0 px-2.5 py-1.5 rounded-lg bg-[#F1F5F9] text-[#475569] text-[11px] font-bold hover:bg-[#E2E8F0] transition-colors">Cancel</button>
+                    </div>
+                </div>
+                <div class="flex items-center gap-1 flex-shrink-0">
+                    <button onclick="editWallet('{{ coin }}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-[#94A3B8] hover:text-[#2563EB] hover:bg-[#EFF6FF] transition-colors" title="Edit">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>
+                    </button>
+                    <button onclick="copyWallet('{{ coin }}', '{{ address }}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-[#94A3B8] hover:text-[#10B981] hover:bg-[#D1FAE5] transition-colors" title="Copy">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 01-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 011.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 00-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 01-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 00-3.375-3.375h-1.5a1.125 1.125 0 01-1.125-1.125v-1.5a3.375 3.375 0 00-3.375-3.375H9.75"/></svg>
+                    </button>
+                    <button onclick="deleteWallet('{{ coin }}')" class="w-8 h-8 rounded-lg flex items-center justify-center text-[#94A3B8] hover:text-[#EF4444] hover:bg-[#FEE2E2] transition-colors" title="Remove">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+            {% if not payment_config.wallets %}
+            <div class="text-center py-8 text-[#94A3B8] text-[13px]">No wallets configured. Click "Add Wallet" to get started.</div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Info -->
+    <div class="card-premium p-4 flex items-start gap-3">
+        <div class="w-8 h-8 rounded-xl bg-[#FEF3C7] flex items-center justify-center flex-shrink-0">
+            <svg class="w-4 h-4 text-[#D97706]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/></svg>
+        </div>
+        <div>
+            <p class="text-[12.5px] font-bold text-[#1E293B]">Bot Sync Note</p>
+            <p class="text-[11.5px] text-[#64748B] mt-0.5">Changes saved here are instantly written to <code class="bg-[#F1F5F9] px-1.5 py-0.5 rounded text-[10.5px] font-mono">payment_config.json</code>. The Telegram bot will pick up the new values on the next transaction — no restart needed.</p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+function showSaved() {
+    var el = document.getElementById('save-indicator');
+    el.classList.remove('hidden');
+    el.classList.add('flex');
+    setTimeout(function() { el.classList.add('hidden'); el.classList.remove('flex'); }, 3000);
+}
+
+function toggleBankEdit() {
+    var display = document.getElementById('bank-display');
+    var edit = document.getElementById('bank-edit');
+    var btn = document.getElementById('bank-edit-btn');
+    if (display.classList.contains('hidden')) {
+        display.classList.remove('hidden');
+        edit.classList.add('hidden');
+        btn.innerHTML = '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/></svg>Edit';
+    } else {
+        display.classList.add('hidden');
+        edit.classList.remove('hidden');
+        btn.innerHTML = '✕ Close';
+    }
+}
+
+async function saveBankDetails() {
+    var bankName = document.getElementById('edit-bank-name').value.trim();
+    var accountNumber = document.getElementById('edit-account-number').value.trim();
+    var accountName = document.getElementById('edit-account-name').value.trim();
+    if (!bankName || !accountNumber || !accountName) {
+        alert('Please fill in all fields.');
+        return;
+    }
+    try {
+        var res = await fetch('/api/payment-config/bank', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({bank_name: bankName, account_number: accountNumber, account_name: accountName})
+        });
+        var data = await res.json();
+        if (data.success) {
+            document.getElementById('disp-bank-name').textContent = bankName;
+            document.getElementById('disp-account-number').textContent = accountNumber;
+            document.getElementById('disp-account-name').textContent = accountName;
+            toggleBankEdit();
+            showSaved();
+        } else {
+            alert(data.error || 'Failed to save bank details.');
+        }
+    } catch(e) {
+        alert('Network error. Please try again.');
+    }
+}
+
+function showAddWallet() {
+    document.getElementById('add-wallet-form').classList.remove('hidden');
+    document.getElementById('new-coin').focus();
+}
+function hideAddWallet() {
+    document.getElementById('add-wallet-form').classList.add('hidden');
+    document.getElementById('new-coin').value = '';
+    document.getElementById('new-address').value = '';
+}
+
+async function addWallet() {
+    var coin = document.getElementById('new-coin').value.trim().toUpperCase();
+    var address = document.getElementById('new-address').value.trim();
+    if (!coin || !address) { alert('Please enter both coin symbol and address.'); return; }
+    await saveWalletAPI(coin, address);
+    hideAddWallet();
+    location.reload();
+}
+
+function editWallet(coin) {
+    document.querySelector('.wallet-display[data-coin="' + coin + '"]').classList.add('hidden');
+    document.querySelector('.wallet-input-wrap[data-coin="' + coin + '"]').classList.remove('hidden');
+    document.querySelector('.wallet-input-wrap[data-coin="' + coin + '"]').classList.add('flex');
+}
+
+function cancelEditWallet(coin) {
+    document.querySelector('.wallet-display[data-coin="' + coin + '"]').classList.remove('hidden');
+    document.querySelector('.wallet-input-wrap[data-coin="' + coin + '"]').classList.add('hidden');
+    document.querySelector('.wallet-input-wrap[data-coin="' + coin + '"]').classList.remove('flex');
+}
+
+async function saveWallet(coin) {
+    var input = document.querySelector('input[data-edit-coin="' + coin + '"]');
+    var address = input ? input.value.trim() : '';
+    if (!address) { alert('Address cannot be empty.'); return; }
+    var ok = await saveWalletAPI(coin, address);
+    if (ok) {
+        document.querySelector('.wallet-display[data-coin="' + coin + '"]').textContent = address;
+        cancelEditWallet(coin);
+        showSaved();
+    }
+}
+
+async function saveWalletAPI(coin, address) {
+    try {
+        var res = await fetch('/api/payment-config/wallet', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({coin: coin, address: address})
+        });
+        var data = await res.json();
+        if (!data.success) { alert(data.error || 'Failed to save wallet.'); return false; }
+        return true;
+    } catch(e) { alert('Network error.'); return false; }
+}
+
+async function deleteWallet(coin) {
+    if (!confirm('Remove the ' + coin + ' wallet address?')) return;
+    try {
+        var res = await fetch('/api/payment-config/wallet/delete', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({coin: coin})
+        });
+        var data = await res.json();
+        if (data.success) {
+            var row = document.querySelector('.wallet-row[data-coin="' + coin + '"]');
+            if (row) row.remove();
+            showSaved();
+        }
+    } catch(e) { alert('Network error.'); }
+}
+
+function copyWallet(coin, address) {
+    navigator.clipboard.writeText(address).then(function() {
+        showToast(coin + ' address copied!');
+    });
+}
+
+function showToast(msg) {
+    var t = document.createElement('div');
+    t.className = 'fixed bottom-20 left-1/2 -translate-x-1/2 bg-[#1E293B] text-white text-[12px] font-semibold px-4 py-2 rounded-xl shadow-lg z-50 transition-all';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function() { t.remove(); }, 2500);
+}
+</script>
+{% endblock %}

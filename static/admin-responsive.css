@@ -1,0 +1,119 @@
+/* Shared narrow-screen safeguards for all admin pages. */
+html {
+    min-width: 320px;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    min-width: 320px;
+    overflow-x: hidden;
+}
+
+.app-shell, .main-wrapper, .page-scroll, .page-inner {
+    min-width: 0;
+}
+
+.page-inner {
+    max-width: 100%;
+    overflow-x: clip;
+}
+
+.page-inner > *, .page-inner .grid > *, .card-premium {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.page-inner img, .page-inner video, .page-inner canvas {
+    max-width: 100%;
+}
+
+.page-inner input, .page-inner textarea, .page-inner select {
+    min-width: 0;
+    max-width: 100%;
+}
+
+.page-inner button, .page-inner a[role="button"] {
+    touch-action: manipulation;
+}
+
+.page-inner .overflow-x-auto,
+.page-inner [class*="overflow-x-auto"] {
+    max-width: 100%;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+.page-inner table {
+    max-width: 100%;
+}
+
+.modal, [id$="-modal"] {
+    padding:
+        max(12px, env(safe-area-inset-top))
+        max(12px, env(safe-area-inset-right))
+        max(12px, env(safe-area-inset-bottom))
+        max(12px, env(safe-area-inset-left));
+}
+
+.modal-content, [id$="-modal"] > div {
+    width: min(100%, 620px);
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.bottom-tabs {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.bottom-tabs .tab-btn {
+    min-width: 54px;
+    min-height: 56px;
+}
+
+@media (max-width: 1023px) {
+    .page-inner { padding: 18px 16px 88px !important; }
+    .topbar { min-width: 0; }
+    #sidebar { max-width: calc(100vw - 32px); }
+    .main-wrapper { width: 100%; }
+}
+
+@media (max-width: 639px) {
+    .page-inner { padding: 15px 12px 90px !important; }
+    .page-inner h1 { font-size: clamp(1.7rem, 8vw, 2.5rem); line-height: 1.08; }
+    .page-inner h2 { overflow-wrap: anywhere; }
+    .page-inner .card-premium { border-radius: 12px; }
+    .page-inner .overflow-x-auto { margin-inline: -2px; }
+    .page-inner .overflow-x-auto table { min-width: 520px; }
+    .page-inner input:not([type="checkbox"]):not([type="radio"]),
+    .page-inner select,
+    .page-inner textarea {
+        font-size: 16px;
+    }
+    .page-inner button:not(.row-checkbox),
+    .page-inner a[class*="inline-flex"] {
+        min-height: 40px;
+    }
+    .topbar { height: 60px; padding-inline: 10px; gap: 7px; }
+    .bottom-tabs {
+        overflow-x: auto;
+        justify-content: flex-start;
+        scrollbar-width: none;
+    }
+    .bottom-tabs::-webkit-scrollbar { display: none; }
+    .bottom-tabs .tab-btn { flex: 1 0 60px; }
+}
+
+@media (max-width: 380px) {
+    .page-inner { padding-inline: 10px !important; }
+    .topbar { padding-inline: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}

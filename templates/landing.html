@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="LeehExchange — Buy, sell and exchange crypto, gift cards and digital assets with speed and simplicity.">
+    <meta name="theme-color" content="#071A42">
+    <link rel="icon" type="image/png" href="/static/leeh_icon.png">
+    <title>LeehExchange — Smart Exchange. Real Value.</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink: #0B1736;
+            --muted: #65728A;
+            --soft: #F5F8FC;
+            --line: #E3EAF3;
+            --blue: #1769E0;
+            --blue-dark: #0B2A66;
+            --blue-soft: #EAF2FF;
+            --green: #078A61;
+            --green-soft: #E8F8F2;
+            --red: #C23B4A;
+            --white: #FFFFFF;
+            --shadow: 0 20px 60px rgba(11, 42, 102, .10);
+            --shadow-sm: 0 8px 24px rgba(11, 42, 102, .07);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body {
+            margin: 0; color: var(--ink); background: #fff;
+            font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            -webkit-font-smoothing: antialiased; overflow-x: hidden;
+        }
+        a { color: inherit; }
+        button, input { font: inherit; }
+        button { cursor: pointer; }
+        .container { width: min(1180px, calc(100% - 48px)); margin: 0 auto; }
+        .section { padding: 112px 0; }
+        .section-tight { padding: 76px 0; }
+        .eyebrow {
+            display: inline-flex; align-items: center; gap: 8px;
+            color: var(--blue); font-size: 11px; font-weight: 800;
+            letter-spacing: .13em; text-transform: uppercase;
+        }
+        .eyebrow::before { content: ""; width: 20px; height: 1px; background: currentColor; }
+        .section-title {
+            margin: 14px 0 0; max-width: 660px; font-family: "Manrope", sans-serif;
+            font-size: clamp(30px, 4vw, 54px); line-height: 1.05; letter-spacing: -.055em;
+        }
+        .section-copy { max-width: 560px; margin: 18px 0 0; color: var(--muted); font-size: 16px; line-height: 1.75; }
+        .button {
+            display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+            min-height: 46px; padding: 0 18px; border-radius: 8px; border: 1px solid transparent;
+            font-size: 13px; font-weight: 800; text-decoration: none; transition: .2s ease;
+        }
+        .button-primary { color: #fff; background: var(--blue); box-shadow: 0 8px 18px rgba(23,105,224,.22); }
+        .button-primary:hover { background: #0D55C0; transform: translateY(-2px); box-shadow: 0 12px 24px rgba(23,105,224,.28); }
+        .button-secondary { color: var(--ink); background: #fff; border-color: var(--line); }
+        .button-secondary:hover { color: var(--blue); border-color: #AFC8EF; background: var(--blue-soft); transform: translateY(-2px); }
+        .button-dark { color: #fff; background: #0B2A66; }
+        .button-dark:hover { background: #071A42; transform: translateY(-2px); }
+        .reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s ease, transform .7s ease; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+        .delay-1 { transition-delay: .08s; }
+        .delay-2 { transition-delay: .16s; }
+        .delay-3 { transition-delay: .24s; }
+
+        /* Navigation */
+        #site-nav {
+            position: sticky; top: 0; z-index: 100;
+            background: rgba(255,255,255,.90); border-bottom: 1px solid rgba(227,234,243,.88);
+            backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+        }
+        .nav-inner { height: 72px; display: flex; align-items: center; gap: 28px; }
+        .brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; flex-shrink: 0; }
+        .brand img { width: 31px; height: 31px; object-fit: contain; }
+        .brand-wordmark { font-family: "Manrope", sans-serif; font-size: 16px; font-weight: 800; letter-spacing: -.04em; }
+        .brand-wordmark span { color: var(--blue); }
+        .nav-links { display: flex; align-items: center; gap: 2px; flex: 1; }
+        .nav-links a {
+            padding: 8px 11px; color: #526078; font-size: 12px; font-weight: 700;
+            text-decoration: none; border-radius: 6px; transition: .18s ease;
+        }
+        .nav-links a:hover { color: var(--blue); background: var(--blue-soft); }
+        .nav-actions { display: flex; align-items: center; gap: 9px; flex-shrink: 0; }
+        .nav-admin { padding: 8px 11px; color: #536078; font-size: 12px; font-weight: 700; text-decoration: none; }
+        .nav-admin:hover { color: var(--blue); }
+        .nav-cta { min-height: 38px; padding: 0 15px; border-radius: 7px; font-size: 12px; }
+        .nav-menu {
+            display: none; width: 38px; height: 38px; padding: 8px; border: 1px solid var(--line);
+            background: #fff; border-radius: 7px;
+        }
+        .nav-menu span { display: block; height: 1.5px; margin: 4px 0; background: var(--ink); }
+        .mobile-menu {
+            position: fixed; inset: 0; z-index: 150; padding: 18px;
+            background: rgba(7,26,66,.32); opacity: 0; pointer-events: none; transition: opacity .22s ease;
+        }
+        .mobile-menu.open { opacity: 1; pointer-events: auto; }
+        .mobile-sheet {
+            width: min(360px, 100%); margin-left: auto; padding: 20px;
+            background: #fff; border: 1px solid var(--line); border-radius: 14px;
+            box-shadow: 0 24px 60px rgba(7,26,66,.22); transform: translateY(-12px); transition: transform .22s ease;
+        }
+        .mobile-menu.open .mobile-sheet { transform: translateY(0); }
+        .mobile-sheet-head { display: flex; align-items: center; justify-content: space-between; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+        .mobile-close { width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 7px; background: var(--soft); color: var(--muted); }
+        .mobile-links { display: grid; gap: 3px; padding: 16px 0; }
+        .mobile-links a { padding: 12px 10px; border-radius: 7px; color: var(--ink); font-size: 14px; font-weight: 700; text-decoration: none; }
+        .mobile-links a:hover { background: var(--blue-soft); color: var(--blue); }
+        .mobile-sheet .button { width: 100%; }
+
+        /* Hero */
+        .hero {
+            position: relative; overflow: hidden; padding: 92px 0 88px;
+            background: #F7FAFE; border-bottom: 1px solid var(--line);
+        }
+        .hero::before {
+            content: ""; position: absolute; width: 780px; height: 780px; left: -430px; top: -490px;
+            border: 1px solid rgba(23,105,224,.12); border-radius: 50%;
+            box-shadow: 0 0 0 44px rgba(23,105,224,.035), 0 0 0 88px rgba(23,105,224,.025);
+        }
+        .hero-grid { display: grid; grid-template-columns: minmax(0, .95fr) minmax(420px, 1.05fr); gap: 70px; align-items: center; }
+        .hero-kicker {
+            display: inline-flex; align-items: center; gap: 8px; padding: 7px 10px;
+            color: var(--blue); background: var(--blue-soft); border: 1px solid #C9DCFA;
+            border-radius: 5px; font-size: 10px; font-weight: 800; letter-spacing: .11em; text-transform: uppercase;
+        }
+        .hero-kicker i { width: 6px; height: 6px; background: #11A876; border-radius: 50%; }
+        .hero-title {
+            max-width: 620px; margin: 22px 0 0; font-family: "Manrope", sans-serif;
+            font-size: clamp(42px, 5.4vw, 74px); line-height: .99; letter-spacing: -.075em;
+        }
+        .hero-title em { color: var(--blue); font-style: normal; }
+        .hero-copy { max-width: 510px; margin: 24px 0 0; color: var(--muted); font-size: 17px; line-height: 1.7; }
+        .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 32px; }
+        .hero-note { display: flex; align-items: center; gap: 9px; margin-top: 22px; color: #77839A; font-size: 11px; font-weight: 600; }
+        .hero-note span { width: 20px; height: 20px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; color: var(--green); background: var(--green-soft); font-size: 11px; }
+        .hero-art { position: relative; min-height: 440px; }
+        .hero-orbit {
+            position: absolute; width: 440px; height: 440px; right: 0; top: -20px;
+            border: 1px solid rgba(23,105,224,.13); border-radius: 50%;
+            box-shadow: 0 0 0 42px rgba(23,105,224,.025), 0 0 0 84px rgba(23,105,224,.018);
+        }
+        .hero-orbit::before, .hero-orbit::after { content: ""; position: absolute; width: 7px; height: 7px; background: var(--blue); border-radius: 50%; }
+        .hero-orbit::before { top: 54px; right: 62px; box-shadow: 0 0 0 7px rgba(23,105,224,.10); }
+        .hero-orbit::after { bottom: 74px; left: 26px; width: 5px; height: 5px; background: #10A779; }
+        .exchange-card {
+            position: absolute; top: 40px; left: 22px; right: 30px; z-index: 1;
+            padding: 22px; background: rgba(255,255,255,.92); border: 1px solid #D8E3F1;
+            border-radius: 14px; box-shadow: 0 24px 56px rgba(11,42,102,.14); backdrop-filter: blur(10px);
+        }
+        .exchange-card-head { display: flex; align-items: center; justify-content: space-between; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+        .exchange-card-title { font-family: "Manrope", sans-serif; font-size: 13px; font-weight: 800; }
+        .live-label { display: inline-flex; align-items: center; gap: 6px; color: var(--green); font-size: 10px; font-weight: 800; }
+        .live-label i { width: 6px; height: 6px; border-radius: 50%; background: #11A876; }
+        .exchange-balance { padding: 22px 0 18px; }
+        .balance-label { color: var(--muted); font-size: 11px; font-weight: 700; }
+        .balance-value { margin-top: 6px; font-family: "Manrope", sans-serif; font-size: 32px; font-weight: 800; letter-spacing: -.06em; }
+        .balance-change { display: inline-flex; align-items: center; gap: 6px; margin-top: 6px; color: var(--green); font-size: 11px; font-weight: 800; }
+        .mini-chart { width: 100%; height: 92px; margin-top: 10px; }
+        .mini-chart path.line { fill: none; stroke: var(--blue); stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .mini-chart path.area { fill: rgba(23,105,224,.09); }
+        .asset-row { display: grid; grid-template-columns: 1.2fr 1fr .8fr; gap: 10px; padding: 11px 0; border-top: 1px solid var(--line); align-items: center; }
+        .asset-name { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 800; }
+        .asset-mark { width: 23px; height: 23px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; color: var(--blue); background: var(--blue-soft); font-size: 11px; }
+        .asset-price { color: var(--ink); font-size: 11px; font-weight: 800; text-align: right; }
+        .asset-change { color: var(--green); font-size: 10px; font-weight: 800; text-align: right; }
+        .hero-float {
+            position: absolute; z-index: 2; right: -4px; bottom: 28px; padding: 14px 16px;
+            background: #0B2A66; border: 1px solid rgba(255,255,255,.15); border-radius: 10px;
+            color: #fff; box-shadow: 0 16px 32px rgba(11,42,102,.22);
+        }
+        .hero-float-label { color: #A9C9F8; font-size: 9px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
+        .hero-float-value { margin-top: 4px; font-family: "Manrope", sans-serif; font-size: 20px; font-weight: 800; }
+        .hero-float-sub { margin-top: 2px; color: rgba(255,255,255,.58); font-size: 9px; }
+
+        /* Value strip */
+        .value-strip { border-bottom: 1px solid var(--line); background: #fff; }
+        .value-grid { display: grid; grid-template-columns: repeat(6, 1fr); }
+        .value-item { display: flex; align-items: center; gap: 10px; min-height: 76px; padding: 16px 12px; }
+        .value-item + .value-item { border-left: 1px solid var(--line); }
+        .value-icon { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; color: var(--blue); background: var(--blue-soft); border-radius: 7px; font-size: 12px; font-weight: 800; flex-shrink: 0; }
+        .value-item strong { display: block; font-family: "Manrope", sans-serif; font-size: 11px; }
+        .value-item span { display: block; margin-top: 2px; color: var(--muted); font-size: 10px; line-height: 1.35; }
+
+        /* Traded crypto activity */
+        .crypto-activity { background: #F7FAFE; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+        .crypto-activity-head { display: flex; align-items: end; justify-content: space-between; gap: 28px; }
+        .crypto-activity-total { min-width: 190px; padding: 16px 18px; background: #fff; border: 1px solid var(--line); border-radius: 10px; text-align: right; }
+        .crypto-activity-total span { display: block; color: var(--muted); font-size: 10px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+        .crypto-activity-total strong { display: block; margin-top: 5px; color: var(--ink); font-size: 22px; letter-spacing: -.04em; }
+        .crypto-activity-total small { display: block; margin-top: 4px; color: var(--muted); font-size: 10px; }
+        .crypto-volume-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 42px; }
+        .crypto-volume-card { padding: 17px; background: #fff; border: 1px solid var(--line); border-radius: 10px; }
+        .crypto-volume-card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+        .crypto-volume-mark { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; color: var(--blue); background: var(--blue-soft); border-radius: 50%; font-size: 11px; font-weight: 800; }
+        .crypto-volume-orders { color: var(--muted); font-size: 10px; font-weight: 800; }
+        .crypto-volume-name { margin-top: 15px; font-size: 12px; font-weight: 800; }
+        .crypto-volume-symbol { margin-top: 3px; color: var(--muted); font-size: 10px; font-weight: 700; }
+        .crypto-volume-line { display: flex; justify-content: space-between; gap: 8px; margin-top: 14px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--muted); font-size: 10px; }
+        .crypto-volume-line strong { color: var(--ink); font-size: 10px; }
+        .crypto-volume-empty { grid-column: 1 / -1; padding: 32px; color: var(--muted); background: #fff; border: 1px dashed #BFD4F4; border-radius: 10px; text-align: center; font-size: 12px; }
+
+        /* About / process */
+        .intro-grid { display: grid; grid-template-columns: .85fr 1.15fr; gap: 90px; align-items: end; }
+        .process-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 56px; border-top: 1px solid var(--line); }
+        .process-step { position: relative; padding: 26px 30px 10px 0; }
+        .process-step + .process-step { padding-left: 30px; border-left: 1px solid var(--line); }
+        .step-index { display: inline-flex; width: 30px; height: 30px; align-items: center; justify-content: center; color: var(--blue); border: 1px solid #BFD4F4; border-radius: 50%; font-family: "Manrope", sans-serif; font-size: 11px; font-weight: 800; }
+        .step-title { margin-top: 22px; font-family: "Manrope", sans-serif; font-size: 18px; letter-spacing: -.035em; }
+        .step-copy { max-width: 245px; margin-top: 9px; color: var(--muted); font-size: 13px; line-height: 1.65; }
+
+        /* Products */
+        .products-section { background: #F7FAFE; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+        .products-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; }
+        .products-head .section-copy { margin-bottom: 0; }
+        .product-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 48px; }
+        .product-card { min-height: 212px; padding: 22px; background: #fff; border: 1px solid var(--line); border-radius: 11px; transition: .2s ease; }
+        .product-card:hover { border-color: #BFD4F4; box-shadow: var(--shadow-sm); transform: translateY(-3px); }
+        .product-card.featured { grid-column: span 2; background: var(--blue-dark); color: #fff; border-color: var(--blue-dark); }
+        .product-icon { width: 34px; height: 34px; display: inline-flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--blue); background: var(--blue-soft); font-family: "Manrope", sans-serif; font-weight: 800; }
+        .featured .product-icon { color: #fff; background: rgba(255,255,255,.12); }
+        .product-title { margin-top: 25px; font-family: "Manrope", sans-serif; font-size: 16px; letter-spacing: -.035em; }
+        .product-copy { margin-top: 9px; color: var(--muted); font-size: 12px; line-height: 1.6; }
+        .featured .product-copy { color: rgba(255,255,255,.68); }
+        .product-meta { display: inline-flex; align-items: center; gap: 5px; margin-top: 18px; color: var(--blue); font-size: 10px; font-weight: 800; }
+        .featured .product-meta { color: #A9C9F8; }
+        .coming-soon { display: inline-flex; margin-top: 16px; padding: 4px 7px; color: #65728A; background: #F0F3F7; border-radius: 4px; font-size: 9px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+
+        /* Telegram section */
+        .telegram-section { padding: 118px 0; background: var(--blue-dark); color: #fff; overflow: hidden; }
+        .telegram-grid { display: grid; grid-template-columns: 1fr .9fr; gap: 100px; align-items: center; }
+        .telegram-section .eyebrow { color: #9DC2F8; }
+        .telegram-section .section-title { color: #fff; }
+        .telegram-section .section-copy { color: rgba(255,255,255,.66); }
+        .telegram-points { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px 26px; margin-top: 34px; }
+        .telegram-point { display: flex; gap: 10px; color: rgba(255,255,255,.78); font-size: 12px; line-height: 1.5; }
+        .telegram-point i { width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; color: #9DC2F8; background: rgba(157,194,248,.12); border-radius: 50%; font-style: normal; font-size: 10px; flex-shrink: 0; }
+        .telegram-section .button-primary { color: var(--blue-dark); background: #fff; box-shadow: none; }
+        .telegram-section .button-primary:hover { color: var(--blue); background: #F2F7FF; }
+        .telegram-visual { position: relative; min-height: 340px; }
+        .telegram-phone { position: absolute; right: 45px; top: 0; width: min(280px, 78%); padding: 13px; background: #EAF2FF; border: 7px solid #123779; border-radius: 26px; box-shadow: 0 26px 50px rgba(0,0,0,.22); }
+        .phone-bar { display: flex; align-items: center; justify-content: space-between; color: #526078; font-size: 9px; font-weight: 800; }
+        .phone-brand { display: flex; align-items: center; gap: 7px; padding: 20px 0 14px; border-bottom: 1px solid #D6E3F5; }
+        .phone-brand-mark { width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; color: #fff; background: var(--blue); border-radius: 50%; font-size: 12px; font-weight: 800; }
+        .phone-brand strong { display: block; color: var(--ink); font-size: 11px; }
+        .phone-brand span { display: block; margin-top: 2px; color: var(--muted); font-size: 9px; }
+        .chat-bubble { width: 82%; margin-top: 15px; padding: 10px; color: #33425C; background: #fff; border-radius: 4px 10px 10px 10px; font-size: 10px; line-height: 1.5; box-shadow: 0 2px 8px rgba(11,42,102,.06); }
+        .chat-bubble.user { margin-left: auto; color: #fff; background: var(--blue); border-radius: 10px 4px 10px 10px; }
+        .phone-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 14px; }
+        .phone-actions span { padding: 7px 4px; color: var(--blue); background: #fff; border-radius: 5px; text-align: center; font-size: 8px; font-weight: 800; }
+        .telegram-stamp { position: absolute; left: 0; bottom: 30px; padding: 14px 16px; color: #fff; background: #0D3C86; border: 1px solid rgba(255,255,255,.15); border-radius: 9px; box-shadow: 0 14px 30px rgba(0,0,0,.16); }
+        .telegram-stamp strong { display: block; font-family: "Manrope", sans-serif; font-size: 17px; }
+        .telegram-stamp span { display: block; margin-top: 3px; color: #A9C9F8; font-size: 9px; font-weight: 700; }
+
+        /* Markets */
+        .markets-head { display: flex; align-items: end; justify-content: space-between; gap: 24px; }
+        .market-panel { margin-top: 46px; padding: 18px; background: #071A42; border-radius: 14px; box-shadow: var(--shadow); }
+        .market-tabs { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 15px; scrollbar-width: none; }
+        .market-tabs::-webkit-scrollbar { display: none; }
+        .coin-tab, .interval-tab {
+            flex-shrink: 0; padding: 8px 11px; color: #A9B9D4; background: rgba(255,255,255,.05);
+            border: 1px solid rgba(255,255,255,.08); border-radius: 6px; font-size: 10px; font-weight: 800; transition: .18s ease;
+        }
+        .coin-tab:hover, .coin-tab.active, .interval-tab:hover, .interval-tab.active { color: #fff; background: var(--blue); border-color: var(--blue); }
+        .market-tools { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0; border-top: 1px solid rgba(255,255,255,.09); }
+        .market-search { display: flex; gap: 7px; flex: 1; max-width: 410px; }
+        .market-search input { width: 100%; min-width: 0; padding: 10px 11px; color: #fff; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 6px; outline: none; font-size: 11px; }
+        .market-search input::placeholder { color: #7D8EAA; }
+        .market-search input:focus { border-color: #6EA8F4; }
+        .market-search button { padding: 0 12px; color: #fff; background: #1C6EE4; border: 0; border-radius: 6px; font-size: 10px; font-weight: 800; }
+        .interval-tabs { display: flex; gap: 5px; }
+        .chart-screenshot-btn { padding: 8px 10px; color: #A9B9D4; background: transparent; border: 1px solid rgba(255,255,255,.12); border-radius: 6px; font-size: 10px; font-weight: 800; }
+        .chart-screenshot-btn:hover { color: #fff; border-color: #6EA8F4; }
+        .chart-frame-wrap { position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,.09); border-radius: 8px; }
+        #tv-frame { width: 100%; height: 510px; display: block; border: 0; }
+        .chart-watermark { position: absolute; z-index: 2; top: 13px; left: 15px; pointer-events: none; opacity: .8; }
+        .cwm-logo { display: flex; align-items: center; gap: 6px; color: #fff; font-size: 10px; font-weight: 800; }
+        .cwm-icon { width: 18px; height: 18px; object-fit: contain; }
+        .coin-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 24px; }
+        .coin-card { padding: 16px; background: #fff; border: 1px solid var(--line); border-radius: 9px; transition: .2s ease; }
+        .coin-card:hover { border-color: #AFC8EF; box-shadow: var(--shadow-sm); transform: translateY(-2px); }
+        .coin-logo { display: inline-flex; width: 28px; height: 28px; align-items: center; justify-content: center; color: var(--blue); background: var(--blue-soft); border-radius: 50%; font-family: "Manrope", sans-serif; font-size: 13px; font-weight: 800; }
+        .coin-name { margin-top: 13px; font-family: "Manrope", sans-serif; font-size: 12px; font-weight: 800; }
+        .coin-symbol { margin-top: 2px; color: var(--muted); font-size: 10px; font-weight: 700; }
+        .coin-price { margin-top: 14px; color: var(--ink); font-family: "Manrope", sans-serif; font-size: 13px; font-weight: 800; }
+        .coin-change { margin-top: 6px; font-size: 10px; font-weight: 800; }
+        .change-up { color: var(--green); }
+        .change-dn { color: var(--red); }
+
+        /* Developer + reliability */
+        .developer-panel {
+            display: grid; grid-template-columns: 1fr .9fr; gap: 70px; align-items: center;
+            padding: 58px; background: #F7FAFE; border: 1px solid var(--line); border-radius: 15px;
+        }
+        .developer-list { display: grid; gap: 10px; }
+        .developer-item { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding: 14px 0; border-bottom: 1px solid var(--line); }
+        .developer-item:last-child { border-bottom: 0; }
+        .developer-item strong { font-family: "Manrope", sans-serif; font-size: 13px; }
+        .developer-item span { color: var(--muted); font-size: 11px; }
+        .developer-code { overflow: hidden; padding: 21px; color: #D9E7FF; background: #071A42; border-radius: 10px; box-shadow: 0 18px 34px rgba(7,26,66,.15); }
+        .code-top { display: flex; gap: 5px; margin-bottom: 20px; }
+        .code-top i { width: 7px; height: 7px; border-radius: 50%; background: #58749F; }
+        .code-line { margin: 8px 0; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 11px; line-height: 1.6; white-space: nowrap; }
+        .code-muted { color: #7590BA; }
+        .code-blue { color: #89BAFF; }
+        .code-green { color: #73D6AE; }
+        .status-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 34px; background: var(--line); border: 1px solid var(--line); }
+        .status-item { padding: 17px; background: #fff; }
+        .status-item strong { display: block; font-family: "Manrope", sans-serif; font-size: 12px; }
+        .status-item span { display: flex; align-items: center; gap: 6px; margin-top: 7px; color: var(--green); font-size: 10px; font-weight: 800; }
+        .status-item span::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+        /* FAQ / final CTA / footer */
+        .help-grid { display: grid; grid-template-columns: .75fr 1.25fr; gap: 90px; align-items: start; }
+        .faq-list { border-top: 1px solid var(--line); }
+        .faq-item { border-bottom: 1px solid var(--line); }
+        .faq-q { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 0; font-family: "Manrope", sans-serif; font-size: 14px; font-weight: 700; cursor: pointer; }
+        .faq-icon { color: var(--blue); font-size: 20px; font-weight: 400; transition: transform .2s ease; }
+        .faq-item.open .faq-icon { transform: rotate(45deg); }
+        .faq-a { max-height: 0; overflow: hidden; color: var(--muted); font-size: 13px; line-height: 1.7; transition: max-height .3s ease, padding .3s ease; }
+        .faq-item.open .faq-a { max-height: 160px; padding: 0 30px 20px 0; }
+        .final-cta { padding: 95px 0; color: #fff; background: var(--blue-dark); text-align: center; }
+        .final-cta .section-title { max-width: 720px; margin-inline: auto; color: #fff; }
+        .final-cta p { max-width: 430px; margin: 17px auto 0; color: rgba(255,255,255,.66); font-size: 15px; line-height: 1.6; }
+        .final-cta .button { margin-top: 28px; color: var(--blue-dark); background: #fff; }
+        .final-cta .button:hover { color: var(--blue); background: #F2F7FF; }
+        footer { padding: 52px 0 28px; color: #AEBBD0; background: #061432; }
+        .footer-top { display: grid; grid-template-columns: 1.5fr repeat(3, 1fr); gap: 45px; padding-bottom: 42px; }
+        .footer-brand .brand-wordmark { color: #fff; }
+        .footer-brand p { max-width: 230px; margin-top: 16px; color: #8D9DB8; font-size: 12px; line-height: 1.65; }
+        .footer-col h3 { margin: 0 0 15px; color: #E4ECF8; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
+        .footer-col a { display: block; width: fit-content; margin: 9px 0; color: #93A3BE; font-size: 12px; text-decoration: none; }
+        .footer-col a:hover { color: #fff; }
+        .footer-bottom { display: flex; align-items: center; justify-content: space-between; gap: 15px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,.09); color: #71839F; font-size: 10px; }
+        .footer-socials { display: flex; gap: 13px; }
+        .footer-socials a { color: #AEBBD0; font-weight: 700; text-decoration: none; }
+        .footer-socials a:hover { color: #fff; }
+
+        /* Chart modal + Venora Flash */
+        .share-modal { position: fixed; inset: 0; z-index: 500; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(4,14,34,.72); backdrop-filter: blur(8px); }
+        .share-modal.open { display: flex; }
+        .share-modal-card { width: min(820px, 100%); padding: 18px; background: #fff; border-radius: 12px; box-shadow: 0 25px 80px rgba(0,0,0,.3); }
+        .share-modal-header, .share-modal-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .share-modal-header { padding-bottom: 14px; }
+        .share-modal-title { font-family: "Manrope", sans-serif; font-size: 14px; font-weight: 800; }
+        .share-modal-close, .share-cancel-btn { border: 0; background: transparent; color: var(--muted); font-size: 12px; font-weight: 700; }
+        #share-canvas-preview { display: block; width: 100%; height: auto; border-radius: 8px; }
+        .share-modal-actions { justify-content: flex-end; padding-top: 14px; }
+        .share-dl-btn { padding: 10px 13px; color: #fff; background: var(--blue); border: 0; border-radius: 7px; font-size: 11px; font-weight: 800; }
+        #vf-btn { position: fixed; right: 22px; bottom: 22px; z-index: 210; display: inline-flex; align-items: center; gap: 8px; padding: 0 15px; height: 43px; color: #fff; background: var(--blue-dark); border: 1px solid rgba(255,255,255,.18); border-radius: 8px; box-shadow: 0 10px 26px rgba(7,26,66,.25); font-size: 11px; font-weight: 800; }
+        #vf-btn:hover { background: var(--blue); transform: translateY(-2px); }
+        .vf-btn-icon { width: 21px; height: 21px; display: inline-flex; align-items: center; justify-content: center; color: var(--blue-dark); background: #fff; border-radius: 50%; font-size: 11px; }
+        .vf-panel { position: fixed; right: 22px; bottom: 76px; z-index: 211; display: flex; flex-direction: column; width: min(360px, calc(100vw - 32px)); max-height: min(610px, calc(100vh - 100px)); overflow: hidden; background: #fff; border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 24px 70px rgba(7,26,66,.24); opacity: 0; pointer-events: none; transform: translateY(12px); transition: .22s ease; }
+        .vf-panel.open { opacity: 1; pointer-events: auto; transform: translateY(0); }
+        .vf-panel-head { display: flex; align-items: center; justify-content: space-between; padding: 15px 16px; color: #fff; background: var(--blue-dark); }
+        .vf-panel-title { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 800; }
+        .vf-status-dot { width: 6px; height: 6px; background: #35D69A; border-radius: 50%; }
+        .vf-badge { margin-left: 4px; padding: 3px 6px; color: #A9C9F8; background: rgba(255,255,255,.10); border-radius: 4px; font-size: 8px; letter-spacing: .06em; text-transform: uppercase; }
+        .vf-close-btn { color: rgba(255,255,255,.7); background: transparent; border: 0; font-size: 14px; }
+        .vf-messages { flex: 1; min-height: 150px; max-height: 350px; overflow-y: auto; padding: 15px; background: #F7FAFE; }
+        .vf-msg { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px; }
+        .vf-msg.vf-user { flex-direction: row-reverse; }
+        .vf-av { width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; color: var(--blue); background: var(--blue-soft); border-radius: 50%; font-size: 11px; flex-shrink: 0; }
+        .vf-user .vf-av { color: #fff; background: var(--blue); }
+        .vf-bubble { max-width: 82%; padding: 9px 11px; color: #3C4B65; background: #fff; border: 1px solid var(--line); border-radius: 4px 9px 9px 9px; font-size: 11px; line-height: 1.5; }
+        .vf-user .vf-bubble { color: #fff; background: var(--blue); border: 0; border-radius: 9px 4px 9px 9px; }
+        .vf-bubble a { color: var(--blue); font-weight: 700; }
+        .vf-suggs { display: flex; flex-wrap: wrap; gap: 5px; padding: 10px 13px 0; background: #fff; }
+        .vf-sug { padding: 6px 8px; color: var(--blue); background: var(--blue-soft); border: 0; border-radius: 5px; font-size: 9px; font-weight: 700; }
+        .vf-input-row { display: flex; gap: 7px; padding: 11px; background: #fff; border-top: 1px solid var(--line); }
+        .vf-input { flex: 1; min-width: 0; padding: 9px 10px; color: var(--ink); background: var(--soft); border: 1px solid var(--line); border-radius: 6px; outline: none; font-size: 11px; }
+        .vf-input:focus { border-color: #99BCEB; }
+        .vf-send-btn { width: 34px; color: #fff; background: var(--blue); border: 0; border-radius: 6px; }
+        .vf-typing-dots { display: flex; gap: 4px; padding: 3px 0; }
+        .vf-typing-dots span { width: 5px; height: 5px; background: #8EA2C1; border-radius: 50%; animation: typing .9s infinite; }
+        .vf-typing-dots span:nth-child(2) { animation-delay: .15s; }
+        .vf-typing-dots span:nth-child(3) { animation-delay: .3s; }
+        @keyframes typing { 0%,60%,100% { opacity: .35; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-2px); } }
+        .back-to-top { position: fixed; right: 22px; bottom: 77px; z-index: 200; width: 36px; height: 36px; display: none; align-items: center; justify-content: center; color: var(--blue); background: #fff; border: 1px solid var(--line); border-radius: 7px; box-shadow: var(--shadow-sm); }
+        .back-to-top.show { display: inline-flex; }
+        .back-to-top svg { width: 17px; height: 17px; fill: currentColor; }
+
+        @media (max-width: 1040px) {
+            .hero-grid { gap: 36px; }
+            .value-grid { grid-template-columns: repeat(3, 1fr); }
+            .value-item:nth-child(4) { border-left: 0; border-top: 1px solid var(--line); }
+            .value-item:nth-child(n+4) { border-top: 1px solid var(--line); }
+            .product-grid { grid-template-columns: repeat(3, 1fr); }
+            .product-card.featured { grid-column: span 2; }
+        }
+        @media (max-width: 860px) {
+            .nav-links, .nav-admin { display: none; }
+            .nav-menu { display: block; }
+            .hero-grid, .telegram-grid, .developer-panel, .help-grid, .intro-grid { grid-template-columns: 1fr; gap: 50px; }
+            .hero { padding: 72px 0 70px; }
+            .hero-art { max-width: 560px; width: 100%; margin: 0 auto; }
+            .telegram-grid { gap: 38px; }
+            .telegram-visual { max-width: 500px; width: 100%; margin: 0 auto; }
+            .developer-panel { padding: 34px; }
+            .coin-grid { grid-template-columns: repeat(3, 1fr); }
+            .crypto-activity-head { display: block; }
+            .crypto-activity-total { width: fit-content; margin-top: 24px; text-align: left; }
+            .crypto-volume-grid { grid-template-columns: repeat(3, 1fr); margin-top: 28px; }
+        }
+        @media (max-width: 620px) {
+            .container { width: min(100% - 32px, 1180px); }
+            .section { padding: 76px 0; }
+            .section-tight { padding: 54px 0; }
+            .nav-inner { height: 64px; }
+            .nav-cta { display: none; }
+            .hero { padding: 56px 0 52px; }
+            .hero-title { font-size: clamp(39px, 12vw, 58px); }
+            .hero-copy { font-size: 15px; }
+            .hero-art { min-height: 360px; }
+            .hero-orbit { width: 330px; height: 330px; right: -35px; top: 4px; }
+            .exchange-card { top: 25px; left: 0; right: 8px; padding: 16px; }
+            .hero-float { right: -1px; bottom: 13px; }
+            .value-grid { grid-template-columns: repeat(2, 1fr); }
+            .value-item { min-height: 70px; padding: 12px 4px; }
+            .value-item:nth-child(odd) { border-left: 0; }
+            .value-item:nth-child(n+3) { border-top: 1px solid var(--line); }
+            .value-item strong { font-size: 10px; }
+            .value-item span { font-size: 9px; }
+            .crypto-volume-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .crypto-volume-card { padding: 14px; }
+            .crypto-volume-name { margin-top: 12px; font-size: 11px; }
+            .crypto-volume-line { display: block; line-height: 1.5; }
+            .crypto-volume-line strong { display: block; }
+            .process-grid { grid-template-columns: 1fr; margin-top: 36px; }
+            .process-step, .process-step + .process-step { padding: 22px 0; border-left: 0; border-bottom: 1px solid var(--line); }
+            .process-step:last-child { border-bottom: 0; }
+            .step-title { margin-top: 13px; }
+            .products-head, .markets-head { display: block; }
+            .products-head .button, .markets-head .button { margin-top: 20px; }
+            .product-grid { grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 30px; }
+            .product-card, .product-card.featured { grid-column: span 1; min-height: 190px; padding: 16px; }
+            .product-card.featured { grid-column: span 2; }
+            .product-title { margin-top: 18px; font-size: 14px; }
+            .product-copy { font-size: 11px; }
+            .telegram-section { padding: 76px 0; }
+            .telegram-points { grid-template-columns: 1fr; gap: 13px; }
+            .telegram-phone { right: 14px; width: 250px; }
+            .telegram-stamp { left: 0; bottom: 8px; }
+            .market-panel { margin-top: 30px; padding: 11px; }
+            .market-tools { display: block; }
+            .market-search { max-width: none; }
+            .interval-tabs { margin-top: 10px; }
+            .chart-screenshot-btn { margin-top: 10px; }
+            #tv-frame { height: 390px; }
+            .coin-grid { grid-template-columns: repeat(2, 1fr); }
+            .developer-panel { padding: 22px; }
+            .status-strip { grid-template-columns: repeat(2, 1fr); }
+            .footer-top { grid-template-columns: 1fr 1fr; gap: 30px; }
+            .footer-brand { grid-column: span 2; }
+            .footer-bottom { display: block; }
+            .footer-socials { margin-top: 15px; }
+            #vf-btn { right: 15px; bottom: 15px; }
+            .vf-panel { right: 15px; bottom: 68px; }
+            .back-to-top { right: 15px; bottom: 67px; }
+        }
+    </style>
+    <link rel="stylesheet" href="/static/landing-responsive.css">
+</head>
+<body>
+    <nav id="site-nav">
+        <div class="container nav-inner">
+            <a href="/" class="brand" aria-label="LeehExchange home">
+                <img src="/static/leeh_icon.png" alt="LeehExchange">
+                <span class="brand-wordmark">Leeh<span>Exchange</span></span>
+            </a>
+            <div class="nav-links">
+                <a href="#buy-crypto">Buy Crypto</a>
+                <a href="#sell-crypto">Sell Crypto</a>
+                <a href="#gift-cards">Gift Cards</a>
+                <a href="#features">Features</a>
+                <a href="/developers">Developers</a>
+                <a href="#about">About</a>
+                <a href="#help">Help</a>
+            </div>
+            <div class="nav-actions">
+                <a href="/admin" class="nav-admin">Admin</a>
+                <a href="https://t.me/LEEHExchangeBot" target="_blank" rel="noopener" class="button button-primary nav-cta">Start Trading <span aria-hidden="true">↗</span></a>
+                <button class="nav-menu" id="nav-menu" aria-label="Open navigation menu" aria-expanded="false"><span></span><span></span><span></span></button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="mobile-menu" id="mobile-menu" aria-hidden="true">
+        <div class="mobile-sheet">
+            <div class="mobile-sheet-head">
+                <a href="/" class="brand"><img src="/static/leeh_icon.png" alt=""><span class="brand-wordmark">Leeh<span>Exchange</span></span></a>
+                <button class="mobile-close" id="mobile-close" aria-label="Close navigation">×</button>
+            </div>
+            <div class="mobile-links">
+                <a href="#buy-crypto">Buy Crypto</a>
+                <a href="#sell-crypto">Sell Crypto</a>
+                <a href="#gift-cards">Gift Cards</a>
+                <a href="#features">Features</a>
+                <a href="/developers">Developers</a>
+                <a href="#about">About</a>
+                <a href="#help">Help</a>
+            </div>
+            <a href="https://t.me/LEEHExchangeBot" target="_blank" rel="noopener" class="button button-primary">Start Trading <span aria-hidden="true">↗</span></a>
+        </div>
+    </div>
+
+    <main>
+        <section class="hero">
+            <div class="container hero-grid">
+                <div class="hero-copy-block reveal">
+                    <div class="hero-kicker"><i></i> Smart exchange. Real value.</div>
+                    <h1 class="hero-title">Digital assets,<br><em>made simple.</em></h1>
+                    <p class="hero-copy">Buy, sell and exchange crypto, gift cards and digital assets with speed and simplicity — built for Africa, powered by Telegram.</p>
+                    <div class="hero-actions">
+                        <a href="https://t.me/LEEHExchangeBot" target="_blank" rel="noopener" class="button button-primary">Start Trading <span aria-hidden="true">↗</span></a>
+                        <a href="#about" class="button button-secondary">Explore LeehExchange <span aria-hidden="true">↓</span></a>
+                    </div>
+                    <div class="hero-note"><span>✓</span> Fast, straightforward and human when you need support.</div>
+                </div>
+                <div class="hero-art reveal delay-2" aria-label="LeehExchange trading overview">
+                    <div class="hero-orbit"></div>
+                    <div class="exchange-card">
+                        <div class="exchange-card-head"><span class="exchange-card-title">Market overview</span><span class="live-label"><i></i> Live market</span></div>
+                        <div class="exchange-balance">
+                            <div class="balance-label">Total market volume</div>
+                            <div class="balance-value">$2.48T</div>
+                            <div class="balance-change">↗ 4.86% <span style="color:var(--muted);font-weight:600">today</span></div>
+                            <svg class="mini-chart" viewBox="0 0 500 92" preserveAspectRatio="none" aria-hidden="true">
+                                <path class="area" d="M0,77 C36,68 47,73 73,60 S111,68 143,46 S177,60 204,45 S234,56 260,31 S298,43 325,25 S362,43 392,19 S425,34 457,12 S481,19 500,5 L500,92 L0,92 Z"></path>
+                                <path class="line" d="M0,77 C36,68 47,73 73,60 S111,68 143,46 S177,60 204,45 S234,56 260,31 S298,43 325,25 S362,43 392,19 S425,34 457,12 S481,19 500,5"></path>
+                            </svg>
+                        </div>
+                        <div class="asset-row"><div class="asset-name"><span class="asset-mark">₿</span>Bitcoin</div><div class="asset-price">$104,821</div><div class="asset-change">+2.41%</div></div>
+                        <div class="asset-row"><div class="asset-name"><span class="asset-mark">Ξ</span>Ethereum</div><div class="asset-price">$2,532</div><div class="asset-change">+1.84%</div></div>
+                        <div class="asset-row"><div class="asset-name"><span class="asset-mark">◎</span>Solana</div><div class="asset-price">$148.70</div><div class="asset-change">+3.16%</div></div>
+                    </div>
+                    <div class="hero-float"><div class="hero-float-label">Order status</div><div class="hero-float-value">Completed</div><div class="hero-float-sub">Verified by LeehExchange</div></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="value-strip" aria-label="LeehExchange benefits">
+            <div class="container value-grid">
+                <div class="value-item"><span class="value-icon">01</span><div><strong>1,000+ markets</strong><span>Explore more assets</span></div></div>
+                <div class="value-item"><span class="value-icon">↗</span><div><strong>Fast transactions</strong><span>Simple order flow</span></div></div>
+                <div class="value-item"><span class="value-icon">₦</span><div><strong>Multiple currencies</strong><span>Built for local value</span></div></div>
+                <div class="value-item"><span class="value-icon">▣</span><div><strong>Gift card trading</strong><span>Competitive rates</span></div></div>
+                <div class="value-item"><span class="value-icon">✈</span><div><strong>Telegram-powered</strong><span>No complex exchange</span></div></div>
+                <div class="value-item"><span class="value-icon">✓</span><div><strong>Simple experience</strong><span>Human-friendly support</span></div></div>
+            </div>
+        </section>
+
+        <section class="section-tight crypto-activity" id="crypto-activity">
+            <div class="container">
+                <div class="crypto-activity-head reveal">
+                    <div>
+                        <div class="eyebrow">Platform activity</div>
+                        <h2 class="section-title">Crypto volume, clearly classified.</h2>
+                        <p class="section-copy">See which supported cryptocurrencies have been traded through LeehExchange. Only approved and completed orders are included.</p>
+                    </div>
+                    <div class="crypto-activity-total">
+                        <span>Combined value</span>
+                        <strong id="combined-value-total">Loading…</strong>
+                        <small>NGN and USD numeric total</small>
+                    </div>
+                </div>
+                <div class="crypto-volume-grid reveal delay-1" id="crypto-volume-grid">
+                    <div class="crypto-volume-empty">Loading traded cryptocurrency activity…</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="about">
+            <div class="container">
+                <div class="intro-grid reveal">
+                    <div><div class="eyebrow">How it works</div><h2 class="section-title">Choose.<br>Trade. Receive.</h2></div>
+                    <p class="section-copy">The easiest way to move between crypto, digital assets and everyday value. LeehExchange keeps the process clear from your first tap to your final confirmation.</p>
+                </div>
+                <div class="process-grid">
+                    <div class="process-step reveal"><span class="step-index">01</span><h3 class="step-title">Choose</h3><p class="step-copy">Pick what you want to buy, sell or exchange in the Telegram bot.</p></div>
+                    <div class="process-step reveal delay-1"><span class="step-index">02</span><h3 class="step-title">Trade</h3><p class="step-copy">Follow the guided steps, review your rate and send your payment.</p></div>
+                    <div class="process-step reveal delay-2"><span class="step-index">03</span><h3 class="step-title">Receive</h3><p class="step-copy">Get your asset, payout or service confirmation with a clear receipt.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section products-section" id="features">
+            <div class="container">
+                <div class="products-head reveal">
+                    <div><div class="eyebrow">Products & services</div><h2 class="section-title">One platform.<br>More ways to move.</h2></div>
+                    <p class="section-copy">Designed for the transactions people actually make — from digital assets to everyday essentials.</p>
+                </div>
+                <div class="product-grid">
+                    <article class="product-card featured reveal" id="buy-crypto"><span class="product-icon">₿</span><h3 class="product-title">Buy Crypto</h3><p class="product-copy">Buy supported assets with a guided flow, live rates and a clear confirmation.</p><span class="product-meta">BTC · ETH · SOL · BNB + more →</span></article>
+                    <article class="product-card reveal delay-1" id="sell-crypto"><span class="product-icon">↗</span><h3 class="product-title">Sell Crypto</h3><p class="product-copy">Turn crypto into local value with a simple, human-reviewed process.</p><span class="product-meta">Secure payouts →</span></article>
+                    <article class="product-card reveal delay-2" id="gift-cards"><span class="product-icon">▣</span><h3 class="product-title">Gift Cards</h3><p class="product-copy">Trade popular US and UK gift cards at competitive rates.</p><span class="product-meta">Amazon · Apple · Steam →</span></article>
+                    <article class="product-card reveal"><span class="product-icon">✦</span><h3 class="product-title">Telegram Premium & Stars</h3><p class="product-copy">Top up your Telegram experience directly through the bot.</p><span class="product-meta">Digital services →</span></article>
+                    <article class="product-card reveal delay-1"><span class="product-icon">⌁</span><h3 class="product-title">Airtime & Data</h3><p class="product-copy">Recharge Nigerian networks and data bundles without leaving Telegram.</p><span class="product-meta">MTN · Airtel · Glo · 9mobile →</span></article>
+                    <article class="product-card reveal delay-2"><span class="product-icon">₦</span><h3 class="product-title">Currency Exchange</h3><p class="product-copy">Move between digital value and local currency with a straightforward quote.</p><span class="product-meta">Built for Nigeria →</span></article>
+                    <article class="product-card reveal"><span class="product-icon">◇</span><h3 class="product-title">Precious Metals</h3><p class="product-copy">A future-ready way to explore more forms of digital value.</p><span class="coming-soon">Coming soon</span></article>
+                    <article class="product-card reveal delay-1"><span class="product-icon">+</span><h3 class="product-title">More services</h3><p class="product-copy">New ways to make digital transactions more useful, accessible and simple.</p><span class="coming-soon">Expanding</span></article>
+                </div>
+            </div>
+        </section>
+
+        <section class="telegram-section" id="telegram">
+            <div class="container telegram-grid">
+                <div class="reveal">
+                    <div class="eyebrow">The LeehExchange difference</div>
+                    <h2 class="section-title">Your exchange,<br>inside Telegram.</h2>
+                    <p class="section-copy">No complicated dashboard. No unfamiliar trading interface. Open the LeehExchange bot, choose a service and let the conversation guide you.</p>
+                    <div class="telegram-points">
+                        <div class="telegram-point"><i>✓</i><span>Trade from the Telegram app you already use</span></div>
+                        <div class="telegram-point"><i>✓</i><span>Get clear steps and order updates</span></div>
+                        <div class="telegram-point"><i>✓</i><span>Receive instant receipts and confirmations</span></div>
+                        <div class="telegram-point"><i>✓</i><span>Ask for support when you need it</span></div>
+                    </div>
+                    <a href="https://t.me/LEEHExchangeBot" target="_blank" rel="noopener" class="button button-primary" style="margin-top:34px">Trade on Telegram <span aria-hidden="true">↗</span></a>
+                </div>
+                <div class="telegram-visual reveal delay-2" aria-label="Telegram trade flow preview">
+                    <div class="telegram-phone">
+                        <div class="phone-bar"><span>9:41</span><span>● ● ●</span></div>
+                        <div class="phone-brand"><span class="phone-brand-mark">L</span><div><strong>LeehExchange Bot</strong><span>online now</span></div></div>
+                        <div class="chat-bubble">Welcome back. What would you like to do today?</div>
+                        <div class="phone-actions"><span>Buy crypto</span><span>Sell crypto</span><span>Gift cards</span><span>Airtime & data</span></div>
+                        <div class="chat-bubble user">I want to buy BTC</div>
+                        <div class="chat-bubble">Great. Let’s get your live quote and guide you through the next step.</div>
+                    </div>
+                    <div class="telegram-stamp"><strong>Simple by design.</strong><span>One conversation. Every step.</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section" id="markets">
+            <div class="container">
+                <div class="markets-head reveal">
+                    <div><div class="eyebrow">Live markets</div><h2 class="section-title">See the market.<br>Move with confidence.</h2><p class="section-copy">Track selected assets live and explore 1,000+ market symbols through the chart interface.</p></div>
+                    <a href="https://t.me/LEEHExchangeBot" target="_blank" rel="noopener" class="button button-secondary">Start with a live quote <span aria-hidden="true">↗</span></a>
+                </div>
+                <div class="market-panel reveal delay-1">
+                    <div class="market-tabs" id="coin-tabs">
+                        <button class="coin-tab bot-coin active" data-symbol="BINANCE:BTCUSDT" data-name="Bitcoin" data-id="bitcoin">₿ BTC</button>
+                        <button class="coin-tab bot-coin" data-symbol="BINANCE:ETHUSDT" data-name="Ethereum" data-id="ethereum">Ξ ETH</button>
+                        <button class="coin-tab bot-coin" data-symbol="BINANCE:SOLUSDT" data-name="Solana" data-id="solana">◎ SOL</button>
+                        <button class="coin-tab bot-coin" data-symbol="BINANCE:BNBUSDT" data-name="BNB" data-id="binancecoin">⬡ BNB</button>
+                        <button class="coin-tab bot-coin" data-symbol="BINANCE:XRPUSDT" data-name="XRP" data-id="ripple">✕ XRP</button>
+                        <button class="coin-tab bot-coin" data-symbol="BINANCE:DOGEUSDT" data-name="Dogecoin" data-id="dogecoin">Ð DOGE</button>
+                        <button class="coin-tab bot-coin" data-symbol="BINANCE:TRXUSDT" data-name="Tron" data-id="tron">◈ TRX</button>
+                        <button class="coin-tab bot-coin" data-symbol="BINANCE:POLUSDT" data-name="Polygon" data-id="matic-network">⬟ POL</button>
+                        <button class="coin-tab bot-coin" data-symbol="BINANCE:TONUSDT" data-name="TON" data-id="the-open-network">TON</button>
+                        <button class="coin-tab bot-coin" data-symbol="BINANCE:SUIUSDT" data-name="Sui" data-id="sui">SUI</button>
+                    </div>
+                    <div class="market-tools">
+                        <div class="market-search"><input type="text" id="coin-search-input" placeholder="Search any market, e.g. LINK or PEPE" maxlength="12" autocomplete="off" spellcheck="false"><button id="coin-search-btn">View chart</button></div>
+                        <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap"><div class="interval-tabs" id="interval-tabs"><button class="interval-tab" data-interval="15">15m</button><button class="interval-tab active" data-interval="60">1H</button><button class="interval-tab" data-interval="240">4H</button><button class="interval-tab" data-interval="D">1D</button><button class="interval-tab" data-interval="W">1W</button></div><button class="chart-screenshot-btn" id="chart-screenshot-btn">Save chart card</button></div>
+                    </div>
+                    <div class="chart-frame-wrap">
+                        <div class="chart-watermark"><div class="cwm-logo"><img src="/static/leeh_icon.png" alt="" class="cwm-icon"><span>LeehExchange</span></div></div>
+                        <iframe id="tv-frame" src="https://s.tradingview.com/widgetembed/?symbol=BINANCE:BTCUSDT&interval=60&theme=dark&style=1&locale=en&toolbar_bg=060B18&enable_publishing=false&allow_symbol_change=false&details=true&withdateranges=true&saveimage=true&hide_side_toolbar=false&hide_legend=false&studies=[]&hide_top_toolbar=false&backgroundColor=rgba(6,11,24,1)&gridColor=rgba(255,255,255,0.04)" allowtransparency="true" scrolling="no" frameborder="0"></iframe>
+                    </div>
+                </div>
+                <div class="coin-grid">
+                    <div class="coin-card reveal"><span class="coin-logo">₿</span><div class="coin-name">Bitcoin</div><div class="coin-symbol">BTC</div><div class="coin-price">Loading…</div><div class="coin-change change-up">● Buy & sell</div></div>
+                    <div class="coin-card reveal delay-1"><span class="coin-logo">Ξ</span><div class="coin-name">Ethereum</div><div class="coin-symbol">ETH</div><div class="coin-price">Loading…</div><div class="coin-change change-up">● Buy & sell</div></div>
+                    <div class="coin-card reveal delay-2"><span class="coin-logo">◎</span><div class="coin-name">Solana</div><div class="coin-symbol">SOL</div><div class="coin-price">Loading…</div><div class="coin-change change-up">● Buy & sell</div></div>
+                    <div class="coin-card reveal"><span class="coin-logo">⬡</span><div class="coin-name">BNB</div><div class="coin-symbol">BNB</div><div class="coin-price">Loading…</div><div class="coin-change change-up">● Buy & sell</div></div>
+                    <div class="coin-card reveal delay-1"><span class="coin-logo">✕</span><div class="coin-name">XRP</div><div class="coin-symbol">XRP</div><div class="coin-price">Loading…</div><div class="coin-change change-up">● Buy & sell</div></div>
+                    <div class="coin-card reveal delay-2"><span class="coin-logo">Ð</span><div class="coin-name">Dogecoin</div><div class="coin-symbol">DOGE</div><div class="coin-price">Loading…</div><div class="coin-change change-up">● Buy & sell</div></div>
+                    <div class="coin-card reveal"><span class="coin-logo">◈</span><div class="coin-name">Tron</div><div class="coin-symbol">TRX</div><div class="coin-price">Loading…</div><div class="coin-change change-up">● Buy & sell</div></div>
+                    <div class="coin-card reveal delay-1"><span class="coin-logo">⬟</span><div class="coin-name">Polygon</div><div class="coin-symbol">POL</div><div class="coin-price">Loading…</div><div class="coin-change change-up">● Buy & sell</div></div>
+                    <div class="coin-card reveal delay-2"><span class="coin-logo">TON</span><div class="coin-name">TON</div><div class="coin-symbol">TON</div><div class="coin-price">Loading…</div><div class="coin-change change-up">● Buy & sell</div></div>
+                    <div class="coin-card reveal"><span class="coin-logo">SUI</span><div class="coin-name">Sui</div><div class="coin-symbol">SUI</div><div class="coin-price">Loading…</div><div class="coin-change change-up">● Buy & sell</div></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section-tight" id="developers">
+            <div class="container">
+                <div class="developer-panel reveal">
+                    <div>
+                        <div class="eyebrow">Developer ecosystem</div>
+                        <h2 class="section-title">Build the next layer of value.</h2>
+                        <p class="section-copy">Connect to the tools behind LeehExchange. Explore developer APIs, Venora AI, Venora Mini and future crypto-fintech integrations.</p>
+                        <a href="/developers" class="button button-dark" style="margin-top:27px">Explore Developers <span aria-hidden="true">↗</span></a>
+                    </div>
+                    <div class="developer-code" aria-label="Developer API preview">
+                        <div class="code-top"><i></i><i></i><i></i></div>
+                        <div class="code-line code-muted">// connect to LeehExchange</div>
+                        <div class="code-line"><span class="code-blue">const</span> exchange = <span class="code-green">new</span> LeehExchange({</div>
+                        <div class="code-line">&nbsp;&nbsp;environment: <span class="code-green">'production'</span>,</div>
+                        <div class="code-line">&nbsp;&nbsp;assets: <span class="code-green">'digital-value'</span></div>
+                        <div class="code-line">});</div>
+                        <div class="code-line code-muted">exchange.quote(<span class="code-green">'BTC'</span>);</div>
+                    </div>
+                </div>
+                <div class="status-strip reveal delay-1">
+                    <div class="status-item"><strong>Developer APIs</strong><span>Available</span></div>
+                    <div class="status-item"><strong>Venora AI</strong><span>Available</span></div>
+                    <div class="status-item"><strong>Venora Mini</strong><span>Available</span></div>
+                    <div class="status-item"><strong>New integrations</strong><span style="color:#687893">Coming soon</span></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="section section-tight" id="help">
+            <div class="container help-grid">
+                <div class="reveal"><div class="eyebrow">Support & reliability</div><h2 class="section-title">Clear when it matters.</h2><p class="section-copy">Every order follows a visible path, with live rates, admin verification and Telegram updates along the way.</p></div>
+                <div class="faq-list reveal delay-1">
+                    <div class="faq-item"><div class="faq-q">How do I start a trade?<span class="faq-icon">+</span></div><div class="faq-a">Open the LeehExchange Telegram bot, choose a service, and follow the guided steps. No separate exchange app is required.</div></div>
+                    <div class="faq-item"><div class="faq-q">How long does a transaction take?<span class="faq-icon">+</span></div><div class="faq-a">Orders are reviewed and processed as quickly as possible during operating hours. You receive a Telegram notification and email receipt when your order is confirmed.</div></div>
+                    <div class="faq-item"><div class="faq-q">What assets and gift cards are supported?<span class="faq-icon">+</span></div><div class="faq-a">LeehExchange supports a growing range of crypto assets plus popular US and UK gift cards. Choose a service in the bot to see the available options.</div></div>
+                    <div class="faq-item"><div class="faq-q">Can I get help while trading?<span class="faq-icon">+</span></div><div class="faq-a">Yes. Use Venora Flash on this page for quick answers, or reach the LeehExchange team through the Telegram experience.</div></div>
+                </div>
+            </div>
+        </section>
+
+        <section class="final-cta">
+            <div class="container reveal">
+                <div class="eyebrow" style="color:#9DC2F8;justify-content:center">Ready when you are</div>
+                <h2 class="section-title">Ready to trade smarter?</h2>
+                <p>Start your next transaction with LeehExchange.</p>
+                <a href="https://t.me/LEEHExchangeBot" target="_blank" rel="noopener" class="button">Start Trading <span aria-hidden="true">↗</span></a>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-top">
+                <div class="footer-brand"><a href="/" class="brand"><img src="/static/leeh_icon.png" alt="LeehExchange"><span class="brand-wordmark">Leeh<span>Exchange</span></span></a><p>Smart exchange. Real value. Digital-asset transactions made simpler for Africa.</p></div>
+                <div class="footer-col"><h3>Products</h3><a href="#buy-crypto">Buy Crypto</a><a href="#sell-crypto">Sell Crypto</a><a href="#gift-cards">Gift Cards</a><a href="#markets">Markets</a></div>
+                <div class="footer-col"><h3>Company</h3><a href="#about">About</a><a href="#features">Features</a><a href="#help">Help</a><a href="/admin">Admin portal</a></div>
+                <div class="footer-col"><h3>Developers</h3><a href="/developers">Developer portal</a><a href="#developers">Venora AI</a><a href="#developers">Venora Mini</a><a href="https://t.me/LEEHExchangeBot" target="_blank" rel="noopener">Telegram</a></div>
+            </div>
+            <div class="footer-bottom"><span>© 2026 LeehExchange. All rights reserved.</span><div class="footer-socials"><a href="https://t.me/LEEHExchangeBot" target="_blank" rel="noopener">Telegram</a><a href="/developers">API</a><a href="#help">Support</a><a href="#help">Legal</a></div></div>
+        </div>
+    </footer>
+
+    <div class="share-modal" id="share-modal">
+        <div class="share-modal-card">
+            <div class="share-modal-header"><span class="share-modal-title">Save chart card</span><button class="share-modal-close" id="share-modal-close" aria-label="Close">✕</button></div>
+            <canvas id="share-canvas-preview"></canvas>
+            <div class="share-modal-actions"><button class="share-cancel-btn" id="share-cancel-btn">Cancel</button><button class="share-dl-btn" id="share-dl-btn">Download PNG</button></div>
+        </div>
+    </div>
+
+    <button id="vf-btn" aria-label="Ask Venora Flash" aria-controls="vf-panel" aria-expanded="false"><span class="vf-btn-icon" aria-hidden="true">✦</span><span>Venora Flash</span></button>
+    <div class="vf-panel" id="vf-panel" role="dialog" aria-label="Venora Flash Chat">
+        <div class="vf-panel-head"><div class="vf-panel-title"><i class="vf-status-dot"></i><span>Venora Flash</span><span class="vf-badge">Public AI</span></div><button class="vf-close-btn" id="vf-close" aria-label="Close chat">✕</button></div>
+        <div class="vf-messages" id="vf-messages"><div class="vf-msg"><div class="vf-av">✦</div><div class="vf-bubble">Hi — I’m <strong>Venora Flash</strong>, your LeehExchange guide.<br><br>Ask me about trading, services, API keys or anything on this site.</div></div></div>
+        <div class="vf-suggs" id="vf-suggs"><button class="vf-sug" data-msg="What is LEEH Exchange?">What is LeehExchange?</button><button class="vf-sug" data-msg="How do I get a free API key?">Get an API key</button><button class="vf-sug" data-msg="How to buy crypto?">Buy crypto</button><button class="vf-sug" data-msg="Customer support">Support</button></div>
+        <div class="vf-input-row"><input class="vf-input" id="vf-input" type="text" placeholder="Ask anything…" aria-label="Ask Venora Flash a question" maxlength="300" autocomplete="off"><button class="vf-send-btn" id="vf-send" aria-label="Send message"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button></div>
+    </div>
+    <button class="back-to-top" id="back-to-top" aria-label="Back to top"><svg viewBox="0 0 24 24"><path d="M7.41 15.41L12 10.83l4.59 4.58L18 14l-6-6-6 6z"/></svg></button>
+
+    <script>
+        // Scroll reveals
+        const revealObserver = new IntersectionObserver(entries => entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('visible'); }), { threshold: .08 });
+        document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+        // Mobile navigation
+        const mobileMenu = document.getElementById('mobile-menu');
+        const navMenu = document.getElementById('nav-menu');
+        const mobileClose = document.getElementById('mobile-close');
+        function closeMobileMenu() { mobileMenu.classList.remove('open'); mobileMenu.setAttribute('aria-hidden', 'true'); navMenu.setAttribute('aria-expanded', 'false'); document.body.style.overflow = ''; }
+        navMenu.addEventListener('click', () => { const open = mobileMenu.classList.toggle('open'); mobileMenu.setAttribute('aria-hidden', String(!open)); navMenu.setAttribute('aria-expanded', String(open)); document.body.style.overflow = open ? 'hidden' : ''; });
+        mobileClose.addEventListener('click', closeMobileMenu);
+        mobileMenu.addEventListener('click', event => { if (event.target === mobileMenu) closeMobileMenu(); });
+        mobileMenu.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMobileMenu));
+
+        // Real platform statistics — the public endpoint remains the source of truth.
+        function animateCount(el, end, prefix, suffix) {
+            if (!el || !Number.isFinite(end)) return;
+            let value = 0; const step = Math.max(1, Math.ceil(end / 55));
+            const timer = setInterval(() => { value += step; if (value >= end) { value = end; clearInterval(timer); } el.innerHTML = prefix + value.toLocaleString() + '<span>' + suffix + '</span>'; }, 24);
+        }
+        function formatActivityNumber(value, maximumFractionDigits = 2, minimumFractionDigits = 0) {
+            const number = Number(value);
+            if (!Number.isFinite(number) || number === 0) return '0';
+            return number.toLocaleString(undefined, { minimumFractionDigits, maximumFractionDigits });
+        }
+        function cryptoMark(symbol) {
+            return { BTC: '₿', ETH: 'Ξ', BNB: 'B', SOL: '◎', XRP: '✕', DOGE: 'Ð', TRX: '◈', TON: 'T', SUI: 'S', POL: '⬡' }[symbol] || '●';
+        }
+        function renderCryptoActivity(items) {
+            const grid = document.getElementById('crypto-volume-grid');
+            if (!grid) return;
+            if (!Array.isArray(items) || !items.length) {
+                grid.innerHTML = '<div class="crypto-volume-empty">No approved or completed cryptocurrency activity yet.</div>';
+                return;
+            }
+            grid.innerHTML = items.map(item => {
+                const symbol = String(item.symbol || '').toUpperCase();
+                const name = String(item.name || symbol);
+                const orders = Number(item.orders) || 0;
+                const buyUsd = Number(item.buy_usd) || 0;
+                const sellQuantity = Number(item.sell_quantity) || 0;
+                return '<article class="crypto-volume-card">' +
+                    '<div class="crypto-volume-card-top"><span class="crypto-volume-mark">' + cryptoMark(symbol) + '</span><span class="crypto-volume-orders">' + formatActivityNumber(orders, 0) + ' orders</span></div>' +
+                    '<div class="crypto-volume-name">' + name + '</div>' +
+                    '<div class="crypto-volume-symbol">' + symbol + '</div>' +
+                    '<div class="crypto-volume-line"><span>Buy volume</span><strong>$' + formatActivityNumber(buyUsd, 2) + '</strong></div>' +
+                    '<div class="crypto-volume-line"><span>Sell volume</span><strong>' + formatActivityNumber(sellQuantity, 8) + ' ' + symbol + '</strong></div>' +
+                    '</article>';
+            }).join('');
+        }
+        (async function loadLandingStats() {
+            try {
+                const response = await fetch('/api/landing-stats');
+                if (!response.ok) throw new Error('Stats request failed');
+                const data = await response.json();
+                const combined = document.getElementById('combined-value-total');
+                if (combined) combined.textContent = formatActivityNumber(data.combined_value, 2, 2);
+                renderCryptoActivity(data.crypto_volume);
+            } catch (error) {
+                const combined = document.getElementById('combined-value-total');
+                if (combined) combined.textContent = 'Unavailable';
+                renderCryptoActivity([]);
+            }
+        })();
+
+        // FAQ accordion
+        document.querySelectorAll('.faq-q').forEach(question => question.addEventListener('click', () => {
+            const item = question.closest('.faq-item');
+            const wasOpen = item.classList.contains('open');
+            document.querySelectorAll('.faq-item').forEach(other => other.classList.remove('open'));
+            if (!wasOpen) item.classList.add('open');
+        }));
+
+        // Back to top
+        const backToTop = document.getElementById('back-to-top');
+        window.addEventListener('scroll', () => backToTop.classList.toggle('show', window.scrollY > 600), { passive: true });
+        backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+
+        // TradingView market controls
+        const chartState = { symbol: 'BINANCE:BTCUSDT', interval: '60', name: 'Bitcoin', coinId: 'bitcoin' };
+        function buildTVUrl() {
+            return 'https://s.tradingview.com/widgetembed/?symbol=' + encodeURIComponent(chartState.symbol) + '&interval=' + chartState.interval + '&theme=dark&style=1&locale=en&toolbar_bg=060B18&enable_publishing=false&allow_symbol_change=false&details=true&withdateranges=true&saveimage=true&hide_side_toolbar=false&hide_legend=false&studies=[]&hide_top_toolbar=false&backgroundColor=rgba(6,11,24,1)&gridColor=rgba(255,255,255,0.04)';
+        }
+        document.querySelectorAll('.coin-tab').forEach(tab => tab.addEventListener('click', () => {
+            document.querySelectorAll('.coin-tab').forEach(item => item.classList.remove('active'));
+            tab.classList.add('active');
+            chartState.symbol = tab.dataset.symbol; chartState.name = tab.dataset.name; chartState.coinId = tab.dataset.id || '';
+            document.getElementById('tv-frame').src = buildTVUrl();
+        }));
+        document.querySelectorAll('.interval-tab').forEach(tab => tab.addEventListener('click', () => {
+            document.querySelectorAll('.interval-tab').forEach(item => item.classList.remove('active'));
+            tab.classList.add('active'); chartState.interval = tab.dataset.interval; document.getElementById('tv-frame').src = buildTVUrl();
+        }));
+        function loadSearchedCoin() {
+            const input = document.getElementById('coin-search-input');
+            const raw = input.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+            if (!raw) return;
+            chartState.symbol = 'BINANCE:' + (raw.endsWith('USDT') ? raw : raw + 'USDT');
+            chartState.name = raw.replace('USDT', ''); chartState.coinId = '';
+            document.querySelectorAll('.coin-tab').forEach(item => item.classList.remove('active'));
+            document.getElementById('tv-frame').src = buildTVUrl(); input.value = '';
+        }
+        document.getElementById('coin-search-btn').addEventListener('click', loadSearchedCoin);
+        document.getElementById('coin-search-input').addEventListener('keydown', event => { if (event.key === 'Enter') loadSearchedCoin(); });
+
+        // Live CoinGecko prices
+        const CGIDS = 'bitcoin,ethereum,solana,binancecoin,ripple,dogecoin,tron,matic-network,the-open-network,sui';
+        const coinCardMap = { bitcoin:0, ethereum:1, solana:2, binancecoin:3, ripple:4, dogecoin:5, tron:6, 'matic-network':7, 'the-open-network':8, sui:9 };
+        const priceCache = {};
+        function fmtUSD(price) {
+            if (price >= 1000) return '$' + price.toLocaleString('en', { maximumFractionDigits: 0 });
+            if (price >= 1) return '$' + price.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 4 });
+            return '$' + price.toFixed(6);
+        }
+        async function fetchPrices() {
+            try {
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=' + CGIDS + '&vs_currencies=usd&include_24hr_change=true');
+                if (!response.ok) return;
+                const data = await response.json(); const cards = document.querySelectorAll('.coin-card');
+                Object.entries(data).forEach(([id, value]) => {
+                    const index = coinCardMap[id]; if (index === undefined || !cards[index]) return;
+                    priceCache[id] = value; const card = cards[index]; const up = (value.usd_24h_change || 0) >= 0;
+                    const change = card.querySelector('.coin-change'); const price = card.querySelector('.coin-price');
+                    if (price) price.textContent = fmtUSD(value.usd);
+                    if (change) { change.textContent = (up ? '▲ ' : '▼ ') + Math.abs(value.usd_24h_change || 0).toFixed(2) + '% · 24h'; change.className = 'coin-change ' + (up ? 'change-up' : 'change-dn'); }
+                });
+            } catch (error) { /* Market cards keep their loading state when the public feed is unavailable. */ }
+        }
+        fetchPrices(); setInterval(fetchPrices, 60000);
+
+        // Downloadable chart card
+        const shareModal = document.getElementById('share-modal');
+        const shareCanvas = document.getElementById('share-canvas-preview');
+        function closeShare() { shareModal.classList.remove('open'); document.body.style.overflow = ''; }
+        function generateShareCard() {
+            const width = 820, height = 440, ratio = Math.min(window.devicePixelRatio || 1, 2);
+            shareCanvas.width = width * ratio; shareCanvas.height = height * ratio;
+            const ctx = shareCanvas.getContext('2d'); ctx.scale(ratio, ratio);
+            ctx.fillStyle = '#071A42'; ctx.fillRect(0, 0, width, height);
+            ctx.fillStyle = 'rgba(23,105,224,.16)'; ctx.beginPath(); ctx.arc(width * .78, height * .22, 230, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#fff'; ctx.font = '800 22px Manrope, sans-serif'; ctx.fillText('LeehExchange', 44, 52);
+            ctx.fillStyle = '#A9C9F8'; ctx.font = '700 12px DM Sans, sans-serif'; ctx.fillText('LIVE MARKET SNAPSHOT', 44, 78);
+            ctx.fillStyle = '#fff'; ctx.font = '800 48px Manrope, sans-serif'; ctx.fillText(chartState.name, 44, 172);
+            const data = priceCache[chartState.coinId]; ctx.fillStyle = '#D9E7FF'; ctx.font = '700 28px Manrope, sans-serif'; ctx.fillText(data ? fmtUSD(data.usd) : 'Price loading…', 44, 222);
+            if (data && data.usd_24h_change !== undefined) { ctx.fillStyle = data.usd_24h_change >= 0 ? '#73D6AE' : '#FF8F9B'; ctx.font = '800 15px DM Sans, sans-serif'; ctx.fillText((data.usd_24h_change >= 0 ? '▲ ' : '▼ ') + Math.abs(data.usd_24h_change).toFixed(2) + '% · 24h', 44, 252); }
+            ctx.strokeStyle = '#4C8CEB'; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(420, 300); ctx.lineTo(460, 270); ctx.lineTo(500, 284); ctx.lineTo(550, 228); ctx.lineTo(590, 245); ctx.lineTo(640, 180); ctx.lineTo(695, 204); ctx.lineTo(780, 130); ctx.stroke();
+            ctx.fillStyle = 'rgba(255,255,255,.55)'; ctx.font = '600 12px DM Sans, sans-serif'; ctx.fillText('Charts powered by TradingView', 44, height - 28);
+        }
+        document.getElementById('chart-screenshot-btn').addEventListener('click', () => { generateShareCard(); shareModal.classList.add('open'); document.body.style.overflow = 'hidden'; });
+        document.getElementById('share-modal-close').addEventListener('click', closeShare);
+        document.getElementById('share-cancel-btn').addEventListener('click', closeShare);
+        shareModal.addEventListener('click', event => { if (event.target === shareModal) closeShare(); });
+        document.getElementById('share-dl-btn').addEventListener('click', () => { const link = document.createElement('a'); link.download = 'leeh-' + chartState.name.toLowerCase() + '.png'; link.href = shareCanvas.toDataURL('image/png'); link.click(); });
+
+        // Venora Flash — public assistant endpoint remains unchanged.
+        (function() {
+            const button = document.getElementById('vf-btn'), panel = document.getElementById('vf-panel'), close = document.getElementById('vf-close');
+            const input = document.getElementById('vf-input'), send = document.getElementById('vf-send'), messages = document.getElementById('vf-messages'), suggestions = document.getElementById('vf-suggs');
+            button.addEventListener('click', () => { panel.classList.toggle('open'); const open = panel.classList.contains('open'); button.setAttribute('aria-expanded', String(open)); if (open) input.focus(); });
+            close.addEventListener('click', () => { panel.classList.remove('open'); button.setAttribute('aria-expanded', 'false'); button.focus(); });
+            document.addEventListener('keydown', event => { if (event.key === 'Escape' && panel.classList.contains('open')) { panel.classList.remove('open'); button.setAttribute('aria-expanded', 'false'); button.focus(); } });
+            function markdown(text) { return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>'); }
+            function addMessage(text, role) {
+                const wrap = document.createElement('div'); wrap.className = 'vf-msg' + (role === 'user' ? ' vf-user' : '');
+                const avatar = document.createElement('div'); avatar.className = 'vf-av'; avatar.textContent = role === 'user' ? '●' : '✦';
+                const bubble = document.createElement('div'); bubble.className = 'vf-bubble'; bubble.innerHTML = markdown(text);
+                wrap.append(avatar, bubble); messages.appendChild(wrap); messages.scrollTop = messages.scrollHeight;
+            }
+            function addTyping() { const wrap = document.createElement('div'); wrap.className = 'vf-msg'; wrap.id = 'vf-typing'; const avatar = document.createElement('div'); avatar.className = 'vf-av'; avatar.textContent = '✦'; const bubble = document.createElement('div'); bubble.className = 'vf-bubble'; bubble.innerHTML = '<div class="vf-typing-dots"><span></span><span></span><span></span></div>'; wrap.append(avatar, bubble); messages.appendChild(wrap); messages.scrollTop = messages.scrollHeight; }
+            async function sendMessage(text) {
+                text = (text || input.value).trim(); if (!text) return; input.value = ''; suggestions.style.display = 'none'; addMessage(text, 'user'); addTyping(); send.disabled = true;
+                try { const response = await fetch('/api/venora-flash', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ message: text }) }); const data = await response.json(); document.getElementById('vf-typing')?.remove(); addMessage(data.response || 'Sorry, try again in a moment.', 'bot'); }
+                catch (error) { document.getElementById('vf-typing')?.remove(); addMessage('Having connection issues. Please try again.', 'bot'); }
+                send.disabled = false; input.focus();
+            }
+            send.addEventListener('click', () => sendMessage()); input.addEventListener('keydown', event => { if (event.key === 'Enter') sendMessage(); }); suggestions.querySelectorAll('.vf-sug').forEach(item => item.addEventListener('click', () => sendMessage(item.dataset.msg)));
+        })();
+    </script>
+</body>
+</html>

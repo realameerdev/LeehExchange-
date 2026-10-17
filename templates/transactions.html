@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% block title %}Ledger | LEEH Exchange{% endblock %}
+{% block content %}
+
+<div class="space-y-8 sm:space-y-12 animate-reveal">
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-8">
+        <div>
+            <span class="inline-block px-3 py-1.5 sm:px-4 sm:py-2 bg-primary-100 text-primary-700 text-xs font-black uppercase tracking-widest rounded-full mb-4 sm:mb-6">Financials</span>
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-slate-900 leading-none">Transaction ledger</h1>
+            <p class="text-slate-500 mt-3 sm:mt-5 text-base sm:text-lg leading-relaxed">Complete history of all platform financial movements and order states.</p>
+        </div>
+    </div>
+
+    <!-- Controls -->
+    <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+        <div class="flex-1">
+            <input type="text" id="search" placeholder="Search by user, type, or ref..." class="input-premium">
+        </div>
+        <div id="bulk-toolbar" class="hidden animate-reveal">
+            <div class="bg-slate-900 rounded-2xl p-2 flex items-center gap-2 flex-wrap">
+                <span class="px-3 py-2 text-xs font-black text-white uppercase tracking-widest"><span id="selected-count">0</span> selected</span>
+                <div class="h-6 w-[1px] bg-slate-800 mx-1 hidden sm:block"></div>
+                <button onclick="bulkApprove()" class="px-3 py-2 bg-success-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-success-600 transition-all">Approve</button>
+                <button onclick="showBulkRejectForm()" class="px-3 py-2 bg-danger-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-danger-600 transition-all">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card-premium overflow-hidden">
+        <div class="overflow-x-auto -webkit-overflow-scrolling-touch">
+            <table class="w-full text-left text-sm min-w-[700px]">
+                <thead>
+                    <tr class="bg-[#F2F2F7]/50">
+                        <th class="px-4 sm:px-6 py-4 sm:py-5 w-10"><input type="checkbox" id="select-all" onchange="toggleSelectAll(this)" class="w-4 h-4 rounded-lg border-[#C7C7CC] text-[#007AFF] focus:ring-[#007AFF]/20"></th>
+                        <th class="px-4 sm:px-6 py-4 sm:py-5 text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider whitespace-nowrap">Time</th>
+                        <th class="px-4 sm:px-6 py-4 sm:py-5 text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider whitespace-nowrap">Client</th>
+                        <th class="px-4 sm:px-6 py-4 sm:py-5 text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider whitespace-nowrap">Email</th>
+                        <th class="px-4 sm:px-6 py-4 sm:py-5 text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider whitespace-nowrap">Type</th>
+                        <th class="px-4 sm:px-6 py-4 sm:py-5 text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider text-right whitespace-nowrap">Volume</th>
+                        <th class="px-4 sm:px-6 py-4 sm:py-5 text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider text-center whitespace-nowrap">Status</th>
+                        <th class="px-4 sm:px-6 py-4 sm:py-5 text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider text-center whitespace-nowrap">Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body" class="divide-y divide-black/5">
+                    {% for tx in transactions %}
+                    <tr class="transaction-row hover:bg-[#F2F2F7]/30 transition-colors" 
+                        data-searchable="{{ tx.get('Username', '') }} {{ tx.get('Type', '') }} {{ tx.get('Email', '') }}" 
+                        data-timestamp="{{ tx.get('Timestamp', '') }}" 
+                        data-userid="{{ tx.get('UserID', '') }}">
+                        <td class="px-4 sm:px-6 py-4 sm:py-5"><input type="checkbox" class="row-checkbox w-4 h-4 rounded-lg border-[#C7C7CC] text-[#007AFF]" onchange="updateBulkToolbar()"></td>
+                        <td class="px-4 sm:px-6 py-4 sm:py-5">
+                            <p class="text-[11px] font-medium text-[#8E8E93] whitespace-nowrap">{{ tx.get('Timestamp', '') }}</p>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 sm:py-5">
+                            <p class="font-semibold text-[#1C1C1E] text-sm whitespace-nowrap">@{{ tx.get('Username', 'N/A') }}</p>
+                            <p class="text-[10px] font-medium text-[#8E8E93] mt-0.5">ID: {{ tx.get('UserID', '') }}</p>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 sm:py-5">
+                            {% set email = tx.get('Email', '') %}
+                            {% if email and email != 'nan' %}
+                            <p class="text-[11px] font-medium text-[#007AFF] max-w-[120px] truncate">{{ email }}</p>
+                            {% else %}
+                            <p class="text-[11px] font-medium text-[#C7C7CC]">—</p>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 sm:py-5">
+                            <span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap {% if 'buy' in tx.get('Type', '')|lower %}bg-[#007AFF]/10 text-[#007AFF]{% elif 'sell' in tx.get('Type', '')|lower %}bg-[#FF3B30]/10 text-[#FF3B30]{% else %}bg-[#8E8E93]/10 text-[#8E8E93]{% endif %}">
+                                {{ tx.get('Type', 'Unknown') }}
+                            </span>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 sm:py-5 text-right">
+                            <p class="font-semibold text-[#1C1C1E] text-sm whitespace-nowrap">{{ tx.get('Amount', '0.00') }}</p>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 sm:py-5 text-center">
+                            {% set status = tx.get('Status', 'Pending') %}
+                            <span class="inline-block px-2.5 py-1 rounded-full text-[10px] font-semibold whitespace-nowrap {% if status == 'Approved' %}bg-[#34C759]/10 text-[#34C759]{% elif status == 'Rejected' %}bg-[#FF3B30]/10 text-[#FF3B30]{% else %}bg-[#FF9500]/10 text-[#FF9500]{% endif %}">
+                                {{ status }}
+                            </span>
+                        </td>
+                        <td class="px-4 sm:px-6 py-4 sm:py-5">
+                            <div class="flex justify-center gap-2">
+                                <button onclick="approveTransaction('{{ tx.get('Timestamp', '') }}', '{{ tx.get('UserID', '') }}')" title="Approve" class="w-9 h-9 flex items-center justify-center bg-[#34C759]/10 text-[#34C759] hover:bg-[#34C759] hover:text-white rounded-xl transition-all font-bold text-sm">✓</button>
+                                <button onclick="showRejectForm('{{ tx.get('Timestamp', '') }}', '{{ tx.get('UserID', '') }}')" title="Reject" class="w-9 h-9 flex items-center justify-center bg-[#FF3B30]/10 text-[#FF3B30] hover:bg-[#FF3B30] hover:text-white rounded-xl transition-all font-bold text-sm">✕</button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal (iOS-style) -->
+<div id="reject-modal" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm flex items-end sm:items-center justify-center z-[100] p-4 sm:p-6">
+    <div class="bg-white rounded-[28px] max-w-md w-full p-6 sm:p-10 shadow-2xl animate-reveal">
+        <div class="w-12 h-12 sm:w-14 sm:h-14 bg-[#FF3B30]/10 rounded-2xl flex items-center justify-center mb-5 sm:mb-6">
+            <span class="text-xl sm:text-2xl">❌</span>
+        </div>
+        <h3 class="text-xl sm:text-2xl font-bold text-[#1C1C1E] mb-2 sm:mb-3">Reject Order</h3>
+        <p class="text-[#8E8E93] text-sm font-medium mb-6 sm:mb-8 leading-relaxed">Enter the rejection reason. This will be sent to the user via Telegram and email.</p>
+        <textarea id="reject-reason" placeholder="e.g. Payment not verified, invalid wallet address..." class="input-premium min-h-[100px] sm:min-h-[120px] mb-6 sm:mb-8 text-sm"></textarea>
+        <div class="flex gap-3 sm:gap-4">
+            <button onclick="cancelReject()" class="flex-1 py-3.5 sm:py-4 bg-[#F2F2F7] text-[#1C1C1E] font-semibold rounded-2xl hover:bg-[#E5E5EA] transition-all text-sm">Cancel</button>
+            <button onclick="confirmReject()" class="flex-1 py-3.5 sm:py-4 bg-[#FF3B30] text-white font-semibold rounded-2xl hover:brightness-110 transition-all text-sm">Confirm Reject</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bulk Reject Modal -->
+<div id="bulk-reject-modal" class="hidden fixed inset-0 bg-black/30 backdrop-blur-sm flex items-end sm:items-center justify-center z-[100] p-4 sm:p-6">
+    <div class="bg-white rounded-[28px] max-w-md w-full p-6 sm:p-10 shadow-2xl animate-reveal">
+        <h3 class="text-xl font-bold text-[#1C1C1E] mb-5">Bulk Reject</h3>
+        <textarea id="bulk-reject-reason" placeholder="Rejection reason..." class="input-premium min-h-[100px] mb-6 text-sm"></textarea>
+        <div class="flex gap-3">
+            <button onclick="cancelBulkReject()" class="flex-1 py-3.5 bg-[#F2F2F7] text-[#1C1C1E] font-semibold rounded-2xl text-sm">Cancel</button>
+            <button onclick="confirmBulkReject()" class="flex-1 py-3.5 bg-[#FF3B30] text-white font-semibold rounded-2xl text-sm">Confirm</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let currentRejectTx = { timestamp: '', user_id: '' };
+
+function toggleSelectAll(checkbox) {
+    document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = checkbox.checked);
+    updateBulkToolbar();
+}
+
+function updateBulkToolbar() {
+    const selected = document.querySelectorAll('.row-checkbox:checked').length;
+    const toolbar = document.getElementById('bulk-toolbar');
+    document.getElementById('selected-count').textContent = selected;
+    toolbar.classList.toggle('hidden', selected === 0);
+}
+
+function clearSelection() {
+    document.querySelectorAll('.row-checkbox').forEach(cb => cb.checked = false);
+    document.getElementById('select-all').checked = false;
+    updateBulkToolbar();
+}
+
+function getSelectedTransactions() {
+    const selected = [];
+    document.querySelectorAll('.row-checkbox:checked').forEach(checkbox => {
+        const row = checkbox.closest('tr');
+        selected.push({ timestamp: row.dataset.timestamp, user_id: row.dataset.userid });
+    });
+    return selected;
+}
+
+async function bulkApprove() {
+    const selected = getSelectedTransactions();
+    if (!confirm(`Approve ${selected.length} orders?`)) return;
+    const res = await fetch('/api/transaction/bulk-approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transactions: selected }) });
+    if (res.ok) location.reload();
+}
+
+function showBulkRejectForm() { document.getElementById('bulk-reject-modal').classList.remove('hidden'); }
+function cancelBulkReject() { document.getElementById('bulk-reject-modal').classList.add('hidden'); }
+
+async function confirmBulkReject() {
+    const reason = document.getElementById('bulk-reject-reason').value;
+    if (!reason.trim()) return alert('Reason required');
+    const selected = getSelectedTransactions();
+    const res = await fetch('/api/transaction/bulk-reject', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ transactions: selected, reason }) });
+    if (res.ok) location.reload();
+}
+
+async function approveTransaction(timestamp, userId) {
+    const res = await fetch('/api/transaction/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ timestamp, user_id: userId }) });
+    if (res.ok) location.reload();
+}
+
+function showRejectForm(timestamp, userId) {
+    currentRejectTx = { timestamp, user_id: userId };
+    document.getElementById('reject-modal').classList.remove('hidden');
+}
+function cancelReject() { document.getElementById('reject-modal').classList.add('hidden'); }
+
+async function confirmReject() {
+    const reason = document.getElementById('reject-reason').value;
+    if (!reason.trim()) return alert('Reason required');
+    const res = await fetch('/api/transaction/reject', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ...currentRejectTx, reason }) });
+    if (res.ok) location.reload();
+}
+
+const searchInput = document.getElementById('search');
+if (searchInput) {
+    searchInput.addEventListener('keyup', function(e) {
+        const query = e.target.value.toLowerCase();
+        document.querySelectorAll('.transaction-row').forEach(row => {
+            row.style.display = row.dataset.searchable.toLowerCase().includes(query) ? '' : 'none';
+        });
+    });
+}
+</script>
+{% endblock %}

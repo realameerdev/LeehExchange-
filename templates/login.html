@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#0B2A66">
+    <link rel="icon" type="image/png" href="/static/leeh_icon.png">
+    <title>Admin Login — LEEH Exchange</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+        :root {
+            --navy: #0B2A66;
+            --navy-deep: #071A42;
+            --blue: #1769E0;
+            --blue-soft: #EAF2FF;
+            --ink: #0B1736;
+            --muted: #65728A;
+            --line: #E3EAF3;
+            --surface: #FFFFFF;
+            --soft: #F5F8FC;
+            --danger: #C23B4A;
+            --green: #078A61;
+        }
+        html { min-height: 100%; -webkit-text-size-adjust: 100%; }
+        body {
+            min-height: 100vh; min-height: 100dvh; margin: 0; padding: 20px;
+            display: grid; place-items: center; color: var(--ink); background: var(--soft);
+            font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+        .login-shell {
+            display: grid; grid-template-columns: minmax(300px, .9fr) minmax(380px, 1.1fr);
+            width: min(960px, 100%); min-height: 570px; overflow: hidden;
+            background: var(--surface); border: 1px solid var(--line); border-radius: 22px;
+            box-shadow: 0 24px 70px rgba(11,42,102,.13);
+            animation: enter .45s cubic-bezier(.16,1,.3,1) both;
+        }
+        @keyframes enter { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+        .login-aside {
+            position: relative; overflow: hidden; padding: 38px 34px; color: #fff;
+            background: linear-gradient(150deg, #123D8A 0%, var(--navy) 56%, var(--navy-deep) 100%);
+        }
+        .login-aside::before {
+            content: ""; position: absolute; width: 420px; height: 420px; left: -210px; bottom: -220px;
+            border: 1px solid rgba(169,201,248,.2); border-radius: 50%;
+            box-shadow: 0 0 0 32px rgba(169,201,248,.04), 0 0 0 64px rgba(169,201,248,.025);
+        }
+        .login-aside::after {
+            content: ""; position: absolute; width: 8px; height: 8px; right: 54px; top: 116px;
+            background: #A9C9F8; border-radius: 50%; box-shadow: 0 0 0 8px rgba(169,201,248,.12);
+        }
+        .brand { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: 10px; }
+        .brand img { width: 34px; height: 34px; object-fit: contain; filter: brightness(0) invert(1); }
+        .brand-wordmark { font-family: "Manrope", sans-serif; font-size: 16px; font-weight: 800; letter-spacing: -.04em; }
+        .brand-wordmark span { color: #A9C9F8; }
+        .aside-copy { position: relative; z-index: 1; margin-top: 150px; max-width: 280px; }
+        .aside-kicker { color: #A9C9F8; font-size: 10px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
+        .aside-title { margin: 13px 0 0; color: #fff; font-family: "Manrope", sans-serif; font-size: clamp(30px, 4vw, 44px); line-height: 1.02; letter-spacing: -.06em; }
+        .aside-text { margin: 18px 0 0; color: rgba(255,255,255,.66); font-size: 13px; line-height: 1.7; }
+        .aside-status {
+            position: absolute; z-index: 1; right: 28px; bottom: 30px; left: 28px;
+            display: flex; align-items: center; gap: 9px; padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,.14); color: rgba(255,255,255,.65); font-size: 11px;
+        }
+        .aside-status i { width: 7px; height: 7px; background: #43D89A; border-radius: 50%; box-shadow: 0 0 0 4px rgba(67,216,154,.12); }
+        .login-main { display: flex; flex-direction: column; justify-content: center; padding: 52px clamp(28px, 6vw, 72px); }
+        .heading-title { margin: 0; color: var(--ink); font-family: "Manrope", sans-serif; font-size: 30px; line-height: 1.1; letter-spacing: -.055em; }
+        .heading-sub { margin: 9px 0 0; color: var(--muted); font-size: 13px; line-height: 1.55; }
+        .form-card { margin-top: 32px; }
+        .error-box {
+            display: flex; align-items: center; gap: 8px; margin-bottom: 18px; padding: 11px 13px;
+            color: var(--danger); background: #FFF4F4; border: 1px solid #F5CDCF; border-radius: 9px;
+            font-size: 12px; font-weight: 700; animation: shake .35s ease;
+        }
+        @keyframes shake { 0%,100% { transform: translateX(0); } 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+        .field { margin-bottom: 18px; }
+        .field-label { display: block; margin-bottom: 7px; color: var(--ink); font-size: 11px; font-weight: 800; letter-spacing: .02em; }
+        .field-input-wrap { position: relative; }
+        .field-icon {
+            position: absolute; left: 14px; top: 50%; z-index: 1; width: 16px; height: 16px;
+            transform: translateY(-50%); color: #8A98AE; pointer-events: none;
+        }
+        .field-icon svg { display: block; width: 100%; height: 100%; }
+        .field-input {
+            width: 100%; min-height: 48px; padding: 0 14px 0 42px; color: var(--ink);
+            background: var(--soft); border: 1px solid var(--line); border-radius: 9px;
+            font: inherit; font-size: 14px; outline: none; transition: .18s ease; appearance: none;
+        }
+        .field-input::placeholder { color: #9AA7BA; }
+        .field-input:focus { background: #fff; border-color: #77A7F2; box-shadow: 0 0 0 4px rgba(23,105,224,.11); }
+        .field-input-wrap:focus-within .field-icon { color: var(--blue); }
+        .pw-toggle {
+            position: absolute; right: 12px; top: 50%; padding: 5px; transform: translateY(-50%);
+            color: #7B8BA3; background: transparent; border: 0; cursor: pointer; line-height: 0;
+        }
+        .pw-toggle:hover { color: var(--blue); }
+        .pw-toggle svg { width: 17px; height: 17px; }
+        .btn-submit {
+            position: relative; width: 100%; min-height: 48px; margin-top: 4px; overflow: hidden;
+            color: #fff; background: var(--blue); border: 0; border-radius: 9px;
+            font: inherit; font-size: 13px; font-weight: 800; cursor: pointer;
+            box-shadow: 0 10px 22px rgba(23,105,224,.22); transition: .18s ease;
+        }
+        .btn-submit:hover { background: #0D55C0; box-shadow: 0 13px 26px rgba(23,105,224,.28); transform: translateY(-1px); }
+        .btn-submit:active { transform: translateY(0); }
+        .btn-submit.loading .btn-text { opacity: 0; }
+        .btn-submit.loading .btn-spinner { opacity: 1; }
+        .btn-spinner {
+            position: absolute; top: 50%; left: 50%; width: 18px; height: 18px;
+            transform: translate(-50%,-50%); border: 2px solid rgba(255,255,255,.35);
+            border-top-color: #fff; border-radius: 50%; opacity: 0; animation: spin .65s linear infinite;
+        }
+        @keyframes spin { to { transform: translate(-50%,-50%) rotate(360deg); } }
+        .security-note { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 16px; color: #8A98AE; font-size: 10px; }
+        .security-note .dot { width: 6px; height: 6px; background: var(--green); border-radius: 50%; }
+        .page-footer { margin: 28px 0 0; color: #9AA7BA; text-align: center; font-size: 10px; }
+        @media (max-width: 720px) {
+            body { padding: 16px; }
+            .login-shell { display: block; min-height: 0; border-radius: 18px; }
+            .login-aside { min-height: 220px; padding: 25px 24px; }
+            .aside-copy { margin-top: 48px; }
+            .aside-title { font-size: 30px; }
+            .aside-text { display: none; }
+            .aside-status { right: 24px; bottom: 24px; left: 24px; padding-top: 12px; }
+            .login-main { padding: 32px 24px 28px; }
+            .form-card { margin-top: 26px; }
+        }
+    </style>
+    <link rel="stylesheet" href="/static/auth-responsive.css">
+</head>
+<body class="login-page">
+    <main class="login-shell">
+        <aside class="login-aside">
+            <a href="/" class="brand" aria-label="LeehExchange home">
+                <img src="/static/leeh_icon.png" alt="LeehExchange">
+                <span class="brand-wordmark">Leeh<span>Exchange</span></span>
+            </a>
+            <div class="aside-copy">
+                <div class="aside-kicker">Operations console</div>
+                <h1 class="aside-title">Keep every trade moving.</h1>
+                <p class="aside-text">Review orders, monitor activity and keep the LeehExchange experience running smoothly.</p>
+            </div>
+            <div class="aside-status"><i></i><span>Secure admin access · LeehExchange</span></div>
+        </aside>
+        <section class="login-main">
+            <div>
+                <h2 class="heading-title">Welcome back</h2>
+                <p class="heading-sub">Sign in to access your admin workspace.</p>
+            </div>
+            <div class="form-card">
+                {% if error %}
+                <div class="error-box"><span aria-hidden="true">!</span>{{ error }}</div>
+                {% endif %}
+                <form method="POST" id="login-form">
+                    <div class="field">
+                        <label class="field-label" for="email-field">Email address or username</label>
+                        <div class="field-input-wrap">
+                            <span class="field-icon" aria-hidden="true"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2m6-10a4 4 0 100-8 4 4 0 000 8zm10 2v6m3-3h-6"/></svg></span>
+                            <input type="text" name="email" id="email-field" placeholder="Enter your email or username" class="field-input" required autocomplete="username">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="field-label" for="pw-field">Password</label>
+                        <div class="field-input-wrap">
+                            <span class="field-icon" aria-hidden="true"><svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect width="16" height="11" x="4" y="10" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 10V7a4 4 0 018 0v3m-4 4v2"/></svg></span>
+                            <input type="password" name="password" id="pw-field" placeholder="Enter your password" class="field-input" required autocomplete="current-password" style="padding-right:44px">
+                            <button type="button" class="pw-toggle" id="pw-toggle" aria-label="Show password">
+                                <svg id="pw-eye" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.5-6 9.75-6 9.75 6 9.75 6-3.5 6-9.75 6-9.75-6-9.75-6z"/><circle cx="12" cy="12" r="2.5"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn-submit" id="submit-btn"><span class="btn-text">Sign in to workspace</span><span class="btn-spinner" aria-hidden="true"></span></button>
+                    <div class="security-note"><span class="dot"></span><span>Protected admin session</span></div>
+                </form>
+            </div>
+            <p class="page-footer">© 2026 LeehExchange · Admin portal</p>
+        </section>
+    </main>
+    <script>
+        document.getElementById('pw-toggle').addEventListener('click', function() {
+            const field = document.getElementById('pw-field');
+            const visible = field.type === 'password';
+            field.type = visible ? 'text' : 'password';
+            this.setAttribute('aria-label', visible ? 'Hide password' : 'Show password');
+            document.getElementById('pw-eye').innerHTML = visible
+                ? '<path stroke-linecap="round" stroke-linejoin="round" d="M3 3l18 18M10.58 10.58a2 2 0 002.83 2.83M9.88 5.09A10.86 10.86 0 0112 5c6.25 0 9.75 7 9.75 7a18.2 18.2 0 01-3.02 3.86M6.61 6.61C3.86 8.62 2.25 12 2.25 12s3.5 7 9.75 7a10.8 10.8 0 004.12-.82"/>'
+                : '<path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12s3.5-6 9.75-6 9.75 6 9.75 6-3.5 6-9.75 6-9.75-6-9.75-6z"/><circle cx="12" cy="12" r="2.5"/>';
+        });
+        document.getElementById('login-form').addEventListener('submit', function() {
+            const button = document.getElementById('submit-btn');
+            button.classList.add('loading');
+            button.disabled = true;
+        });
+    </script>
+</body>
+</html>

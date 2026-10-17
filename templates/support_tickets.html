@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Support Tickets | LEEH Exchange{% endblock %}
+{% block content %}
+<div class="animate-reveal space-y-5">
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+            <h1 class="text-xl font-black text-[#1E293B]">Support Tickets</h1>
+            <p class="text-[13px] text-[#64748B] mt-0.5">User support requests and issue tracking</p>
+        </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="card-premium p-4">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">Open Tickets</p>
+            <p class="text-[20px] font-black text-[#EF4444] mt-1">0</p>
+        </div>
+        <div class="card-premium p-4">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">In Progress</p>
+            <p class="text-[20px] font-black text-[#F59E0B] mt-1">0</p>
+        </div>
+        <div class="card-premium p-4">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">Resolved</p>
+            <p class="text-[20px] font-black text-[#10B981] mt-1">0</p>
+        </div>
+        <div class="card-premium p-4">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">Avg Response</p>
+            <p class="text-[20px] font-black text-[#2563EB] mt-1">—</p>
+        </div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="card-premium p-10 sm:p-16 flex flex-col items-center justify-center text-center">
+        <div class="w-16 h-16 bg-[#EFF6FF] rounded-2xl flex items-center justify-center mb-4">
+            <svg class="w-8 h-8 text-[#2563EB]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 6v.75m0 3v.75m0 3v.75m0 3V18m-9-5.25h5.25M7.5 15h3M3.375 5.25c-.621 0-1.125.504-1.125 1.125v3.026a2.999 2.999 0 010 5.198v3.026c0 .621.504 1.125 1.125 1.125h17.25c.621 0 1.125-.504 1.125-1.125v-3.026a2.999 2.999 0 010-5.198V6.375c0-.621-.504-1.125-1.125-1.125H3.375z"/>
+            </svg>
+        </div>
+        <h3 class="text-[16px] font-black text-[#1E293B] mb-2">No Support Tickets Yet</h3>
+        <p class="text-[13px] text-[#64748B] max-w-sm">Support tickets submitted by users through the Telegram bot will appear here. This feature is coming soon.</p>
+        <div class="mt-6 flex items-center gap-2 text-[11px] text-[#64748B]">
+            <span class="w-2 h-2 rounded-full bg-[#10B981]"></span>
+            Support ticket system — Coming Soon
+        </div>
+    </div>
+
+</div>
+{% endblock %}

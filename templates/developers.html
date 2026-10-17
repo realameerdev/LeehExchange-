@@ -1,0 +1,1044 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="LEEH Exchange Developer Portal — Build with our APIs">
+    <link rel="icon" type="image/png" href="/static/leeh_icon.png">
+    <title>Developer Portal | LEEH Exchange</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        *{box-sizing:border-box;-webkit-font-smoothing:antialiased}
+        body{font-family:'Inter',sans-serif;background:#F1F5F9;color:#1E293B;margin:0;padding:0}
+        code,pre{font-family:'Fira Code',monospace}
+
+        /* ── Sidebar ── */
+        #dev-sidebar{
+            position:fixed;left:0;top:0;bottom:0;width:240px;
+            background:#0F172A;display:flex;flex-direction:column;z-index:50;
+            overflow-y:auto;transition:transform .28s cubic-bezier(.4,0,.2,1);
+        }
+        #dev-sidebar::-webkit-scrollbar{width:3px}
+        #dev-sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:99px}
+        #dev-main{margin-left:240px;min-height:100vh;display:flex;flex-direction:column}
+        #dev-header{
+            position:sticky;top:0;z-index:40;height:58px;
+            background:#fff;border-bottom:1px solid #E8EDF5;
+            display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;
+        }
+        .dev-nav-item{
+            display:flex;align-items:center;gap:10px;
+            padding:9px 14px;border-radius:10px;
+            font-size:13px;font-weight:600;color:rgba(255,255,255,.55);
+            text-decoration:none;transition:all .13s;margin:1px 0;cursor:pointer;
+        }
+        .dev-nav-item:hover{background:rgba(255,255,255,.08);color:rgba(255,255,255,.9)}
+        .dev-nav-item.active{background:rgba(37,99,235,.3);color:#fff}
+        .dev-nav-ico{width:16px;height:16px;flex-shrink:0}
+        .dev-nav-lbl{font-size:9.5px;font-weight:700;color:rgba(255,255,255,.25);letter-spacing:.1em;text-transform:uppercase;padding:12px 14px 3px}
+
+        /* ── Hero ── */
+        .dev-hero{
+            background:linear-gradient(135deg,#0F2557 0%,#1A3A7C 40%,#0D1B4B 100%);
+            border-radius:20px;padding:28px;position:relative;overflow:hidden;
+        }
+        .dev-hero::before{content:'';position:absolute;top:-30%;right:-10%;width:280px;height:280px;border-radius:50%;background:radial-gradient(circle,rgba(37,99,235,.4),transparent 70%)}
+        .dev-hero::after{content:'';position:absolute;bottom:-20%;left:20%;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(139,92,246,.25),transparent 70%)}
+
+        /* ── Stat card ── */
+        .stat-card{background:#fff;border-radius:14px;padding:16px;border:1px solid #E8EDF5;transition:box-shadow .2s}
+        .stat-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.08)}
+
+        /* ── Quick action ── */
+        .qa-card{background:#fff;border-radius:14px;padding:14px 12px;border:1px solid #E8EDF5;display:flex;flex-direction:column;align-items:flex-start;gap:8px;text-decoration:none;color:#1E293B;transition:all .15s;cursor:pointer;text-align:left}
+        .qa-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.08);transform:translateY(-2px);border-color:#BFDBFE}
+
+        /* ── Model row ── */
+        .model-row{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid #E8EDF5}
+        .model-row:last-child{border-bottom:none}
+
+        /* ── Code ── */
+        .code-block{background:#0F172A;border-radius:14px;padding:20px;font-size:12px;line-height:1.7;color:#E2E8F0;overflow-x:auto;white-space:pre}
+        .kw{color:#93C5FD}.str{color:#86EFAC}.num{color:#FCA5A5}.cmt{color:#64748B}
+
+        /* ── Badges ── */
+        .badge-active{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;background:#D1FAE5;color:#059669;border-radius:100px;font-size:10px;font-weight:800}
+        .badge-coming{display:inline-flex;align-items:center;padding:3px 8px;background:#FEF3C7;color:#D97706;border-radius:100px;font-size:10px;font-weight:800}
+        .badge-pro{display:inline-flex;align-items:center;padding:2px 8px;background:linear-gradient(135deg,#8B5CF6,#2563EB);color:#fff;border-radius:100px;font-size:10px;font-weight:800}
+
+        /* ── Inputs/Buttons ── */
+        .dev-input{width:100%;padding:10px 14px;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:10px;font-size:13px;color:#1E293B;outline:none;transition:all .15s;font-family:'Inter',sans-serif}
+        .dev-input:focus{background:#fff;border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+        .dev-input::placeholder{color:#94A3B8}
+        .dev-btn{display:inline-flex;align-items:center;justify-content:center;gap:7px;padding:10px 20px;background:#2563EB;color:#fff;font-weight:800;border-radius:10px;border:none;cursor:pointer;transition:all .15s;font-size:13px;font-family:'Inter',sans-serif;text-decoration:none}
+        .dev-btn:hover{background:#1D4ED8}
+        .dev-btn-ghost{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff}
+        .dev-btn-ghost:hover{background:rgba(255,255,255,.2)}
+
+        /* ── Mobile top bar ── */
+        #mob-topbar{display:none;position:sticky;top:0;z-index:60;height:54px;background:#0F172A;padding:0 16px;align-items:center;justify-content:space-between;flex-shrink:0}
+        #mob-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:49}
+        #mob-overlay.show{display:block}
+        #dev-sidebar.mob-open{transform:translateX(0)!important}
+
+        /* ── Bottom tabs ── */
+        #dev-tabs{display:none;position:fixed;bottom:0;left:0;right:0;height:62px;background:#0F172A;border-top:1px solid rgba(255,255,255,.08);z-index:50}
+        .dev-tab{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:9.5px;font-weight:700;color:rgba(255,255,255,.45);text-decoration:none;border:none;background:none;cursor:pointer;padding:6px 2px;transition:color .13s}
+        .dev-tab.active{color:#60A5FA}
+        .dev-tab svg{width:20px;height:20px}
+
+        @media(max-width:1023px){
+            #dev-sidebar{transform:translateX(-100%);width:280px}
+            #dev-main{margin-left:0}
+            #mob-topbar{display:flex}
+            #dev-tabs{display:flex}
+            .dev-content{padding-bottom:80px!important}
+        }
+        @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+        .fade-up{animation:fadeUp .4s cubic-bezier(.2,.8,.2,1) forwards}
+        ::-webkit-scrollbar{width:4px;height:4px}
+        ::-webkit-scrollbar-thumb{background:rgba(0,0,0,.1);border-radius:99px}
+
+        /* ── LeehExchange developer console skin ── */
+        :root{--lx-ink:#0B1736;--lx-muted:#65728A;--lx-soft:#F5F8FC;--lx-line:#E3EAF3;--lx-blue:#1769E0;--lx-blue-dark:#0B2A66;--lx-blue-soft:#EAF2FF;--lx-green:#078A61}
+        body{font-family:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--lx-soft);color:var(--lx-ink)}
+        code,pre{font-family:"JetBrains Mono",monospace}
+        #dev-sidebar{width:264px;background:var(--lx-blue-dark);border-right:1px solid rgba(255,255,255,.10)}
+        #dev-main{margin-left:264px;background:var(--lx-soft)}
+        #dev-sidebar > div:first-child{padding:18px 17px!important;border-bottom-color:rgba(255,255,255,.12)!important}
+        #dev-sidebar > div:first-child > div:last-child > div:first-child{font-family:"Manrope",sans-serif;letter-spacing:-.03em}
+        .dev-nav-lbl{color:rgba(255,255,255,.42);padding:16px 14px 5px;letter-spacing:.14em}
+        .dev-nav-item{border-radius:7px;color:rgba(255,255,255,.68);padding:9px 14px;font-weight:700}
+        .dev-nav-item:hover{background:rgba(255,255,255,.09);color:#fff}
+        .dev-nav-item.active{background:var(--lx-blue);color:#fff;box-shadow:0 8px 18px rgba(0,0,0,.16)}
+        #dev-sidebar > div:last-child > div{background:linear-gradient(145deg,#174A9C,#0B2A66)!important;border:1px solid rgba(255,255,255,.12);border-radius:10px!important}
+        #dev-sidebar > div:last-child a{background:#fff!important;color:var(--lx-blue-dark)!important;border-radius:7px!important}
+        #dev-header{height:72px;background:rgba(255,255,255,.92);border-bottom-color:var(--lx-line);padding:0 26px;backdrop-filter:blur(16px)}
+        #dev-header > div[style*="background:#F1F5F9"]{background:#fff!important;border-color:var(--lx-line)!important;border-radius:8px!important}
+        #dev-header button,#dev-header > div[style*="background:#F1F5F9"]{transition:.18s ease}
+        #dev-header button:hover{background:var(--lx-blue-soft)!important}
+        .dev-content{padding:30px!important;max-width:1500px;width:100%;margin:0 auto}
+        .dev-hero{background:linear-gradient(135deg,#0B2A66 0%,#1769E0 52%,#0B255C 100%);border-radius:12px;padding:32px;box-shadow:0 16px 36px rgba(11,42,102,.14)}
+        .dev-hero h1{font-family:"Manrope",sans-serif;letter-spacing:-.055em}
+        .dev-hero .dev-btn{background:#fff;color:var(--lx-blue-dark)}
+        .dev-hero .dev-btn:hover{background:var(--lx-blue-soft)}
+        .dev-btn{background:var(--lx-blue);border-radius:8px}
+        .dev-btn:hover{background:#0D55C0}
+        .dev-btn-ghost{background:rgba(255,255,255,.10);border-radius:8px}
+        .stat-card,.qa-card{border-color:var(--lx-line);border-radius:10px;box-shadow:none}
+        .stat-card:hover,.qa-card:hover{border-color:#BFD4F4;box-shadow:0 8px 24px rgba(11,42,102,.08)}
+        .model-row{border-bottom-color:var(--lx-line)}
+        .code-block{background:#071A42;border-radius:10px;border:1px solid rgba(255,255,255,.08);font-family:"JetBrains Mono",monospace}
+        .dev-input{font-family:"DM Sans",sans-serif;border-color:var(--lx-line);border-radius:8px;background:#fff}
+        .dev-input:focus{border-color:var(--lx-blue)}
+        #section-home [style*="background:#fff"],#section-flash [style*="background:#fff"],#section-docs [style*="background:#fff"],#section-billing [style*="background:#fff"],#section-status [style*="background:#fff"],#section-changelog [style*="background:#fff"]{border-color:var(--lx-line)!important;border-radius:12px!important;box-shadow:0 8px 24px rgba(11,42,102,.045)}
+        #section-home h2,#section-home h3,#section-flash h2,#section-docs h2,#section-billing h2,#section-status h2,#section-changelog h2{font-family:"Manrope",sans-serif;letter-spacing:-.035em}
+        #dev-tabs{background:var(--lx-blue-dark);border-top-color:rgba(255,255,255,.12)}
+        .dev-tab.active{color:#A9C9F8}
+        @media(max-width:1023px){
+            #dev-sidebar{width:286px}
+            #dev-main{margin-left:0}
+            .dev-content{padding:18px 16px 82px!important}
+            #mob-topbar{height:62px;background:var(--lx-blue-dark)}
+            #dev-header{display:none}
+            #dev-main{width:100%;min-width:0;overflow-x:hidden}
+            .dev-content{overflow-x:hidden}
+            .dev-hero{padding:24px 20px;border-radius:11px}
+            .dev-hero h1{font-size:24px}
+            .dev-hero p{max-width:100%}
+            .dev-hero > div{max-width:100%}
+            .dev-hero .dev-btn{min-height:40px}
+            .model-row{
+                display:grid;
+                grid-template-columns:42px minmax(0,1fr);
+                gap:10px;
+                align-items:start;
+            }
+            .model-row > div:nth-child(2){min-width:0}
+            .model-row > a,.model-row > button{
+                grid-column:2;
+                justify-self:start;
+                margin-top:-2px;
+            }
+            #section-home [style*="grid-template-columns:1fr 1fr"]{
+                grid-template-columns:repeat(2,minmax(0,1fr))!important;
+            }
+            #section-home .badges-grid{
+                grid-template-columns:repeat(2,minmax(0,1fr))!important;
+            }
+            #section-docs [style*="display:flex"]{
+                min-width:0;
+            }
+            #section-docs code{
+                max-width:100%;
+                overflow-x:auto;
+                white-space:nowrap;
+            }
+            #section-flash,#section-docs,#section-billing,#section-status,#section-changelog,#section-webhooks,#section-sdks{
+                margin-top:14px!important;
+            }
+            #section-flash [style*="height:260px"]{height:clamp(220px,48vh,300px)!important}
+            #dev-tabs{height:64px}
+            .dev-tab{min-width:0;font-size:9px}
+        }
+        @media(max-width:420px){
+            .dev-content{padding-left:12px!important;padding-right:12px!important}
+            .dev-hero{padding:21px 17px}
+            .dev-hero > div:first-child{display:block!important}
+            .dev-hero > div:first-child > div:first-child{width:100%}
+            .dev-hero .dev-btn{padding-left:13px!important;padding-right:13px!important}
+            #section-home [style*="grid-template-columns:1fr 1fr"],
+            #section-home .badges-grid{
+                grid-template-columns:1fr!important;
+            }
+            .model-row > div:nth-child(2) p{line-height:1.45}
+            #section-home [style*="grid-template-columns:repeat(2,1fr)"]{
+                grid-template-columns:1fr 1fr!important;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='developers.css') }}">
+</head>
+<body>
+
+<!-- ═══ MOBILE TOP BAR ═══ -->
+<div id="mob-topbar">
+    <button type="button" onclick="openMobSidebar()" id="mob-nav-toggle" aria-label="Open developer navigation" aria-controls="dev-sidebar" aria-expanded="false" class="w-9 h-9 rounded-xl flex items-center justify-center" style="background:rgba(255,255,255,.08)">
+        <svg width="20" height="20" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5"/></svg>
+    </button>
+    <div class="flex items-center gap-2">
+        <img src="/static/leeh_icon.png" class="w-7 h-7 rounded-xl" onerror="this.style.display='none'" alt="">
+        <span style="color:#fff;font-weight:900;font-size:13px">Developer Portal</span>
+    </div>
+    <div class="w-9 h-9 rounded-xl flex items-center justify-center relative" style="background:rgba(255,255,255,.08)">
+        <svg width="18" height="18" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>
+        <span style="position:absolute;top:4px;right:4px;width:8px;height:8px;background:#EF4444;border-radius:50%;border:2px solid #0F172A"></span>
+    </div>
+</div>
+
+<!-- Overlay -->
+<div id="mob-overlay" onclick="closeMobSidebar()"></div>
+
+<!-- ═══ SIDEBAR ═══ -->
+<aside id="dev-sidebar" aria-label="Developer navigation">
+    <div style="display:flex;align-items:center;gap:12px;padding:16px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0">
+        <img src="/static/leeh_icon.png" style="width:36px;height:36px;border-radius:12px" onerror="this.style.display='none'" alt="">
+        <div>
+            <div style="color:#fff;font-weight:900;font-size:13px;line-height:1.2">LeehExchange</div>
+            <div style="color:#60A5FA;font-size:10px;font-weight:700">Developer Portal</div>
+        </div>
+    </div>
+    <div style="flex:1;padding:12px 10px;overflow-y:auto">
+        <div class="dev-nav-lbl">Main</div>
+        <a class="dev-nav-item active" id="nav-home" onclick="showSection('home')">
+            <svg class="dev-nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+            Dashboard
+        </a>
+        <a class="dev-nav-item" id="nav-keys" onclick="showSection('keys')">
+            <svg class="dev-nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>
+            API Keys
+        </a>
+        <a class="dev-nav-item" id="nav-models" onclick="showSection('models')">
+            <svg class="dev-nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+            Models
+        </a>
+        <div class="dev-nav-lbl">Resources</div>
+        <a class="dev-nav-item" id="nav-docs" onclick="showSection('docs')">
+            <svg class="dev-nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+            Documentation
+        </a>
+        <a class="dev-nav-item" id="nav-code" onclick="showSection('code')">
+            <svg class="dev-nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/></svg>
+            Code Examples
+        </a>
+        <a class="dev-nav-item" id="nav-analytics" onclick="showSection('analytics')">
+            <svg class="dev-nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
+            Usage Analytics
+        </a>
+        <div class="dev-nav-lbl">Account</div>
+        <a class="dev-nav-item" id="nav-billing" onclick="showSection('billing')">
+            <svg class="dev-nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>
+            Billing &amp; Plans
+        </a>
+        <a class="dev-nav-item" id="nav-webhooks" onclick="showSection('webhooks')">
+            <svg class="dev-nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 011.242 7.244l-4.5 4.5a4.5 4.5 0 01-6.364-6.364l1.757-1.757m13.35-.622l1.757-1.757a4.5 4.5 0 00-6.364-6.364l-4.5 4.5a4.5 4.5 0 001.242 7.244"/></svg>
+            Webhooks
+        </a>
+        <a class="dev-nav-item" id="nav-sdks" onclick="showSection('sdks')">
+            <svg class="dev-nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 6.375c0 8.485-7.5 15.75-15 15.75C.75 22.125.75 14.625 0 6.375L10.125.75 20.25 6.375z"/></svg>
+            SDKs
+        </a>
+        <a class="dev-nav-item" id="nav-status" onclick="showSection('status')">
+            <svg class="dev-nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Status
+        </a>
+        <a class="dev-nav-item" id="nav-changelog" onclick="showSection('changelog')">
+            <svg class="dev-nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Changelog
+        </a>
+        <div class="dev-nav-lbl" style="margin-top:8px">Platform</div>
+        <a href="/" class="dev-nav-item">
+            <svg class="dev-nav-ico" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 15.75L3 12m0 0l3.75-3.75M3 12h18"/></svg>
+            Back to Site
+        </a>
+    </div>
+    <!-- Support card -->
+    <div style="padding:12px;flex-shrink:0">
+        <div style="background:#1E293B;border-radius:16px;padding:16px">
+            <div style="color:#fff;font-weight:900;font-size:12.5px;margin-bottom:4px">Need Help?</div>
+            <p style="color:rgba(255,255,255,.45);font-size:10.5px;line-height:1.5;margin-bottom:12px">Our support team is here 24/7 to help you build.</p>
+            <a href="https://t.me/LEEHExchangeBot" target="_blank" style="display:flex;align-items:center;justify-content:center;padding:8px;border-radius:10px;background:#2563EB;color:#fff;font-size:11.5px;font-weight:800;text-decoration:none;transition:background .15s">Contact Support →</a>
+        </div>
+    </div>
+</aside>
+
+<!-- ═══ MAIN ═══ -->
+<div id="dev-main">
+
+    <!-- Desktop header -->
+    <header id="dev-header">
+        <div style="display:none" class="lg:flex" id="search-bar" style="flex:1;max-width:360px;align-items:center;gap:8px;padding:8px 12px;background:#F1F5F9;border-radius:12px;border:1.5px solid #E2E8F0">
+            <svg style="width:16px;height:16px;color:#94A3B8;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+            <input type="text" placeholder="Search documentation, APIs..." style="flex:1;background:transparent;border:none;outline:none;font-size:13px;font-family:inherit;color:#1E293B">
+        </div>
+        <div class="hidden lg:flex" style="flex:1;max-width:360px;align-items:center;gap:8px;padding:8px 12px;background:#F1F5F9;border-radius:12px;border:1.5px solid #E2E8F0">
+            <svg style="width:16px;height:16px;color:#94A3B8;flex-shrink:0" fill="none" stroke="#94A3B8" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z"/></svg>
+            <input type="text" placeholder="Search documentation, APIs..." style="flex:1;background:transparent;border:none;outline:none;font-size:13px;font-family:inherit;color:#1E293B">
+        </div>
+        <div style="flex:1"></div>
+        <div style="display:flex;align-items:center;gap:8px">
+            <button style="width:36px;height:36px;border-radius:10px;background:#F1F5F9;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center">
+                <svg style="width:18px;height:18px;color:#475569" fill="none" stroke="#475569" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/></svg>
+            </button>
+            <div style="position:relative;width:36px;height:36px;border-radius:10px;background:#F1F5F9;display:flex;align-items:center;justify-content:center">
+                <svg style="width:18px;height:18px" fill="none" stroke="#475569" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"/></svg>
+                <span style="position:absolute;top:4px;right:4px;width:8px;height:8px;background:#EF4444;border-radius:50%;border:2px solid #fff"></span>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;padding:4px 10px 4px 4px;border-radius:12px;cursor:pointer;border:1.5px solid #E2E8F0">
+                <div style="width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,#2563EB,#1D4ED8);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:12px">D</div>
+                <div class="hidden lg:block">
+                    <div style="font-size:12px;font-weight:900;color:#1E293B;line-height:1.2">Developer</div>
+                    <div style="font-size:10px;color:#64748B;display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;border-radius:50%;background:#10B981;display:inline-block"></span>Free Plan</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- PAGE CONTENT -->
+    <div class="dev-content" style="padding:20px 24px;flex:1">
+
+        <!-- ═══ HOME / DASHBOARD ═══ -->
+        <div id="section-home" class="fade-up">
+
+            <!-- 2-column layout -->
+            <div style="display:grid;grid-template-columns:1fr;gap:20px" class="xl-grid">
+                <style>.xl-grid{grid-template-columns:1fr}@media(min-width:1280px){.xl-grid{grid-template-columns:3fr 2fr}}</style>
+
+                <!-- LEFT -->
+                <div style="display:flex;flex-direction:column;gap:20px">
+
+                    <!-- Hero -->
+                    <div class="dev-hero">
+                        <div style="position:relative;z-index:10;display:flex;align-items:flex-start;justify-content:space-between">
+                            <div style="flex:1">
+                                <p style="color:rgba(255,255,255,.6);font-size:12px;font-weight:600;margin-bottom:6px">Welcome back,</p>
+                                <h1 style="color:#fff;font-weight:900;font-size:26px;line-height:1.1;margin-bottom:10px">Developer platform</h1>
+                                <p style="color:rgba(255,255,255,.65);font-size:13px;line-height:1.6;margin-bottom:22px;max-width:400px">Build. Integrate. Grow with LeehExchange APIs. Access real-time crypto data, AI models, and exchange services.</p>
+                                <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+                                    <button onclick="showSection('keys')" class="dev-btn" style="font-size:12px;padding:10px 18px">
+                                        <svg style="width:16px;height:16px" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>
+                                        Get API Key
+                                    </button>
+                                    <button onclick="showSection('docs')" class="dev-btn dev-btn-ghost" style="font-size:12px;padding:10px 18px">View Docs →</button>
+                                </div>
+                            </div>
+                            <div style="width:56px;height:56px;border-radius:16px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:16px;display:none" class="sm-hero-icon">
+                                <svg style="width:28px;height:28px;color:#fff" fill="none" stroke="#fff" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"/></svg>
+                            </div>
+                        </div>
+                        <style>@media(min-width:640px){.sm-hero-icon{display:flex!important}}</style>
+                        <div style="position:relative;z-index:10;margin-top:20px;display:flex;align-items:center;gap:8px">
+                            <span class="badge-pro">Free Plan</span>
+                            <span style="color:rgba(255,255,255,.3);font-size:11px">·</span>
+                            <button onclick="showSection('billing')" style="background:none;border:none;color:#93C5FD;font-size:11px;font-weight:700;cursor:pointer;font-family:inherit">Upgrade to Pro →</button>
+                        </div>
+                    </div>
+
+                    <!-- Venora AI Models -->
+                    <div id="section-models" style="background:#fff;border-radius:20px;border:1px solid #E8EDF5;padding:20px">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+                            <h2 style="font-size:15px;font-weight:900;color:#1E293B">Venora AI Models</h2>
+                            <span style="font-size:11px;color:#64748B;font-weight:600;background:#F1F5F9;padding:4px 10px;border-radius:100px">3 Models</span>
+                        </div>
+                        <div class="model-row">
+                            <div style="width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#8B5CF6,#2563EB);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <svg style="width:20px;height:20px;color:#fff" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+                            </div>
+                            <div style="flex:1;min-width:0">
+                                <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+                                    <span style="font-size:13.5px;font-weight:900;color:#1E293B">Venora 1.0 AI</span>
+                                    <span class="badge-active">Active</span>
+                                </div>
+                                <p style="font-size:11.5px;color:#64748B">Advanced AI for crypto, forex, stocks, blockchain &amp; fintech analysis</p>
+                            </div>
+                            <a href="/chat" style="flex-shrink:0;padding:6px 12px;border-radius:8px;background:#EFF6FF;color:#2563EB;font-size:11px;font-weight:800;text-decoration:none;transition:background .15s" onmouseover="this.style.background='#DBEAFE'" onmouseout="this.style.background='#EFF6FF'">Open AI →</a>
+                        </div>
+                        <div class="model-row">
+                            <div style="width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#10B981,#059669);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <svg style="width:20px;height:20px" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.625 9.75a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375m-13.5 3.01c0 1.6 1.123 2.994 2.707 3.227 1.087.16 2.185.283 3.293.369V21l4.184-4.183a1.14 1.14 0 01.778-.332 48.294 48.294 0 005.83-.498c1.585-.233 2.708-1.626 2.708-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0012 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018z"/></svg>
+                            </div>
+                            <div style="flex:1;min-width:0">
+                                <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+                                    <span style="font-size:13.5px;font-weight:900;color:#1E293B">Venora Mini</span>
+                                    <span class="badge-active">Active</span>
+                                </div>
+                                <p style="font-size:11.5px;color:#64748B">Trained on LeehExchange knowledge, products &amp; services</p>
+                            </div>
+                            <a href="/chat" target="_blank" style="flex-shrink:0;padding:6px 12px;border-radius:8px;background:#D1FAE5;color:#059669;font-size:11px;font-weight:800;text-decoration:none">Try Mini →</a>
+                        </div>
+                        <div class="model-row">
+                            <div style="width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#F59E0B,#EF4444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <svg style="width:20px;height:20px" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+                            </div>
+                            <div style="flex:1;min-width:0">
+                                <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px">
+                                    <span style="font-size:13.5px;font-weight:900;color:#1E293B">Venora Flash</span>
+                                    <span class="badge-active">Active</span>
+                                </div>
+                                <p style="font-size:11.5px;color:#64748B">Fast, lightweight AI — perfect for quick platform questions</p>
+                            </div>
+                                <button onclick="showFlashChat()" style="flex-shrink:0;padding:6px 12px;border-radius:8px;background:#FEF3C7;color:#D97706;font-size:11px;font-weight:800;border:none;cursor:pointer">Try Flash</button>
+                        </div>
+                    </div>
+
+                    <!-- Code Example -->
+                    <div id="section-code" style="background:#fff;border-radius:20px;border:1px solid #E8EDF5;padding:20px">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+                            <h2 style="font-size:15px;font-weight:900;color:#1E293B">Quick Start</h2>
+                            <div style="display:flex;align-items:center;gap:4px">
+                                <button onclick="setLang('js')" id="lang-js" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:800;border:none;cursor:pointer;background:#1E293B;color:#fff;transition:all .15s">JS</button>
+                                <button onclick="setLang('py')" id="lang-py" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:800;border:none;cursor:pointer;background:#F1F5F9;color:#64748B;transition:all .15s">Python</button>
+                                <button onclick="setLang('curl')" id="lang-curl" style="padding:5px 10px;border-radius:8px;font-size:11px;font-weight:800;border:none;cursor:pointer;background:#F1F5F9;color:#64748B;transition:all .15s">cURL</button>
+                            </div>
+                        </div>
+                        <div id="code-js" class="code-block"><span class="kw">const</span> response = <span class="kw">await</span> fetch(<span class="str">'https://leehexchange.replit.app/api/crypto-rates'</span>, {
+  method: <span class="str">'GET'</span>,
+  headers: {
+    <span class="str">'Authorization'</span>: <span class="str">'Bearer YOUR_API_KEY'</span>,
+    <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>
+  }
+});
+
+<span class="kw">const</span> data = <span class="kw">await</span> response.json();
+<span class="cmt">// Returns: { BTC: 130000000, ETH: 6500000, SOL: 230000, ... }</span></div>
+                        <div id="code-py" class="code-block" style="display:none"><span class="kw">import</span> requests
+
+headers = {
+    <span class="str">'Authorization'</span>: <span class="str">'Bearer YOUR_API_KEY'</span>,
+    <span class="str">'Content-Type'</span>: <span class="str">'application/json'</span>
+}
+
+response = requests.get(
+    <span class="str">'https://leehexchange.replit.app/api/crypto-rates'</span>,
+    headers=headers
+)
+<span class="cmt"># Returns: {'BTC': 130000000, 'ETH': 6500000, ...}</span></div>
+                        <div id="code-curl" class="code-block" style="display:none">curl -X GET \
+  <span class="str">'https://leehexchange.replit.app/api/crypto-rates'</span> \
+  -H <span class="str">'Authorization: Bearer YOUR_API_KEY'</span> \
+  -H <span class="str">'Content-Type: application/json'</span></div>
+                    </div>
+
+                    <!-- Feature badges -->
+                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px" class="badges-grid">
+                        <style>.badges-grid{@media(min-width:640px){grid-template-columns:repeat(4,1fr)}}</style>
+                        <div style="background:#fff;border-radius:14px;border:1px solid #E8EDF5;padding:14px;display:flex;align-items:center;gap:10px">
+                            <span class="feature-mark" aria-hidden="true"></span>
+                            <span style="font-size:11.5px;font-weight:800;color:#475569">Secure &amp; Reliable</span>
+                        </div>
+                        <div style="background:#fff;border-radius:14px;border:1px solid #E8EDF5;padding:14px;display:flex;align-items:center;gap:10px">
+                            <span class="feature-mark" aria-hidden="true"></span>
+                            <span style="font-size:11.5px;font-weight:800;color:#475569">Developer Friendly</span>
+                        </div>
+                        <div style="background:#fff;border-radius:14px;border:1px solid #E8EDF5;padding:14px;display:flex;align-items:center;gap:10px">
+                            <span class="feature-mark" aria-hidden="true"></span>
+                            <span style="font-size:11.5px;font-weight:800;color:#475569">Real-time Data</span>
+                        </div>
+                        <div style="background:#fff;border-radius:14px;border:1px solid #E8EDF5;padding:14px;display:flex;align-items:center;gap:10px">
+                            <span class="feature-mark" aria-hidden="true"></span>
+                            <span style="font-size:11.5px;font-weight:800;color:#475569">24/7 Support</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT -->
+                <div style="display:flex;flex-direction:column;gap:20px">
+
+                    <!-- API Overview Stats -->
+                    <div id="section-analytics" style="background:#fff;border-radius:20px;border:1px solid #E8EDF5;padding:20px">
+                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+                            <h2 style="font-size:15px;font-weight:900;color:#1E293B">Your API Overview</h2>
+                            <button onclick="showSection('analytics')" style="font-size:11px;color:#2563EB;font-weight:700;background:none;border:none;cursor:pointer">View Analytics ↗</button>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                            <div class="stat-card">
+                                <div style="width:28px;height:28px;border-radius:8px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;margin-bottom:10px">
+                                    <svg style="width:14px;height:14px" fill="none" stroke="#2563EB" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7.5L7.5 3m0 0L12 7.5M7.5 3v13.5m13.5 0L16.5 21m0 0L12 16.5m4.5 4.5V7.5"/></svg>
+                                </div>
+                                <div id="stat-requests" style="font-size:20px;font-weight:900;color:#1E293B">—</div>
+                                <div style="font-size:10.5px;color:#94A3B8;font-weight:500;margin-top:2px">Recorded activity</div>
+                            </div>
+                            <div class="stat-card">
+                                <div style="width:28px;height:28px;border-radius:8px;background:#D1FAE5;display:flex;align-items:center;justify-content:center;margin-bottom:10px">
+                                    <svg style="width:14px;height:14px" fill="none" stroke="#10B981" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                                <div id="stat-completed" style="font-size:20px;font-weight:900;color:#10B981">—</div>
+                                <div style="font-size:10.5px;color:#94A3B8;font-weight:500;margin-top:2px">Completed trades</div>
+                            </div>
+                            <div class="stat-card">
+                                <div style="width:28px;height:28px;border-radius:8px;background:#FEF3C7;display:flex;align-items:center;justify-content:center;margin-bottom:10px">
+                                    <svg style="width:14px;height:14px" fill="none" stroke="#D97706" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                                <div style="font-size:20px;font-weight:900;color:#1E293B">Not measured</div>
+                                <div style="font-size:10.5px;color:#94A3B8;font-weight:500;margin-top:2px">API latency</div>
+                            </div>
+                            <div class="stat-card">
+                                <div style="width:28px;height:28px;border-radius:8px;background:#EDE9FE;display:flex;align-items:center;justify-content:center;margin-bottom:10px">
+                                    <svg style="width:14px;height:14px" fill="none" stroke="#8B5CF6" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>
+                                </div>
+                                <div id="stat-keys" style="font-size:20px;font-weight:900;color:#1E293B">Free</div>
+                                <div style="font-size:10.5px;color:#94A3B8;font-weight:500;margin-top:2px">Access tier</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- API Key Generator -->
+                    <div id="section-keys" style="background:#fff;border-radius:20px;border:1px solid #E8EDF5;padding:20px">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+                            <div style="width:40px;height:40px;border-radius:12px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                                <svg style="width:20px;height:20px" fill="none" stroke="#2563EB" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>
+                            </div>
+                            <div>
+                                <h2 style="font-size:14px;font-weight:900;color:#1E293B">Get Your API Key</h2>
+                                <p style="font-size:10.5px;color:#64748B">Free tier — no credit card required</p>
+                            </div>
+                        </div>
+                        <div id="key-gen-form" style="display:flex;flex-direction:column;gap:10px">
+                            <div id="key-notice" role="status" aria-live="polite" style="display:none;padding:10px 12px;border-radius:8px;font-size:12px"></div>
+                            <input type="email" id="dev-email" class="dev-input" placeholder="Enter your email address" aria-label="Email address" autocomplete="email">
+                            <button type="button" onclick="generateKey()" id="gen-btn" class="dev-btn" style="width:100%;padding:11px">Generate Free API Key</button>
+                            <p style="font-size:10px;color:#94A3B8;text-align:center">Key delivered instantly · No spam, ever</p>
+                        </div>
+                        <div id="key-result" role="status" aria-live="polite" style="display:none;flex-direction:column;gap:10px">
+                            <div style="background:#D1FAE5;border-radius:12px;padding:14px">
+                                <p style="font-size:10.5px;color:#059669;font-weight:800;margin-bottom:8px">API key generated</p>
+                                <div style="display:flex;align-items:center;gap:8px">
+                                    <code id="key-display" style="flex:1;font-size:11px;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;color:#1E293B;background:#fff;border-radius:8px;padding:6px 10px;border:1px solid #A7F3D0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"></code>
+                                    <button type="button" onclick="copyKey(this)" style="flex-shrink:0;padding:6px 12px;border-radius:8px;background:#10B981;color:#fff;font-size:10.5px;font-weight:800;border:none;cursor:pointer">Copy</button>
+                                </div>
+                            </div>
+                            <p style="font-size:10.5px;color:#64748B">Save this key — you can only copy it once every 7 days.</p>
+                            <button onclick="resetKeyForm()" style="padding:8px;border-radius:8px;background:#F1F5F9;color:#475569;font-size:11.5px;font-weight:700;border:none;cursor:pointer">Generate Another Key</button>
+                        </div>
+                    </div>
+
+                    <!-- Quick Actions -->
+                    <div style="background:#fff;border-radius:20px;border:1px solid #E8EDF5;padding:20px">
+                        <h2 style="font-size:15px;font-weight:900;color:#1E293B;margin-bottom:14px">Quick Actions</h2>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                            <button class="qa-card" onclick="showSection('keys')"><span style="font-size:12px;font-weight:800;color:#1E293B">API Keys</span></button>
+                            <button class="qa-card" onclick="showSection('docs')"><span style="font-size:12px;font-weight:800;color:#1E293B">Documentation</span></button>
+                            <button class="qa-card" onclick="showSection('code')"><span style="font-size:12px;font-weight:800;color:#1E293B">Code Examples</span></button>
+                            <button class="qa-card" onclick="showSection('billing')"><span style="font-size:12px;font-weight:800;color:#1E293B">Billing & Plans</span></button>
+                            <button class="qa-card" onclick="showSection('analytics')"><span style="font-size:12px;font-weight:800;color:#1E293B">Usage Analytics</span></button>
+                            <button class="qa-card" onclick="showSection('webhooks')"><span style="font-size:12px;font-weight:800;color:#1E293B">Webhooks</span></button>
+                            <button class="qa-card" onclick="showSection('sdks')"><span style="font-size:12px;font-weight:800;color:#1E293B">SDKs</span></button>
+                            <button class="qa-card" onclick="showSection('status')"><span style="font-size:12px;font-weight:800;color:#1E293B">Status</span></button>
+                        </div>
+                    </div>
+
+                    <!-- CTA Card -->
+                    <div style="background:linear-gradient(135deg,#1E3A7C,#0F2557);border-radius:20px;padding:22px">
+                        <p class="dev-platform-label">LEEH DEVELOPER PLATFORM</p>
+                        <h3 style="color:#fff;font-size:15px;font-weight:900;line-height:1.3;margin-bottom:8px">Build the future with LeehExchange APIs</h3>
+                        <p style="color:rgba(255,255,255,.55);font-size:11.5px;line-height:1.6;margin-bottom:16px">Access crypto rates, exchange services, AI models, and more — all in one place.</p>
+                        <button onclick="showSection('docs')" style="display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:10px;background:#2563EB;color:#fff;font-size:12px;font-weight:900;border:none;cursor:pointer;font-family:inherit">Explore Documentation →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ FLASH CHAT ═══ -->
+        <div id="section-flash" style="display:none;margin-top:20px;background:#fff;border-radius:20px;border:1px solid #E8EDF5;padding:20px" class="fade-up">
+            <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+                <div style="width:40px;height:40px;border-radius:12px;background:linear-gradient(135deg,#F59E0B,#EF4444);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <svg style="width:20px;height:20px" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+                </div>
+                <div style="flex:1">
+                    <h2 style="font-size:15px;font-weight:900;color:#1E293B">Venora Flash <span style="font-size:11px;font-weight:600;color:#64748B;background:#F1F5F9;padding:2px 8px;border-radius:100px;margin-left:4px">Fast</span></h2>
+                    <p style="font-size:11px;color:#64748B">Ask anything about the platform</p>
+                </div>
+                <button type="button" aria-label="Close Venora Flash" onclick="document.getElementById('section-flash').style.display='none'" style="width:40px;height:40px;border-radius:10px;background:#F1F5F9;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#64748B">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 6l12 12M18 6L6 18"/></svg>
+                </button>
+            </div>
+            <div id="flash-messages" role="log" aria-live="polite" aria-relevant="additions text" style="background:#F8FAFC;border-radius:14px;padding:16px;height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:12px;margin-bottom:12px">
+                <div style="display:flex;align-items:flex-start;gap:8px">
+                    <div class="flash-avatar" aria-hidden="true">VF</div>
+                    <div style="max-width:80%;padding:10px 14px;border-radius:16px;border-top-left-radius:4px;background:#fff;border:1px solid #E2E8F0;font-size:12.5px;color:#1E293B;line-height:1.5">Hello. I’m <strong>Venora Flash</strong> — ask about LeehExchange APIs, pricing, or getting started.</div>
+                </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px">
+                <input id="flash-input" type="text" class="dev-input" placeholder="Ask about the platform" aria-label="Ask Venora Flash a question" style="flex:1" onkeydown="if(event.key==='Enter')sendFlash()">
+                <button type="button" aria-label="Send message to Venora Flash" onclick="sendFlash()" style="width:44px;height:44px;border-radius:10px;background:#1769E0;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+                    <svg style="width:18px;height:18px" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- ═══ DOCS ═══ -->
+        <div id="section-docs" style="display:none;margin-top:20px" class="fade-up">
+            <div style="background:#fff;border-radius:20px;border:1px solid #E8EDF5;padding:20px">
+                <h2 style="font-size:16px;font-weight:900;color:#1E293B;margin-bottom:16px">API Documentation</h2>
+                <div style="display:flex;flex-direction:column;gap:10px">
+                    <div style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;border:1px solid #E8EDF5;flex-wrap:wrap">
+                        <span style="padding:4px 10px;border-radius:8px;background:#D1FAE5;color:#059669;font-size:10px;font-weight:900;flex-shrink:0">GET</span>
+                        <code style="font-size:12px;font-weight:700;color:#1E293B;font-family:'Fira Code',monospace">/api/crypto-rates</code>
+                        <span style="flex:1;font-size:12px;color:#64748B;min-width:150px">Returns current NGN rates for all 10 supported coins</span>
+                        <span style="padding:2px 8px;background:#D1FAE5;color:#059669;border-radius:100px;font-size:10px;font-weight:800">Free</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;border:1px solid #E8EDF5;flex-wrap:wrap">
+                        <span style="padding:4px 10px;border-radius:8px;background:#EDE9FE;color:#7C3AED;font-size:10px;font-weight:900;flex-shrink:0">POST</span>
+                        <code style="font-size:12px;font-weight:700;color:#1E293B;font-family:'Fira Code',monospace">/api/venora-flash</code>
+                        <span style="flex:1;font-size:12px;color:#64748B;min-width:150px">Venora Flash AI — ask anything about the platform</span>
+                        <span style="padding:2px 8px;background:#D1FAE5;color:#059669;border-radius:100px;font-size:10px;font-weight:800">Free</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;border:1px solid #E8EDF5;flex-wrap:wrap">
+                        <span style="padding:4px 10px;border-radius:8px;background:#D1FAE5;color:#059669;font-size:10px;font-weight:900;flex-shrink:0">GET</span>
+                        <code style="font-size:12px;font-weight:700;color:#1E293B;font-family:'Fira Code',monospace">/api/landing-stats</code>
+                        <span style="flex:1;font-size:12px;color:#64748B;min-width:150px">Public platform statistics — trades, users, volume</span>
+                        <span style="padding:2px 8px;background:#D1FAE5;color:#059669;border-radius:100px;font-size:10px;font-weight:800">Public</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;border:1px solid #E8EDF5;flex-wrap:wrap">
+                        <span style="padding:4px 10px;border-radius:8px;background:#EDE9FE;color:#7C3AED;font-size:10px;font-weight:900;flex-shrink:0">POST</span>
+                        <code style="font-size:12px;font-weight:700;color:#1E293B;font-family:'Fira Code',monospace">/api/generate-key</code>
+                        <span style="flex:1;font-size:12px;color:#64748B;min-width:150px">Generate a free API key with your email</span>
+                        <span style="padding:2px 8px;background:#D1FAE5;color:#059669;border-radius:100px;font-size:10px;font-weight:800">Free</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:12px;padding:14px;border-radius:12px;border:1px solid #E8EDF5;flex-wrap:wrap">
+                        <span style="padding:4px 10px;border-radius:8px;background:#EDE9FE;color:#7C3AED;font-size:10px;font-weight:900;flex-shrink:0">POST</span>
+                        <code style="font-size:12px;font-weight:700;color:#1E293B;font-family:'Fira Code',monospace">/api/venora-mini</code>
+                        <span style="flex:1;font-size:12px;color:#64748B;min-width:150px">Dashboard AI assistant (admin only)</span>
+                        <span style="padding:2px 8px;background:#FEE2E2;color:#DC2626;border-radius:100px;font-size:10px;font-weight:800">Admin</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ BILLING ═══ -->
+        <div id="section-billing" style="display:none;margin-top:20px" class="fade-up">
+            <div style="display:grid;grid-template-columns:repeat(1,1fr);gap:16px" class="billing-grid">
+                <style>.billing-grid{@media(min-width:768px){grid-template-columns:repeat(3,1fr)}}</style>
+                <div style="background:#fff;border-radius:20px;border:2px solid #E8EDF5;padding:22px">
+                    <div style="font-size:11px;font-weight:800;color:#94A3B8;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Free</div>
+                    <div style="font-size:30px;font-weight:900;color:#1E293B;margin-bottom:4px">$0<span style="font-size:14px;color:#64748B;font-weight:400">/mo</span></div>
+                    <p style="font-size:12px;color:#64748B;margin-bottom:16px">For individual developers</p>
+                    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+                        <div class="plan-feature"><span>Included</span> 1,000 API calls/month</div>
+                        <div class="plan-feature"><span>Included</span> Crypto rates API</div>
+                        <div class="plan-feature"><span>Included</span> Venora Flash access</div>
+                        <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#94A3B8"><span>·</span> Community support</div>
+                    </div>
+                    <div style="width:100%;padding:10px;border-radius:12px;border:2px solid #2563EB;text-align:center;color:#2563EB;font-size:12px;font-weight:800">Current Plan</div>
+                </div>
+                <div style="background:#fff;border-radius:20px;border:2px solid #2563EB;padding:22px;position:relative">
+                    <div style="position:absolute;top:-12px;right:16px;background:#2563EB;color:#fff;font-size:10px;font-weight:900;padding:4px 12px;border-radius:100px">Popular</div>
+                    <div style="font-size:11px;font-weight:800;color:#2563EB;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Pro</div>
+                    <div style="font-size:30px;font-weight:900;color:#1E293B;margin-bottom:4px">$29<span style="font-size:14px;color:#64748B;font-weight:400">/mo</span></div>
+                    <p style="font-size:12px;color:#64748B;margin-bottom:16px">For growing applications</p>
+                    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+                        <div class="plan-feature"><span>Included</span> 100,000 API calls/month</div>
+                        <div class="plan-feature"><span>Included</span> All APIs + Venora AI</div>
+                        <div class="plan-feature"><span>Included</span> Priority support</div>
+                        <div class="plan-feature"><span>Included</span> Webhooks access</div>
+                    </div>
+                    <a href="https://t.me/LEEHExchangeBot" target="_blank" class="dev-btn" style="width:100%;display:flex;justify-content:center;padding:11px">Upgrade to Pro</a>
+                </div>
+                <div style="background:#0F172A;border-radius:20px;border:1px solid rgba(255,255,255,.1);padding:22px">
+                    <div style="font-size:11px;font-weight:800;color:#60A5FA;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Enterprise</div>
+                    <div style="font-size:30px;font-weight:900;color:#fff;margin-bottom:4px">Custom</div>
+                    <p style="font-size:12px;color:rgba(255,255,255,.45);margin-bottom:16px">For large-scale deployments</p>
+                    <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+                        <div class="plan-feature"><span>Included</span> Unlimited API calls</div>
+                        <div class="plan-feature"><span>Included</span> Dedicated infrastructure</div>
+                        <div class="plan-feature"><span>Included</span> SLA guarantee</div>
+                        <div class="plan-feature"><span>Included</span> White-label options</div>
+                    </div>
+                    <a href="https://t.me/LEEHExchangeBot" target="_blank" class="dev-btn dev-btn-ghost" style="width:100%;display:flex;justify-content:center;padding:11px">Contact Sales</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ STATUS ═══ -->
+        <div id="section-status" style="display:none;margin-top:20px" class="fade-up">
+            <div style="background:#fff;border-radius:20px;border:1px solid #E8EDF5;padding:20px">
+                <h2 style="font-size:16px;font-weight:900;color:#1E293B;margin-bottom:6px">System Status</h2>
+                <div role="status" aria-live="polite" style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+                    <span style="width:10px;height:10px;border-radius:50%;background:#94A3B8"></span>
+                    <span style="font-size:13px;font-weight:800;color:#64748B">Live monitoring is not connected</span>
+                </div>
+                <p style="font-size:12px;color:#64748B;margin-bottom:16px">Component health is not measured by this dashboard, so no live availability claim is shown.</p>
+                <div style="display:flex;flex-direction:column">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #E8EDF5"><span style="font-size:13px;color:#475569">API Gateway</span><span style="font-size:11px;font-weight:800;color:#64748B">Not monitored</span></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #E8EDF5"><span style="font-size:13px;color:#475569">Crypto Rates Feed</span><span style="font-size:11px;font-weight:800;color:#64748B">Not monitored</span></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #E8EDF5"><span style="font-size:13px;color:#475569">Venora AI Models</span><span style="font-size:11px;font-weight:800;color:#64748B">Not monitored</span></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #E8EDF5"><span style="font-size:13px;color:#475569">Telegram Bot</span><span style="font-size:11px;font-weight:800;color:#64748B">Not monitored</span></div>
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0"><span style="font-size:13px;color:#475569">Admin Dashboard</span><span style="font-size:11px;font-weight:800;color:#64748B">Not monitored</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ CHANGELOG ═══ -->
+        <div id="section-changelog" style="display:none;margin-top:20px" class="fade-up">
+            <div style="background:#fff;border-radius:20px;border:1px solid #E8EDF5;padding:20px">
+                <h2 style="font-size:16px;font-weight:900;color:#1E293B;margin-bottom:20px">Changelog</h2>
+                <div style="display:flex;flex-direction:column;gap:20px">
+                    <div style="position:relative;padding-left:20px;border-left:2px solid #E2E8F0">
+                        <div style="position:absolute;left:-7px;top:4px;width:12px;height:12px;border-radius:50%;background:#2563EB"></div>
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:11px;font-weight:900;color:#2563EB;background:#EFF6FF;padding:3px 10px;border-radius:100px">v2.0</span><span style="font-size:11px;color:#94A3B8">July 2026</span></div>
+                        <ul style="display:flex;flex-direction:column;gap:5px;list-style:none;padding:0;margin:0"><li style="font-size:12px;color:#475569;display:flex;align-items:flex-start;gap:8px"><span style="color:#10B981;flex-shrink:0">•</span>Developer portal complete redesign with sidebar layout</li><li style="font-size:12px;color:#475569;display:flex;align-items:flex-start;gap:8px"><span style="color:#10B981;flex-shrink:0">•</span>Venora Flash now public — no auth required</li><li style="font-size:12px;color:#475569;display:flex;align-items:flex-start;gap:8px"><span style="color:#10B981;flex-shrink:0">•</span>Venora Mini & Flash dedicated pages in admin</li><li style="font-size:12px;color:#475569;display:flex;align-items:flex-start;gap:8px"><span style="color:#10B981;flex-shrink:0">•</span>Payment gateway now fully editable from admin</li></ul>
+                    </div>
+                    <div style="position:relative;padding-left:20px;border-left:2px solid #E2E8F0">
+                        <div style="position:absolute;left:-7px;top:4px;width:12px;height:12px;border-radius:50%;background:#8B5CF6"></div>
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:11px;font-weight:900;color:#8B5CF6;background:#EDE9FE;padding:3px 10px;border-radius:100px">v1.5</span><span style="font-size:11px;color:#94A3B8">December 2025</span></div>
+                        <ul style="display:flex;flex-direction:column;gap:5px;list-style:none;padding:0;margin:0"><li style="font-size:12px;color:#475569;display:flex;align-items:flex-start;gap:8px"><span style="color:#10B981;flex-shrink:0">•</span>Multi-admin system with role-based access control</li><li style="font-size:12px;color:#475569;display:flex;align-items:flex-start;gap:8px"><span style="color:#10B981;flex-shrink:0">•</span>Venora Mini AI assistant added to dashboard</li><li style="font-size:12px;color:#475569;display:flex;align-items:flex-start;gap:8px"><span style="color:#10B981;flex-shrink:0">•</span>Admin ownership transfer via Telegram notification</li></ul>
+                    </div>
+                    <div style="position:relative;padding-left:20px;border-left:2px solid #E2E8F0">
+                        <div style="position:absolute;left:-7px;top:4px;width:12px;height:12px;border-radius:50%;background:#10B981"></div>
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:11px;font-weight:900;color:#10B981;background:#D1FAE5;padding:3px 10px;border-radius:100px">v1.0</span><span style="font-size:11px;color:#94A3B8">July 2025</span></div>
+                        <ul style="display:flex;flex-direction:column;gap:5px;list-style:none;padding:0;margin:0"><li style="font-size:12px;color:#475569;display:flex;align-items:flex-start;gap:8px"><span style="color:#10B981;flex-shrink:0">•</span>Initial LEEH Exchange platform launch</li><li style="font-size:12px;color:#475569;display:flex;align-items:flex-start;gap:8px"><span style="color:#10B981;flex-shrink:0">•</span>Telegram bot with 10+ cryptocurrencies</li><li style="font-size:12px;color:#475569;display:flex;align-items:flex-start;gap:8px"><span style="color:#10B981;flex-shrink:0">•</span>Buy & Sell, Gift Cards, Airtime & Data</li></ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Webhooks / SDKs sections (placeholder) -->
+        <div id="section-webhooks" style="display:none;margin-top:20px" class="fade-up">
+            <div style="background:#fff;border-radius:20px;border:1px solid #E8EDF5;padding:24px;text-align:center">
+                <h2 style="font-size:16px;font-weight:900;color:#1E293B;margin-bottom:8px">Webhooks</h2>
+                <p style="font-size:13px;color:#64748B;margin-bottom:20px">Receive real-time notifications for transaction events. Available on Pro and Enterprise plans.</p>
+                <button onclick="showSection('billing')" class="dev-btn">Upgrade to Pro →</button>
+            </div>
+        </div>
+        <div id="section-sdks" style="display:none;margin-top:20px" class="fade-up">
+            <div style="background:#fff;border-radius:20px;border:1px solid #E8EDF5;padding:24px;text-align:center">
+                <h2 style="font-size:16px;font-weight:900;color:#1E293B;margin-bottom:8px">SDKs</h2>
+                <p style="font-size:13px;color:#64748B;margin-bottom:20px">Official client libraries for Node.js, Python, and more coming soon.</p>
+                <a href="https://t.me/LEEHExchangeBot" target="_blank" class="dev-btn">Request Early Access</a>
+            </div>
+        </div>
+
+    </div><!-- dev-content -->
+</div><!-- dev-main -->
+
+<!-- ═══ MOBILE BOTTOM TABS ═══ -->
+<nav id="dev-tabs">
+    <button class="dev-tab active" id="tab-home" onclick="showSection('home')">
+        <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25"/></svg>
+        Dashboard
+    </button>
+    <button class="dev-tab" id="tab-keys" onclick="showSection('keys')">
+        <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z"/></svg>
+        API Keys
+    </button>
+    <button class="dev-tab" id="tab-docs" onclick="showSection('docs')">
+        <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/></svg>
+        Docs
+    </button>
+    <button class="dev-tab" id="tab-billing" onclick="showSection('billing')">
+        <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>
+        Billing
+    </button>
+    <button class="dev-tab" id="tab-models" onclick="showSection('models')">
+        <svg fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
+        Models
+    </button>
+</nav>
+
+<script>
+// Mobile sidebar
+function openMobSidebar(){
+    document.getElementById('dev-sidebar').classList.add('mob-open');
+    document.getElementById('mob-overlay').classList.add('show');
+    document.body.classList.add('dev-nav-open');
+    document.getElementById('mob-nav-toggle').setAttribute('aria-expanded', 'true');
+}
+function closeMobSidebar(){
+    document.getElementById('dev-sidebar').classList.remove('mob-open');
+    document.getElementById('mob-overlay').classList.remove('show');
+    document.body.classList.remove('dev-nav-open');
+    document.getElementById('mob-nav-toggle').setAttribute('aria-expanded', 'false');
+}
+
+// All sections
+var allSections = ['home','models','keys','code','analytics','docs','billing','webhooks','sdks','status','changelog','flash'];
+var allNavItems = ['home','keys','models','docs','code','analytics','billing','webhooks','sdks','status','changelog'];
+var allTabs = ['home','keys','docs','billing','models'];
+
+function showSection(name) {
+    // Show home always, plus the selected special section
+    var specialSections = ['docs','billing','webhooks','sdks','status','changelog','flash'];
+
+    // Hide all special sections
+    specialSections.forEach(function(s) {
+        var el = document.getElementById('section-'+s);
+        if (el) el.style.display = 'none';
+    });
+
+    // Show home always (it's the base)
+    var home = document.getElementById('section-home');
+    if (home) home.style.display = 'block';
+
+    // For home, just scroll to top
+    if (name === 'home') {
+        window.scrollTo({top:0, behavior:'smooth'});
+    } else if (specialSections.includes(name)) {
+        // Show the special section
+        var el = document.getElementById('section-'+name);
+        if (el) {
+            el.style.display = 'block';
+            setTimeout(function(){ el.scrollIntoView({behavior:'smooth', block:'start', inline:'nearest'}); }, 50);
+        }
+    } else {
+        // Scroll to the embedded section
+        var scrollTarget = document.getElementById('section-'+name);
+        if (!scrollTarget) {
+            // Try to find by id directly
+            scrollTarget = document.getElementById('section-'+name);
+        }
+        if (scrollTarget) {
+            setTimeout(function(){ scrollTarget.scrollIntoView({behavior:'smooth', block:'center'}); }, 50);
+        }
+    }
+
+    // Update sidebar nav active states
+    allNavItems.forEach(function(n) {
+        var el = document.getElementById('nav-'+n);
+        if (el) {
+            el.classList.remove('active');
+            el.removeAttribute('aria-current');
+        }
+    });
+    var navEl = document.getElementById('nav-'+name);
+    if (navEl) {
+        navEl.classList.add('active');
+        navEl.setAttribute('aria-current', 'page');
+    }
+    else {
+        var navHome = document.getElementById('nav-home');
+        if (navHome) {
+            navHome.classList.add('active');
+            navHome.setAttribute('aria-current', 'page');
+        }
+    }
+
+    // Update bottom tab active states
+    allTabs.forEach(function(t) {
+        var el = document.getElementById('tab-'+t);
+        if (el) el.classList.remove('active');
+    });
+    var tabMap = {home:'home',keys:'keys',docs:'docs',billing:'billing',models:'models',code:'home',analytics:'home',webhooks:'billing',sdks:'docs',status:'home',changelog:'home',flash:'home'};
+    var activeTab = tabMap[name] || 'home';
+    var tabEl = document.getElementById('tab-'+activeTab);
+    if (tabEl) tabEl.classList.add('active');
+
+    closeMobSidebar();
+}
+
+document.querySelectorAll('#dev-sidebar [id^="nav-"]').forEach(function(item) {
+    item.setAttribute('role', 'button');
+    item.setAttribute('tabindex', '0');
+    item.addEventListener('keydown', function(event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            item.click();
+        }
+    });
+});
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') closeMobSidebar();
+});
+
+function showFlashChat(){
+    var el = document.getElementById('section-flash');
+    el.style.display = 'block';
+    setTimeout(function(){ el.scrollIntoView({behavior:'smooth', block:'start'}); }, 50);
+}
+
+// Code language switcher
+function setLang(lang) {
+    ['js','py','curl'].forEach(function(l) {
+        document.getElementById('code-'+l).style.display = 'none';
+        var btn = document.getElementById('lang-'+l);
+        btn.style.background = '#F1F5F9';
+        btn.style.color = '#64748B';
+    });
+    document.getElementById('code-'+lang).style.display = 'block';
+    var activeBtn = document.getElementById('lang-'+lang);
+    activeBtn.style.background = '#1E293B';
+    activeBtn.style.color = '#fff';
+}
+
+// API Key generation
+async function generateKey() {
+    var email = document.getElementById('dev-email').value.trim();
+    var notice = document.getElementById('key-notice');
+    function showNotice(message, isError) {
+        notice.textContent = message;
+        notice.style.display = 'block';
+        notice.style.background = isError ? '#FEF2F2' : '#ECFDF5';
+        notice.style.color = isError ? '#B91C1C' : '#047857';
+    }
+    if (!email || !email.includes('@')) {
+        showNotice('Please enter a valid email address.', true);
+        document.getElementById('dev-email').focus();
+        return;
+    }
+    var btn = document.getElementById('gen-btn');
+    btn.textContent = 'Generating…';
+    btn.disabled = true;
+    btn.setAttribute('aria-busy', 'true');
+    notice.style.display = 'none';
+    try {
+        var res = await fetch('/api/generate-key', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email: email})
+        });
+        var data = await res.json();
+        var key = data.key || data.api_key;
+        if (res.ok && key) {
+            document.getElementById('key-display').textContent = key;
+            document.getElementById('key-gen-form').style.display = 'none';
+            document.getElementById('key-result').style.display = 'flex';
+        } else {
+            showNotice(data.error || data.message || 'Could not generate the key. Please try again.', true);
+        }
+    } catch(e) {
+        showNotice('Network error. Check your connection and try again.', true);
+    } finally {
+        btn.textContent = 'Generate Free API Key';
+        btn.removeAttribute('aria-busy');
+        btn.disabled = false;
+    }
+}
+
+async function copyKey(btn) {
+    var key = document.getElementById('key-display').textContent;
+    try {
+        await navigator.clipboard.writeText(key);
+        btn.textContent = 'Copied!';
+        setTimeout(function(){ btn.textContent = 'Copy'; }, 2000);
+    } catch(e) {
+        var notice = document.getElementById('key-notice');
+        notice.textContent = 'Clipboard access failed. Select and copy the key manually.';
+        notice.style.display = 'block';
+        notice.style.background = '#FEF2F2';
+        notice.style.color = '#B91C1C';
+    }
+}
+
+function resetKeyForm() {
+    document.getElementById('key-gen-form').style.display = 'flex';
+    document.getElementById('key-result').style.display = 'none';
+    document.getElementById('dev-email').value = '';
+    document.getElementById('key-notice').style.display = 'none';
+}
+
+// Load real stats
+async function loadStats() {
+    try {
+        var res = await fetch('/api/landing-stats');
+        if (!res.ok) throw new Error('Unable to load platform statistics');
+        var data = await res.json();
+        if (data.total_trades !== undefined) {
+            var n = data.total_trades;
+            document.getElementById('stat-requests').textContent = n >= 1000 ? (n/1000).toFixed(1)+'K' : String(n);
+        }
+        if (data.completed_trades !== undefined) {
+            var completed = data.completed_trades;
+            document.getElementById('stat-completed').textContent = completed >= 1000 ? (completed/1000).toFixed(1)+'K' : String(completed);
+        }
+    } catch(e) {
+        document.getElementById('stat-requests').textContent = '—';
+        document.getElementById('stat-completed').textContent = '—';
+    }
+}
+loadStats();
+
+// Venora Flash chat
+var flashMsgs = document.getElementById('flash-messages');
+
+function stripDeveloperEmoji(value) {
+    return String(value || '')
+        .replace(/[#*0-9]\uFE0F?\u20E3/gu, '')
+        .replace(/[\p{Extended_Pictographic}\p{Emoji_Modifier}\p{Regional_Indicator}]/gu, '')
+        .replace(/[\uFE0E\uFE0F\u200D]/g, '')
+        .trim();
+}
+
+function escapeFlashHtml(value) {
+    return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+async function sendFlash() {
+    var input = document.getElementById('flash-input');
+    var msg = input.value.trim();
+    if (!msg) return;
+    input.value = '';
+
+    var userDiv = document.createElement('div');
+    userDiv.style.cssText = 'display:flex;align-items:flex-start;gap:8px;flex-direction:row-reverse';
+    userDiv.innerHTML = '<div aria-hidden="true" style="width:28px;height:28px;border-radius:50%;background:#2563EB;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#fff;font-size:11px;font-weight:900">D</div>';
+    var userBubble = document.createElement('div');
+    userBubble.style.cssText = 'max-width:78%;padding:10px 14px;border-radius:16px;border-top-right-radius:4px;background:#2563EB;color:#fff;font-size:12.5px;line-height:1.5;overflow-wrap:anywhere';
+    userBubble.textContent = stripDeveloperEmoji(msg) || 'Message sent';
+    userDiv.appendChild(userBubble);
+    flashMsgs.appendChild(userDiv);
+    flashMsgs.scrollTop = flashMsgs.scrollHeight;
+
+    var typingDiv = document.createElement('div');
+    typingDiv.style.cssText = 'display:flex;align-items:flex-start;gap:8px';
+    typingDiv.id = 'flash-typing';
+    typingDiv.innerHTML = '<div class="flash-avatar" aria-hidden="true">VF</div><div style="padding:10px 14px;border-radius:16px;border-top-left-radius:4px;background:#fff;border:1px solid #E2E8F0;color:#64748B;font-size:12px">Thinking…</div>';
+    flashMsgs.appendChild(typingDiv);
+    flashMsgs.scrollTop = flashMsgs.scrollHeight;
+
+    try {
+        var res = await fetch('/api/venora-flash', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({message: msg})
+        });
+        var data = await res.json();
+        var typing = document.getElementById('flash-typing');
+        if (typing) typing.remove();
+        var reply = escapeFlashHtml(stripDeveloperEmoji(data.response || 'Sorry, I could not get a response.'))
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\n/g, '<br>');
+        var botDiv = document.createElement('div');
+        botDiv.style.cssText = 'display:flex;align-items:flex-start;gap:8px';
+        botDiv.innerHTML = '<div class="flash-avatar" aria-hidden="true">VF</div><div style="max-width:80%;padding:10px 14px;border-radius:16px;border-top-left-radius:4px;background:#fff;border:1px solid #E2E8F0;font-size:12.5px;color:#1E293B;line-height:1.5">' + reply + '</div>';
+        flashMsgs.appendChild(botDiv);
+        flashMsgs.scrollTop = flashMsgs.scrollHeight;
+    } catch(e) {
+        var typing2 = document.getElementById('flash-typing');
+        if (typing2) typing2.remove();
+    }
+}
+</script>
+</body>
+</html>

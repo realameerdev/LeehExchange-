@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Gift Card Orders | LEEH Exchange{% endblock %}
+{% block content %}
+<div class="animate-reveal space-y-5">
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+            <h1 class="text-xl font-black text-[#1E293B]">Gift Card Orders</h1>
+            <p class="text-[13px] text-[#64748B] mt-0.5">Gift card trades and giveaway claims</p>
+        </div>
+        <a href="/giveaway-claims" class="btn-primary text-[12px] gap-2 shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 11.25v8.25a1.5 1.5 0 01-1.5 1.5H5.25a1.5 1.5 0 01-1.5-1.5v-8.25M12 4.875A2.625 2.625 0 1014.625 7.5H12m0-2.625V7.5m0-2.625A2.625 2.625 0 119.375 7.5H12m0 0H7.875m4.125 0h2.25"/></svg>
+            All Giveaway Claims
+        </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="card-premium p-4">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">Gift Card Orders</p>
+            <p class="text-[20px] font-black text-[#1E293B] mt-1">{{ orders|length }}</p>
+        </div>
+        <div class="card-premium p-4">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">Giveaway Claims</p>
+            <p class="text-[20px] font-black text-[#8B5CF6] mt-1">{{ claims|length }}</p>
+        </div>
+        <div class="card-premium p-4">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">Pending</p>
+            <p class="text-[20px] font-black text-[#F59E0B] mt-1">{{ orders|selectattr('Status','equalto','Pending')|list|length }}</p>
+        </div>
+        <div class="card-premium p-4">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">Completed</p>
+            <p class="text-[20px] font-black text-[#10B981] mt-1">{{ orders|selectattr('Status','in',['Approved','Completed'])|list|length if orders else 0 }}</p>
+        </div>
+    </div>
+
+    <!-- Orders table -->
+    <div class="card-premium p-5">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-[15px] font-black text-[#1E293B]">Gift Card Transactions</h2>
+            <input type="text" id="orderSearch" placeholder="Search…" class="input-premium text-[12px] py-2 px-3 w-48">
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left" style="min-width:540px" id="orderTable">
+                <thead>
+                    <tr class="border-b border-[#E8EDF5]">
+                        <th class="pb-3 px-1 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wide">Timestamp</th>
+                        <th class="pb-3 px-1 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wide">User</th>
+                        <th class="pb-3 px-1 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wide">Type</th>
+                        <th class="pb-3 px-1 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wide">Amount</th>
+                        <th class="pb-3 px-1 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wide">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#F1F5F9]">
+                    {% if orders %}
+                        {% for o in orders %}
+                        <tr class="hover:bg-[#F8FAFC] transition-colors">
+                            <td class="py-3 px-1 text-[11.5px] text-[#64748B]">{{ o.get('Timestamp','')[:16] }}</td>
+                            <td class="py-3 px-1">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 bg-[#F59E0B] rounded-full flex items-center justify-center text-white font-black text-[9px]">{{ (o.get('Username','U') or 'U')[0]|upper }}</div>
+                                    <span class="text-[12px] font-semibold text-[#1E293B]">@{{ o.get('Username','N/A') }}</span>
+                                </div>
+                            </td>
+                            <td class="py-3 px-1 text-[12px] font-semibold text-[#1E293B]">{{ o.get('Type','N/A') }}</td>
+                            <td class="py-3 px-1 text-[12.5px] font-bold text-[#1E293B]">{{ o.get('Amount','N/A') }}</td>
+                            <td class="py-3 px-1">
+                                {% set s = o.get('Status','Pending') %}
+                                <span class="inline-block px-2 py-0.5 rounded-full text-[10.5px] font-bold {% if s in ['Approved','Completed'] %}bg-[#D1FAE5] text-[#059669]{% elif s == 'Pending' %}bg-[#FEF3C7] text-[#D97706]{% else %}bg-[#FEE2E2] text-[#DC2626]{% endif %}">{{ s }}</span>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="5" class="py-10 text-center text-[#94A3B8] text-[12px] font-semibold">No gift card orders found</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Giveaway Claims -->
+    {% if claims %}
+    <div class="card-premium p-5">
+        <h2 class="text-[15px] font-black text-[#1E293B] mb-4">Recent Giveaway Claims</h2>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left" style="min-width:460px">
+                <thead>
+                    <tr class="border-b border-[#E8EDF5]">
+                        <th class="pb-3 px-1 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wide">Timestamp</th>
+                        <th class="pb-3 px-1 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wide">User</th>
+                        <th class="pb-3 px-1 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wide">Reward</th>
+                        <th class="pb-3 px-1 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wide">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#F1F5F9]">
+                    {% for c in claims[-10:]|reverse %}
+                    <tr class="hover:bg-[#F8FAFC] transition-colors">
+                        <td class="py-3 px-1 text-[11.5px] text-[#64748B]">{{ c.get('Timestamp','')[:16] }}</td>
+                        <td class="py-3 px-1 text-[12px] font-semibold text-[#1E293B]">@{{ c.get('Username','N/A') }}</td>
+                        <td class="py-3 px-1 text-[12px] text-[#1E293B]">{{ c.get('Reward_Choice', c.get('Reward','Gift')) }}</td>
+                        <td class="py-3 px-1"><span class="badge-success text-[10px]">Claimed</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+<script>
+document.getElementById('orderSearch').addEventListener('input', function() {
+    var q = this.value.toLowerCase();
+    document.querySelectorAll('#orderTable tbody tr').forEach(function(r) {
+        r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+{% block title %}Giveaway Codes | LEEH Exchange{% endblock %}
+{% block content %}
+
+<div class="space-y-8 sm:space-y-12 animate-reveal">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div>
+            <span class="inline-block px-3 py-1.5 bg-[#AF52DE]/10 text-[#AF52DE] text-xs font-black uppercase tracking-widest rounded-full mb-4">Giveaway System</span>
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black text-slate-900 leading-none">Code Tracker</h1>
+            <p class="text-slate-500 mt-3 text-base max-w-xl leading-relaxed">Manage all LEEH giveaway codes — generate new batches, view usage status, and track redemptions.</p>
+        </div>
+        <a href="/giveaway-claims" class="inline-flex items-center gap-2 px-5 py-3 bg-white border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition-all shrink-0">
+            🎁 View Claims
+        </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-3 gap-4 sm:gap-6">
+        <div class="card-premium p-5 sm:p-7 text-center">
+            <p class="text-3xl sm:text-4xl font-black text-[#1C1C1E]">{{ total }}</p>
+            <p class="text-xs font-bold text-[#8E8E93] uppercase tracking-wider mt-2">Total Codes</p>
+        </div>
+        <div class="card-premium p-5 sm:p-7 text-center">
+            <p class="text-3xl sm:text-4xl font-black text-[#34C759]">{{ avail_cnt }}</p>
+            <p class="text-xs font-bold text-[#8E8E93] uppercase tracking-wider mt-2">Available</p>
+        </div>
+        <div class="card-premium p-5 sm:p-7 text-center">
+            <p class="text-3xl sm:text-4xl font-black text-[#FF9500]">{{ used_cnt }}</p>
+            <p class="text-xs font-bold text-[#8E8E93] uppercase tracking-wider mt-2">Used</p>
+        </div>
+    </div>
+
+    <!-- Generate New Batch (super admin only) -->
+    {% if is_super_admin %}
+    <div class="card-premium overflow-hidden">
+        <div class="px-6 py-5 sm:px-10 sm:py-7 border-b border-black/5 bg-[#AF52DE]/5">
+            <h2 class="text-lg font-black text-[#1C1C1E]">Generate New Codes</h2>
+            <p class="text-sm text-[#8E8E93] mt-1">Create fresh one-time giveaway codes and add them to the pool instantly</p>
+        </div>
+        <div class="px-6 py-6 sm:px-10 sm:py-8">
+            <div id="gen-alert" class="hidden mb-4 p-4 rounded-2xl text-sm font-semibold"></div>
+            <div class="flex flex-col sm:flex-row gap-4 items-end">
+                <div class="flex-1">
+                    <label class="block text-xs font-semibold text-[#8E8E93] uppercase tracking-wider mb-2 ml-1">Number of Codes (1–100)</label>
+                    <input type="number" id="gen-count" min="1" max="100" value="10" placeholder="10"
+                        class="w-full px-5 py-3.5 bg-[#F2F2F7] border-0 rounded-2xl text-sm text-[#1C1C1E] outline-none focus:ring-2 focus:ring-[#AF52DE]/30 transition-all">
+                </div>
+                <button onclick="generateCodes()"
+                    class="px-8 py-3.5 bg-[#AF52DE] text-white font-bold rounded-2xl hover:brightness-110 active:scale-[0.98] transition-all text-sm flex items-center gap-2.5 shrink-0">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                    Generate Codes
+                </button>
+            </div>
+            <!-- Generated output -->
+            <div id="gen-result" class="hidden mt-6 p-5 bg-[#F2F2F7] rounded-2xl space-y-3">
+                <div class="flex items-center justify-between">
+                    <p class="text-sm font-bold text-[#1C1C1E]"><span id="gen-count-label"></span> codes generated</p>
+                    <button onclick="copyAllCodes()" class="px-4 py-2 bg-[#AF52DE] text-white text-xs font-bold rounded-xl hover:brightness-110 transition-all">Copy All</button>
+                </div>
+                <textarea id="gen-output" readonly rows="6"
+                    class="w-full px-4 py-3 bg-white border border-black/8 rounded-xl text-xs font-mono text-[#1C1C1E] resize-none outline-none select-all leading-relaxed"></textarea>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- All Codes Table -->
+    <div class="card-premium overflow-hidden">
+        <div class="px-6 py-5 sm:px-10 sm:py-7 border-b border-black/5 bg-[#F2F2F7]/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <h2 class="text-lg font-black text-[#1C1C1E]">All Codes</h2>
+            <div class="flex items-center gap-3">
+                <input type="text" id="code-search" placeholder="Search codes…" oninput="filterCodes()"
+                    class="px-4 py-2.5 bg-white border border-black/8 rounded-xl text-sm outline-none w-40 sm:w-52 focus:ring-2 focus:ring-[#AF52DE]/20 transition-all">
+                <select id="code-filter" onchange="filterCodes()"
+                    class="px-3 py-2.5 bg-white border border-black/8 rounded-xl text-sm outline-none focus:ring-2 focus:ring-[#AF52DE]/20 transition-all">
+                    <option value="all">All</option>
+                    <option value="available">Available</option>
+                    <option value="used">Used</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left min-w-[520px]">
+                <thead>
+                    <tr class="bg-slate-50/50 border-b border-slate-200/60">
+                        <th class="px-6 sm:px-10 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">#</th>
+                        <th class="px-6 sm:px-10 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">Code</th>
+                        <th class="px-6 sm:px-10 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">Status</th>
+                        <th class="px-6 sm:px-10 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">Used By</th>
+                        <th class="px-6 sm:px-10 py-4 text-xs font-black text-slate-400 uppercase tracking-widest">Used At</th>
+                    </tr>
+                </thead>
+                <tbody id="codes-tbody" class="divide-y divide-slate-100">
+                    {% if all_codes %}
+                        {% for c in all_codes %}
+                        <tr class="hover:bg-slate-50/50 transition-colors code-row"
+                            data-status="{{ 'used' if c.used else 'available' }}"
+                            data-code="{{ c.code }}">
+                            <td class="px-6 sm:px-10 py-4 text-xs text-[#8E8E93] font-bold">{{ loop.index }}</td>
+                            <td class="px-6 sm:px-10 py-4">
+                                <code class="text-sm font-mono font-bold text-[#1C1C1E] bg-[#F2F2F7] px-3 py-1.5 rounded-lg select-all">{{ c.code }}</code>
+                            </td>
+                            <td class="px-6 sm:px-10 py-4">
+                                {% if c.used %}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-[#FF9500]/10 text-[#FF9500] rounded-full text-[10px] font-black uppercase tracking-wide">● Used</span>
+                                {% else %}
+                                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-[#34C759]/10 text-[#34C759] rounded-full text-[10px] font-black uppercase tracking-wide">● Available</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 sm:px-10 py-4 text-sm text-slate-600 font-medium">{{ c.used_by or '—' }}</td>
+                            <td class="px-6 sm:px-10 py-4 text-sm text-[#8E8E93]">
+                                {{ c.used_at[:16].replace('T',' ') if c.used_at else '—' }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="5" class="px-10 py-16 text-center text-slate-400 font-bold uppercase tracking-widest text-sm">No codes yet — generate some above</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+async function generateCodes() {
+    const count = parseInt(document.getElementById('gen-count').value) || 10;
+    try {
+        const res = await fetch('/api/generate-codes', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({count})
+        });
+        const data = await res.json();
+        if (data.success) {
+            document.getElementById('gen-count-label').textContent = data.generated;
+            document.getElementById('gen-output').value = data.codes.join('\n');
+            document.getElementById('gen-result').classList.remove('hidden');
+            showGenAlert('✅ ' + data.generated + ' new codes generated!', true);
+            setTimeout(() => location.reload(), 3500);
+        } else {
+            showGenAlert(data.message || 'Failed to generate codes.', false);
+        }
+    } catch (e) {
+        showGenAlert('Network error. Please try again.', false);
+    }
+}
+
+function copyAllCodes() {
+    const ta = document.getElementById('gen-output');
+    ta.select();
+    navigator.clipboard.writeText(ta.value).then(() => {
+        const btn = document.querySelector('#gen-result .flex button');
+        if (btn) { btn.textContent = 'Copied!'; setTimeout(() => btn.textContent = 'Copy All', 2000); }
+    }).catch(() => document.execCommand('copy'));
+}
+
+function showGenAlert(msg, ok) {
+    const el = document.getElementById('gen-alert');
+    el.textContent = msg;
+    el.className = 'p-4 rounded-2xl text-sm font-semibold ' + (ok ? 'bg-[#34C759]/10 text-[#34C759]' : 'bg-[#FF3B30]/10 text-[#FF3B30]');
+    el.classList.remove('hidden');
+    setTimeout(() => el.classList.add('hidden'), 5000);
+}
+
+function filterCodes() {
+    const q = document.getElementById('code-search').value.toLowerCase();
+    const f = document.getElementById('code-filter').value;
+    document.querySelectorAll('.code-row').forEach(row => {
+        const code   = (row.dataset.code || '').toLowerCase();
+        const status = row.dataset.status;
+        const match  = code.includes(q) && (f === 'all' || f === status);
+        row.style.display = match ? '' : 'none';
+    });
+}
+</script>
+{% endblock %}

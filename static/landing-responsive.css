@@ -1,0 +1,101 @@
+/* Responsive and keyboard usability refinements for the public landing page. */
+html {
+    min-width: 320px;
+    scroll-padding-top: 76px;
+    -webkit-text-size-adjust: 100%;
+}
+
+body {
+    min-width: 320px;
+    overflow-x: clip;
+}
+
+button, input, select, textarea { font: inherit; }
+button, a { -webkit-tap-highlight-color: transparent; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 3px solid rgba(23,105,224,.45);
+    outline-offset: 3px;
+}
+
+.container, .hero-grid > *, .telegram-grid > *, .developer-panel > * { min-width: 0; }
+.button { min-height: 46px; touch-action: manipulation; }
+.nav-menu, .mobile-close { min-width: 44px; min-height: 44px; }
+.mobile-links a { min-height: 44px; display: flex; align-items: center; }
+.market-panel, .developer-code, .share-modal-card { min-width: 0; max-width: 100%; }
+#tv-frame { width: 100%; max-width: 100%; }
+.share-modal-card { max-height: calc(100dvh - 32px); overflow-y: auto; }
+.share-modal-card img, .share-modal-card canvas { max-width: 100%; height: auto; }
+.market-search input { min-width: 0; width: 100%; }
+.interval-tabs { max-width: 100%; overflow-x: auto; }
+.footer-top > *, .product-grid > *, .coin-grid > * { min-width: 0; }
+
+@media (max-width: 860px) {
+    .hero-grid, .telegram-grid, .developer-panel, .help-grid, .intro-grid {
+        grid-template-columns: minmax(0,1fr);
+    }
+    .hero-copy-block { min-width: 0; }
+    .developer-panel { gap: 28px; }
+}
+
+@media (max-width: 620px) {
+    html { scroll-padding-top: 68px; }
+    .container { width: calc(100% - 32px); }
+    .nav-inner { gap: 10px; }
+    .nav-actions { gap: 8px; }
+    .brand-wordmark { font-size: 15px; }
+    .hero-actions { display: grid; grid-template-columns: minmax(0,1fr); gap: 10px; }
+    .hero-actions .button { width: 100%; }
+    .hero-art, .telegram-visual { min-width: 0; }
+    .exchange-card { min-width: 0; }
+    .product-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    .product-card, .product-card.featured { min-width: 0; }
+    .developer-panel { gap: 24px; }
+    .crypto-activity-total { min-width: 0; max-width: 100%; }
+    .share-modal { padding: 12px; }
+    .share-modal-actions { flex-wrap: wrap; }
+    .share-modal-actions > button { min-height: 44px; flex: 1 1 120px; }
+    #vf-btn {
+        right: 12px;
+        bottom: max(12px, env(safe-area-inset-bottom));
+        width: 48px;
+        height: 48px;
+        justify-content: center;
+        padding: 0;
+        border-radius: 50%;
+    }
+    #vf-btn > span:last-child {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0,0,0,0);
+        white-space: nowrap;
+    }
+    .vf-panel {
+        right: 12px;
+        bottom: calc(72px + env(safe-area-inset-bottom));
+        width: calc(100vw - 24px);
+        max-height: calc(100dvh - 92px - env(safe-area-inset-bottom));
+    }
+}
+
+@media (max-width: 380px) {
+    .container { width: calc(100% - 24px); }
+    .hero-title { font-size: clamp(36px, 11vw, 44px); }
+    .hero-art { min-height: 330px; }
+    .hero-orbit { max-width: calc(100vw - 12px); }
+    .exchange-card { right: 0; }
+    .product-grid { grid-template-columns: minmax(0,1fr); }
+    .product-card.featured { grid-column: span 1; }
+    .footer-top { grid-template-columns: minmax(0,1fr); }
+    .footer-brand { grid-column: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+    }
+}

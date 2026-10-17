@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Venora Flash | LEEH Exchange{% endblock %}
+{% block content %}
+<div class="animate-reveal flex flex-col" style="height:calc(100vh - 60px - 48px)">
+
+    <!-- Header -->
+    <div class="flex items-center gap-3 mb-4 flex-shrink-0">
+        <div class="w-10 h-10 rounded-2xl flex items-center justify-center" style="background:linear-gradient(135deg,#F59E0B,#EF4444)">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+        </div>
+        <div>
+            <h1 class="text-[16px] font-black text-[#1E293B]">Venora Flash <span class="text-[11px] font-semibold text-[#64748B] bg-[#F1F5F9] px-2 py-0.5 rounded-full ml-1">⚡ Fast</span></h1>
+            <p class="text-[11px] text-[#64748B]">Advanced AI for crypto, forex, stocks, blockchain &amp; fintech</p>
+        </div>
+        <div class="ml-auto flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#D1FAE5] text-[#059669] text-[10px] font-bold">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse"></span>
+            Active
+        </div>
+    </div>
+
+    <!-- Chat window -->
+    <div class="card-premium flex-1 flex flex-col overflow-hidden">
+        <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-3">
+            <div class="flex items-start gap-2.5">
+                <div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#F59E0B,#EF4444)">
+                    <svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+                </div>
+                <div class="max-w-[80%] px-3 py-2.5 rounded-2xl rounded-tl-sm bg-[#F1F5F9] text-[#1E293B] text-[13px] leading-relaxed">
+                    Hey there! I'm <strong>Venora Flash</strong> ⚡ — your AI assistant for LeehExchange. Ask me about our APIs, crypto markets, features, how to integrate, or anything about the platform!
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick suggestions -->
+        <div id="quick-sugg" class="px-4 pb-2 flex gap-2 overflow-x-auto no-scrollbar">
+            {% for q in ["What APIs does LeehExchange offer?", "What is LEEH Exchange?", "How to get an API key?", "Tell me about crypto prices", "Pricing plans?"] %}
+            <button onclick="sendQuick('{{ q }}')" class="flex-shrink-0 px-3 py-1.5 rounded-full bg-[#FEF3C7] border border-[#FDE68A] text-[#D97706] text-[11px] font-semibold hover:bg-[#FDE68A] transition-colors">{{ q }}</button>
+            {% endfor %}
+        </div>
+
+        <!-- Input -->
+        <div class="p-3 border-t border-[#E8EDF5] flex items-center gap-2">
+            <input id="msg-input" type="text" placeholder="Ask anything…"
+                class="input-premium flex-1 text-[13px] py-2.5"
+                onkeydown="if(event.key==='Enter')sendMsg()">
+            <button onclick="sendMsg()"
+                class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 transition-all"
+                style="background:linear-gradient(135deg,#F59E0B,#EF4444)">
+                <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<style>.no-scrollbar::-webkit-scrollbar{display:none}.no-scrollbar{-ms-overflow-style:none;scrollbar-width:none}</style>
+
+<script>
+var msgs = document.getElementById('chat-messages');
+function appendMsg(text, isUser) {
+    var el = document.createElement('div');
+    el.className = 'flex items-start gap-2.5' + (isUser ? ' flex-row-reverse' : '');
+    var avatarStyle = isUser ? 'background:#2563EB' : 'background:linear-gradient(135deg,#F59E0B,#EF4444)';
+    var avatarIcon = isUser
+        ? '<svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/></svg>'
+        : '<svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>';
+    el.innerHTML = '<div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style="' + avatarStyle + '">' + avatarIcon + '</div>' +
+        '<div class="max-w-[78%] px-3 py-2.5 rounded-2xl text-[13px] leading-relaxed ' +
+        (isUser ? 'rounded-tr-sm bg-[#2563EB] text-white' : 'rounded-tl-sm bg-[#F1F5F9] text-[#1E293B]') + '">' +
+        text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>') + '</div>';
+    msgs.appendChild(el); msgs.scrollTop = msgs.scrollHeight;
+}
+function appendTyping() {
+    var el = document.createElement('div'); el.id = 'typing-ind'; el.className = 'flex items-start gap-2.5';
+    el.innerHTML = '<div class="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" style="background:linear-gradient(135deg,#F59E0B,#EF4444)"><svg class="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg></div><div class="px-3 py-2.5 rounded-2xl rounded-tl-sm bg-[#F1F5F9] text-[#64748B] text-[12px]">Typing…</div>';
+    msgs.appendChild(el); msgs.scrollTop = msgs.scrollHeight;
+}
+function removeTyping() { var e = document.getElementById('typing-ind'); if(e) e.remove(); }
+async function sendMsg() {
+    var input = document.getElementById('msg-input');
+    var text = input.value.trim(); if (!text) return; input.value = '';
+    document.getElementById('quick-sugg').style.display = 'none';
+    appendMsg(text, true); appendTyping();
+    try {
+        var res = await fetch('/api/venora-flash', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({message: text})
+        });
+        var data = await res.json(); removeTyping();
+        appendMsg(data.response || 'Sorry, could not get a response.', false);
+    } catch(e) { removeTyping(); appendMsg('Something went wrong. Please try again.', false); }
+}
+function sendQuick(q) { document.getElementById('msg-input').value = q; sendMsg(); }
+</script>
+{% endblock %}

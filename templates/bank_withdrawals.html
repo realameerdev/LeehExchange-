@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block title %}Bank Withdrawals | LEEH Exchange{% endblock %}
+{% block content %}
+<div class="animate-reveal space-y-5">
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+            <h1 class="text-xl font-black text-[#1E293B]">Bank Withdrawals</h1>
+            <p class="text-[13px] text-[#64748B] mt-0.5">Naira transfers and bank withdrawal transactions</p>
+        </div>
+        <a href="/transactions" class="btn-primary text-[12px] gap-2 shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 6.75h12M8.25 12h12m-12 5.25h12"/></svg>
+            All Transactions
+        </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="card-premium p-4">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">Total Withdrawals</p>
+            <p class="text-[20px] font-black text-[#1E293B] mt-1">{{ orders|length }}</p>
+        </div>
+        <div class="card-premium p-4">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">Pending</p>
+            <p class="text-[20px] font-black text-[#F59E0B] mt-1">{{ orders|selectattr('Status','equalto','Pending')|list|length }}</p>
+        </div>
+        <div class="card-premium p-4">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">Approved</p>
+            <p class="text-[20px] font-black text-[#10B981] mt-1">{{ orders|selectattr('Status','in',['Approved','Completed'])|list|length if orders else 0 }}</p>
+        </div>
+        <div class="card-premium p-4">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">Rejected</p>
+            <p class="text-[20px] font-black text-[#EF4444] mt-1">{{ orders|selectattr('Status','in',['Rejected','Failed'])|list|length if orders else 0 }}</p>
+        </div>
+    </div>
+
+    <!-- Table -->
+    <div class="card-premium p-5">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-[15px] font-black text-[#1E293B]">Withdrawal Requests</h2>
+            <input type="text" id="bSearch" placeholder="Search…" class="input-premium text-[12px] py-2 px-3 w-48">
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-left" style="min-width:660px" id="bTable">
+                <thead>
+                    <tr class="border-b border-[#E8EDF5]">
+                        <th class="pb-3 px-1 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wide">Timestamp</th>
+                        <th class="pb-3 px-1 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wide">User</th>
+                        <th class="pb-3 px-1 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wide">Type</th>
+                        <th class="pb-3 px-1 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wide">Amount</th>
+                        <th class="pb-3 px-1 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wide">Destination</th>
+                        <th class="pb-3 px-1 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wide">Status</th>
+                        <th class="pb-3 px-1 text-[10px] font-bold text-[#94A3B8] uppercase tracking-wide">Action</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-[#F1F5F9]">
+                    {% if orders %}
+                        {% for o in orders %}
+                        <tr class="hover:bg-[#F8FAFC] transition-colors">
+                            <td class="py-3 px-1 text-[11.5px] text-[#64748B]">{{ o.get('Timestamp','')[:16] }}</td>
+                            <td class="py-3 px-1">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-6 h-6 bg-[#10B981] rounded-full flex items-center justify-center text-white font-black text-[9px]">{{ (o.get('Username','U') or 'U')[0]|upper }}</div>
+                                    <span class="text-[12px] font-semibold text-[#1E293B]">@{{ o.get('Username','N/A') }}</span>
+                                </div>
+                            </td>
+                            <td class="py-3 px-1 text-[12px] text-[#1E293B]">{{ o.get('Type','Withdrawal') }}</td>
+                            <td class="py-3 px-1 text-[12.5px] font-bold text-[#1E293B]">{{ o.get('Amount','N/A') }}</td>
+                            <td class="py-3 px-1">
+                                {% set dest = o.get('Details','') or o.get('Notes','') or o.get('BankDetails','') or o.get('Wallet','') or '' %}
+                                {% if dest and dest != 'N/A' and dest|length > 2 %}
+                                <div class="max-w-[180px]" title="{{ dest }}">
+                                    <span class="text-[11px] text-[#1E293B] font-semibold block truncate">{{ dest[:45] }}{% if dest|length > 45 %}…{% endif %}</span>
+                                </div>
+                                {% else %}
+                                <span class="text-[11px] text-[#94A3B8]">—</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3 px-1">
+                                {% set s = o.get('Status','Pending') %}
+                                <span class="inline-block px-2 py-0.5 rounded-full text-[10.5px] font-bold {% if s in ['Approved','Completed'] %}bg-[#D1FAE5] text-[#059669]{% elif s == 'Pending' %}bg-[#FEF3C7] text-[#D97706]{% else %}bg-[#FEE2E2] text-[#DC2626]{% endif %}">{{ s }}</span>
+                            </td>
+                            <td class="py-3 px-1">
+                                <a href="/transactions" class="text-[11px] font-bold text-[#2563EB] hover:underline">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr><td colspan="7" class="py-12 text-center text-[#94A3B8] text-[12px] font-semibold">No bank withdrawal orders found</td></tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+document.getElementById('bSearch').addEventListener('input', function() {
+    var q = this.value.toLowerCase();
+    document.querySelectorAll('#bTable tbody tr').forEach(function(r) {
+        r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+    });
+});
+</script>
+{% endblock %}

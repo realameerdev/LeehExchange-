@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="icon" type="image/png" href="/static/leeh_icon.png">
+    <title>Admin Invite — LEEH Exchange</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', system-ui, sans-serif; background: #F2F2F7; }
+        @keyframes reveal { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform: translateY(0); } }
+        .reveal { animation: reveal 0.55s cubic-bezier(.2,.8,.2,1) forwards; }
+        .inp {
+            width: 100%;
+            padding: 13px 18px;
+            background: #F2F2F7;
+            border: none;
+            border-radius: 14px;
+            font-size: 15px;
+            color: #1C1C1E;
+            outline: none;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        .inp:focus { background: #fff; box-shadow: 0 0 0 3px rgba(0,122,255,.15); }
+        .inp::placeholder { color: #C7C7CC; }
+    </style>
+    <link rel="stylesheet" href="/static/auth-responsive.css">
+</head>
+<body class="auth-page invite-page min-h-screen flex items-center justify-center p-6">
+<div class="invite-shell w-full max-w-[460px] reveal space-y-6">
+
+    <!-- Header card -->
+    <div class="bg-white rounded-[28px] shadow-sm overflow-hidden">
+        <div class="px-8 py-8 text-center border-b border-black/5 bg-[#F2F2F7]/40">
+            <div class="w-16 h-16 bg-[#007AFF] rounded-[22px] flex items-center justify-center mx-auto mb-5 shadow-lg shadow-[#007AFF]/25">
+                <span class="text-3xl">⚡</span>
+            </div>
+            <h1 class="text-2xl font-black text-[#1C1C1E]">You're invited!</h1>
+            <p class="text-[#8E8E93] text-sm mt-2">LEEH Exchange Admin Dashboard</p>
+        </div>
+
+        {% if success %}
+        <!-- Success state -->
+        <div class="px-8 py-10 text-center space-y-5">
+            <div class="w-14 h-14 bg-[#34C759]/10 rounded-[18px] flex items-center justify-center mx-auto">
+                <span class="text-3xl">✅</span>
+            </div>
+            <div>
+                <h2 class="text-xl font-bold text-[#1C1C1E]">Account activated!</h2>
+                <p class="text-[#8E8E93] text-sm mt-2 leading-relaxed">Your admin account is ready. Log in with the username and password you just set.</p>
+            </div>
+            {% if admin %}
+            <div class="p-5 bg-[#F2F2F7] rounded-2xl text-left space-y-2">
+                <p class="text-xs font-semibold text-[#8E8E93] uppercase tracking-wider">Your role</p>
+                <p class="font-bold text-[#007AFF]">{{ admin.role | replace('_',' ') | title }}</p>
+            </div>
+            {% endif %}
+            <a href="/login" class="block w-full py-4 bg-[#007AFF] text-white font-bold rounded-2xl text-center hover:bg-[#0062CC] transition-all">
+                Go to Login
+            </a>
+        </div>
+
+        {% elif error and not admin %}
+        <!-- Invalid / already-used link -->
+        <div class="px-8 py-10 text-center space-y-4">
+            <div class="w-14 h-14 bg-[#FF3B30]/10 rounded-[18px] flex items-center justify-center mx-auto">
+                <span class="text-3xl">❌</span>
+            </div>
+            <h2 class="text-xl font-bold text-[#1C1C1E]">Invalid invite link</h2>
+            <p class="text-[#8E8E93] text-sm leading-relaxed">{{ error }}</p>
+            <a href="/login" class="block w-full py-4 bg-[#F2F2F7] text-[#1C1C1E] font-semibold rounded-2xl text-center hover:bg-[#E5E5EA] transition-all">
+                Back to Login
+            </a>
+        </div>
+
+        {% else %}
+        <!-- Invite form -->
+        {% if admin %}
+        <div class="px-8 pt-7 pb-2">
+            <div class="p-5 bg-[#007AFF]/5 border border-[#007AFF]/15 rounded-2xl flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-[#007AFF]/10 flex items-center justify-center shrink-0 text-lg">
+                    {{ {
+                        'transaction_manager':'💳',
+                        'support_agent':'🎧',
+                        'email_manager':'📧',
+                        'giveaway_manager':'🎁',
+                        'content_manager':'📢',
+                        'analyst':'📊',
+                        'moderator':'🛡️'
+                    }.get(admin.role, '👤') }}
+                </div>
+                <div>
+                    <p class="text-xs font-semibold text-[#8E8E93] uppercase tracking-wider">Invited as</p>
+                    <p class="font-bold text-[#007AFF] text-sm">{{ admin.name }}</p>
+                    <p class="text-xs text-[#8E8E93] mt-0.5">{{ admin.role | replace('_',' ') | title }}</p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <form method="POST" class="px-8 py-7 space-y-5">
+            {% if error %}
+            <div class="p-4 rounded-2xl bg-[#FF3B30]/10 text-[#FF3B30] text-sm font-semibold">{{ error }}</div>
+            {% endif %}
+
+            <div>
+                <label class="block text-xs font-semibold text-[#8E8E93] uppercase tracking-wider mb-2 ml-1">Choose a username</label>
+                <input class="inp" type="text" name="username" required placeholder="e.g. johndoe"
+                    pattern="[a-zA-Z0-9_\-]+" title="Letters, numbers, _ and - only">
+                <p class="text-[11px] text-[#C7C7CC] mt-1.5 ml-1">This is what you'll use to log in. No spaces.</p>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-[#8E8E93] uppercase tracking-wider mb-2 ml-1">Email (optional)</label>
+                <input class="inp" type="email" name="login_email" placeholder="you@example.com">
+                <p class="text-[11px] text-[#C7C7CC] mt-1.5 ml-1">You can also log in with this email instead of your username.</p>
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-[#8E8E93] uppercase tracking-wider mb-2 ml-1">Password</label>
+                <input class="inp" type="password" name="password" required placeholder="Min. 6 characters" minlength="6">
+            </div>
+
+            <div>
+                <label class="block text-xs font-semibold text-[#8E8E93] uppercase tracking-wider mb-2 ml-1">Confirm password</label>
+                <input class="inp" type="password" name="confirm_password" required placeholder="Repeat password">
+            </div>
+
+            <button type="submit"
+                class="w-full py-4 bg-[#007AFF] text-white font-bold rounded-2xl hover:bg-[#0062CC] active:scale-[0.98] transition-all text-sm mt-2">
+                Activate My Account
+            </button>
+        </form>
+        {% endif %}
+    </div>
+
+    <p class="text-center text-xs text-[#C7C7CC]">© 2026 LEEH Exchange Secure Environment</p>
+</div>
+</body>
+</html>

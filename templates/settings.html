@@ -1,0 +1,722 @@
+{% extends "base.html" %}
+{% block title %}Settings - LEEH Exchange Admin{% endblock %}
+{% block content %}
+
+<div class="space-y-8 sm:space-y-12 animate-reveal">
+    <div>
+        <span class="inline-block px-3 py-1.5 sm:px-4 sm:py-2 bg-primary-100 text-primary-700 text-xs font-black uppercase tracking-widest rounded-full mb-4 sm:mb-6">System</span>
+        <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-slate-900 leading-none">Settings</h1>
+        <p class="text-slate-500 mt-3 sm:mt-5 text-base sm:text-lg leading-relaxed">Manage admin credentials and system configuration</p>
+    </div>
+
+    {% if is_super_admin %}
+    <!-- ═══════════════════════════════════ -->
+    <!-- TEAM ADMIN MANAGEMENT               -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="card-premium overflow-hidden">
+        <div class="px-5 py-5 sm:px-10 sm:py-8 border-b border-black/5 bg-[#F2F2F7]/50 flex items-start justify-between gap-4">
+            <div>
+                <h2 class="text-lg sm:text-xl font-bold text-[#1C1C1E]">Team Admin Management</h2>
+                <p class="text-[#8E8E93] text-sm mt-1">Invite team members with specific roles and restricted access</p>
+            </div>
+            <div class="flex flex-col items-end gap-1.5 shrink-0">
+                <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#007AFF]/10 text-[#007AFF] rounded-full text-xs font-bold">
+                    {{ sub_admins|length }} / 3 slots used
+                </span>
+                {% if sub_admins|length >= 3 %}
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-[#FF3B30]/10 text-[#FF3B30] rounded-full text-[10px] font-bold">● Limit reached</span>
+                {% else %}
+                <span class="inline-flex items-center gap-1 px-2.5 py-1 bg-[#34C759]/10 text-[#34C759] rounded-full text-[10px] font-bold">● {{ 3 - sub_admins|length }} slot{{ 's' if (3 - sub_admins|length) != 1 else '' }} open</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="px-5 py-6 sm:px-10 sm:py-10 space-y-8 sm:space-y-10">
+
+            <!-- ── Grant Full Access ─────────────────────────────── -->
+            <div class="p-6 sm:p-8 rounded-3xl border-2 border-[#FF6B00]/25 bg-[#FF6B00]/5 space-y-5">
+                <div class="flex items-start gap-4">
+                    <div class="w-12 h-12 rounded-2xl bg-[#FF6B00]/15 flex items-center justify-center text-2xl shrink-0">🔓</div>
+                    <div>
+                        <h3 class="font-bold text-[#1C1C1E] text-base">Grant Full Access</h3>
+                        <p class="text-sm text-[#8E8E93] mt-1 leading-relaxed">Give someone complete access to every section of the dashboard — same as super admin but without the ability to change settings or manage admins. Up to 3 admins total.</p>
+                    </div>
+                </div>
+                <div id="full-access-alert" class="hidden p-4 rounded-2xl text-sm font-semibold"></div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-[#8E8E93] uppercase tracking-wider mb-2 ml-1">Admin Name</label>
+                        <input type="text" id="full-access-name" placeholder="e.g. Alex Ibrahim"
+                            class="w-full px-5 py-3.5 bg-white border border-[#FF6B00]/20 rounded-2xl text-sm text-[#1C1C1E] placeholder-[#C7C7CC] outline-none focus:ring-2 focus:ring-[#FF6B00]/30 transition-all">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="grantFullAccess()"
+                            {% if sub_admins|length >= 3 %}disabled{% endif %}
+                            class="w-full py-3.5 font-bold rounded-2xl transition-all text-sm flex items-center justify-center gap-2.5
+                                {% if sub_admins|length >= 3 %}
+                                bg-[#E5E5EA] text-[#8E8E93] cursor-not-allowed
+                                {% else %}
+                                bg-[#FF6B00] text-white hover:brightness-110 active:scale-[0.98]
+                                {% endif %}">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/>
+                            </svg>
+                            {% if sub_admins|length >= 3 %}Limit Reached{% else %}Grant Full Access{% endif %}
+                        </button>
+                    </div>
+                </div>
+                <!-- Full Access invite link result -->
+                <div id="full-access-result" class="hidden p-5 bg-[#FF6B00]/5 border border-[#FF6B00]/20 rounded-2xl space-y-3">
+                    <p class="text-xs font-semibold text-[#FF6B00] uppercase tracking-wider">Full Access Invite Link Ready</p>
+                    <div class="flex items-center gap-3">
+                        <input id="full-access-link-display" readonly type="text"
+                            class="flex-1 px-4 py-3 bg-white border border-black/8 rounded-xl text-sm text-[#1C1C1E] font-mono outline-none select-all">
+                        <button onclick="copyFullAccessLink()"
+                            class="shrink-0 px-5 py-3 bg-[#FF6B00] text-white font-semibold rounded-xl hover:brightness-110 transition-all text-sm">Copy</button>
+                    </div>
+                    <p class="text-xs text-[#8E8E93]">Share this link. Once accepted the admin has access to all sections except Settings.</p>
+                </div>
+            </div>
+
+            <!-- ── Role Showcase ─────────────────────────────────── -->
+            <div>
+                <p class="text-xs font-semibold text-[#8E8E93] uppercase tracking-wider mb-5">Available Roles</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+                    {% for key, role in roles.items() %}
+                    <div class="p-5 rounded-2xl border-2 border-transparent role-card cursor-pointer transition-all hover:scale-[1.02]"
+                         style="background: {{ role.color }}08; border-color: {{ role.color }}20;"
+                         onclick="selectRole('{{ key }}', '{{ role.label }}')">
+                        <div class="flex items-start gap-3">
+                            <div class="text-2xl mt-0.5 shrink-0">{{ role.icon }}</div>
+                            <div class="min-w-0">
+                                <p class="font-bold text-[#1C1C1E] text-sm">{{ role.label }}</p>
+                                <p class="text-[11px] text-[#8E8E93] mt-1 leading-relaxed">{{ role.description }}</p>
+                                <div class="flex flex-wrap gap-1 mt-3">
+                                    {% for perm in role.permissions %}
+                                    <span class="inline-block px-2 py-0.5 text-[10px] font-semibold rounded-md"
+                                          style="background: {{ role.color }}15; color: {{ role.color }};">
+                                        {{ perm | replace('_',' ') }}
+                                    </span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- ── Add Admin Form ────────────────────────────────── -->
+            <div class="p-8 bg-[#F2F2F7]/50 rounded-3xl space-y-6">
+                <div>
+                    <h3 class="font-bold text-[#1C1C1E]">Invite a New Admin</h3>
+                    <p class="text-xs text-[#8E8E93] mt-1">Select a role, then customise exactly which sections this admin can access — including whether they can see the Dashboard.</p>
+                </div>
+                <div id="add-admin-alert" class="hidden p-4 rounded-2xl text-sm font-semibold"></div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div>
+                        <label class="block text-xs font-semibold text-[#8E8E93] uppercase tracking-wider mb-2 ml-1">Admin Name</label>
+                        <input type="text" id="new-admin-name" placeholder="e.g. Sarah Johnson"
+                            class="w-full px-5 py-3.5 bg-white border border-black/8 rounded-2xl text-sm text-[#1C1C1E] placeholder-[#C7C7CC] outline-none focus:ring-2 focus:ring-[#007AFF]/30 transition-all">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-[#8E8E93] uppercase tracking-wider mb-2 ml-1">Role</label>
+                        <div class="relative">
+                            <select id="new-admin-role" onchange="onRoleChange(this.value)"
+                                class="w-full px-5 py-3.5 bg-white border border-black/8 rounded-2xl text-sm text-[#1C1C1E] outline-none focus:ring-2 focus:ring-[#007AFF]/30 transition-all appearance-none cursor-pointer">
+                                <option value="">Select a role...</option>
+                                {% for key, role in roles.items() %}
+                                <option value="{{ key }}">{{ role.icon }} {{ role.label }}</option>
+                                {% endfor %}
+                            </select>
+                            <svg class="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8E8E93] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ── Permission Checkboxes (shown after role selected) ── -->
+                <div id="perm-panel" class="hidden">
+                    <div class="flex items-center justify-between mb-3">
+                        <label class="block text-xs font-semibold text-[#8E8E93] uppercase tracking-wider ml-1">Sections This Admin Can Access</label>
+                        <div class="flex gap-2">
+                            <button type="button" onclick="toggleAllPerms(true)" class="text-[10px] font-bold text-[#007AFF] hover:underline">Select all</button>
+                            <span class="text-[#C7C7CC] text-[10px]">·</span>
+                            <button type="button" onclick="toggleAllPerms(false)" class="text-[10px] font-bold text-[#FF3B30] hover:underline">Clear all</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-2.5" id="perm-checkboxes">
+                        {% for perm_key, perm_icon, perm_label, perm_desc in all_permissions %}
+                        <label class="perm-toggle flex items-start gap-3 p-3.5 rounded-2xl border-2 border-transparent bg-white cursor-pointer transition-all hover:border-[#007AFF]/20 has-[:checked]:border-[#007AFF]/40 has-[:checked]:bg-[#007AFF]/5 {% if perm_key == 'dashboard' %}opacity-60 cursor-not-allowed{% endif %}">
+                            <input type="checkbox" class="perm-cb mt-0.5 accent-[#007AFF] w-4 h-4 shrink-0 {% if perm_key == 'dashboard' %}cursor-not-allowed{% else %}cursor-pointer{% endif %}" value="{{ perm_key }}" id="perm-{{ perm_key }}" {% if perm_key == 'dashboard' %}disabled{% endif %}>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-base leading-none">{{ perm_icon }}</span>
+                                    <span class="text-[13px] font-bold text-[#1C1C1E]">{{ perm_label }}{% if perm_key == 'dashboard' %} (super admin only){% endif %}</span>
+                                </div>
+                                <p class="text-[11px] text-[#8E8E93] mt-0.5 leading-snug">{{ perm_desc }}</p>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <p class="text-[11px] text-[#8E8E93] mt-3 ml-1">⚠️ Only the sections checked above will be visible to this admin. Unchecked sections won't appear in their navigation at all.</p>
+                </div>
+
+                <button onclick="generateInvite()"
+                    class="w-full py-4 bg-[#007AFF] text-white font-bold rounded-2xl hover:bg-[#0062CC] active:scale-[0.98] transition-all text-sm flex items-center justify-center gap-2.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                    </svg>
+                    Generate Invite Link
+                </button>
+
+                <!-- Invite link result -->
+                <div id="invite-result" class="hidden p-5 bg-[#34C759]/5 border border-[#34C759]/20 rounded-2xl space-y-3">
+                    <p class="text-xs font-semibold text-[#34C759] uppercase tracking-wider">Invite Link Generated</p>
+                    <div class="flex items-center gap-3">
+                        <input id="invite-link-display" readonly type="text"
+                            class="flex-1 px-4 py-3 bg-white border border-black/8 rounded-xl text-sm text-[#1C1C1E] font-mono outline-none select-all">
+                        <button onclick="copyInviteLink()"
+                            class="shrink-0 px-5 py-3 bg-[#34C759] text-white font-semibold rounded-xl hover:brightness-110 transition-all text-sm">
+                            Copy
+                        </button>
+                    </div>
+                    <p class="text-xs text-[#8E8E93]">Share this link with the new admin. It can only be used once.</p>
+                </div>
+            </div>
+
+            <!-- ── Current Sub-Admins List ───────────────────────── -->
+            {% if sub_admins %}
+            <div>
+                <p class="text-xs font-semibold text-[#8E8E93] uppercase tracking-wider mb-5">Your Team ({{ sub_admins|length }})</p>
+                <div class="space-y-3" id="admin-list">
+                    {% for sub in sub_admins %}
+                    {% set role_info = roles.get(sub.get('role',''), {}) %}
+                    <div class="flex items-center gap-5 p-5 bg-[#F2F2F7]/60 rounded-2xl" id="admin-row-{{ sub.get('id','') }}">
+                        <div class="w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 text-xl"
+                             style="background: {{ role_info.get('color','#8E8E93') }}15;">
+                            {{ role_info.get('icon','👤') }}
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 flex-wrap">
+                                <p class="font-bold text-[#1C1C1E] text-sm">{{ sub.get('name','—') }}</p>
+                                {% if sub.get('username') %}
+                                <span class="text-xs text-[#8E8E93]">@{{ sub.get('username') }}</span>
+                                {% endif %}
+                                <span class="inline-block px-2 py-0.5 text-[10px] font-bold rounded-full
+                                    {% if sub.get('status') == 'active' %}bg-[#34C759]/10 text-[#34C759]{% else %}bg-[#FF9500]/10 text-[#FF9500]{% endif %}">
+                                    {{ sub.get('status','pending') | title }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-[#8E8E93] mt-0.5">{{ role_info.get('label', sub.get('role','')) }}</p>
+                            <p class="text-[11px] text-[#C7C7CC] mt-0.5">Added {{ sub.get('created_at','')[:10] }}</p>
+                        </div>
+                        <div class="flex items-center gap-2 shrink-0">
+                            {% if sub.get('status') == 'pending' %}
+                            <button onclick="regenInvite('{{ sub.get('id','') }}')"
+                                title="Copy invite link"
+                                class="w-9 h-9 flex items-center justify-center rounded-xl bg-[#007AFF]/10 hover:bg-[#007AFF] text-[#007AFF] hover:text-white transition-all">
+                                <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"/>
+                                </svg>
+                            </button>
+                            {% endif %}
+                            <button onclick="removeAdmin('{{ sub.get('id','') }}', '{{ sub.get('name','') | e }}')"
+                                title="Remove admin"
+                                class="w-9 h-9 flex items-center justify-center rounded-xl bg-[#FF3B30]/10 hover:bg-[#FF3B30] text-[#FF3B30] hover:text-white transition-all">
+                                <svg class="w-4 h-4 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2.5">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% else %}
+            <div class="p-8 text-center bg-[#F2F2F7]/40 rounded-2xl">
+                <p class="text-[#8E8E93] font-semibold text-sm">No team admins yet</p>
+                <p class="text-[#C7C7CC] text-xs mt-1">Generate an invite link above to add your first team member.</p>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Password Change Section -->
+    <div class="card-premium overflow-hidden">
+        <div class="px-5 py-5 sm:px-10 sm:py-8 border-b border-black/5 bg-[#F2F2F7]/50">
+            <h2 class="text-lg sm:text-xl font-bold text-[#1C1C1E]">Change Password</h2>
+            <p class="text-[#8E8E93] text-sm mt-1">Update your admin dashboard password</p>
+        </div>
+        <div class="px-5 py-6 sm:px-10 sm:py-10">
+            <form method="POST" action="/api/change-password" class="space-y-7" id="password-form">
+                <div>
+                    <label class="block text-sm font-semibold text-[#1C1C1E] mb-3">Current Password</label>
+                    <div class="relative">
+                        <input type="password" name="current_password" required class="password-input input-premium pr-14">
+                        <button type="button" class="toggle-password absolute right-5 top-1/2 -translate-y-1/2 text-[#8E8E93] hover:text-[#007AFF] transition-colors">
+                            <svg class="eye-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-[#1C1C1E] mb-3">New Password</label>
+                    <div class="relative">
+                        <input type="password" name="new_password" required class="password-input input-premium pr-14">
+                        <button type="button" class="toggle-password absolute right-5 top-1/2 -translate-y-1/2 text-[#8E8E93] hover:text-[#007AFF] transition-colors">
+                            <svg class="eye-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-[#1C1C1E] mb-3">Confirm New Password</label>
+                    <div class="relative">
+                        <input type="password" name="confirm_password" required class="password-input input-premium pr-14">
+                        <button type="button" class="toggle-password absolute right-5 top-1/2 -translate-y-1/2 text-[#8E8E93] hover:text-[#007AFF] transition-colors">
+                            <svg class="eye-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary w-full mt-2">Change Password</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Transfer Admin Ownership Section -->
+    <div class="card-premium overflow-hidden">
+        <div class="px-5 py-5 sm:px-10 sm:py-8 border-b border-black/5 bg-[#F2F2F7]/50">
+            <h2 class="text-lg sm:text-xl font-bold text-[#1C1C1E]">Transfer Admin Ownership</h2>
+            <p class="text-[#8E8E93] text-sm mt-1">Transfer dashboard control to a new admin</p>
+        </div>
+        <div class="px-5 py-6 sm:px-10 sm:py-10">
+            <p class="text-sm text-[#8E8E93] mb-8 leading-relaxed">Transfer dashboard ownership to a new admin. Confirmation emails will be sent to both the current and new admin.</p>
+            <form method="POST" action="/api/transfer-ownership" class="space-y-7" id="transfer-form">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-7">
+                    <div>
+                        <label class="block text-sm font-semibold text-[#1C1C1E] mb-3">Your Current Email</label>
+                        <input type="email" name="old_admin_email" required placeholder="your-email@example.com" class="input-premium">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-[#1C1C1E] mb-3">New Admin Email</label>
+                        <input type="email" name="new_admin_email" required placeholder="new-admin@example.com" class="input-premium">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-[#1C1C1E] mb-3">New Admin Telegram User ID</label>
+                    <input type="text" name="new_admin_id" required placeholder="123456789" class="input-premium">
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-[#1C1C1E] mb-3">Your Current Password</label>
+                    <div class="relative">
+                        <input type="password" name="current_password" required class="password-input input-premium pr-14">
+                        <button type="button" class="toggle-password absolute right-5 top-1/2 -translate-y-1/2 text-[#8E8E93] hover:text-[#007AFF] transition-colors">
+                            <svg class="eye-icon w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="bg-[#FF9500]/10 border border-[#FF9500]/20 rounded-2xl p-6">
+                    <p class="text-sm text-[#FF9500] leading-relaxed"><strong>Warning:</strong> After transfer, you will be logged out and the new admin will have full control. This action cannot be undone.</p>
+                </div>
+                <button type="submit" class="w-full py-4 bg-[#FF3B30] text-white font-semibold rounded-2xl hover:brightness-110 transition-all">Transfer Ownership</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Current Admin Info -->
+    <div class="card-premium overflow-hidden">
+        <div class="px-5 py-5 sm:px-10 sm:py-8 border-b border-black/5 bg-[#F2F2F7]/50">
+            <h2 class="text-lg sm:text-xl font-bold text-[#1C1C1E]">Current Admin</h2>
+        </div>
+        <div class="px-5 py-6 sm:px-10 sm:py-10">
+            <div class="space-y-5">
+                <div class="p-6 bg-[#F2F2F7] rounded-2xl">
+                    <p class="text-xs font-semibold text-[#8E8E93] uppercase tracking-wider mb-2">Telegram User ID</p>
+                    <p class="text-xl font-mono font-bold text-[#007AFF]">{{ admin_id }}</p>
+                </div>
+                <div class="p-6 bg-[#F2F2F7] rounded-2xl">
+                    <p class="text-xs font-semibold text-[#8E8E93] uppercase tracking-wider mb-2">Login Email</p>
+                    <p class="text-xl font-bold text-[#007AFF]">{{ admin_email }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Company Sender Email -->
+    <div class="card-premium overflow-hidden">
+        <div class="px-5 py-5 sm:px-10 sm:py-8 border-b border-black/5 bg-[#F2F2F7]/50 flex items-center justify-between gap-3">
+            <div>
+                <h2 class="text-xl font-bold text-[#1C1C1E]">Company Sender Email</h2>
+                <p class="text-[#8E8E93] text-sm mt-1">Default email address used when sending bulk emails to users</p>
+            </div>
+            <span class="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#34C759]/10 text-[#34C759] rounded-full text-xs font-bold">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#34C759] inline-block"></span>
+                Active
+            </span>
+        </div>
+        <div class="px-5 py-6 sm:px-10 sm:py-10 space-y-8">
+            <!-- Current sender display -->
+            <div class="p-6 bg-[#007AFF]/5 border border-[#007AFF]/15 rounded-2xl flex items-center gap-5">
+                <div class="w-12 h-12 rounded-2xl bg-[#007AFF]/10 flex items-center justify-center shrink-0">
+                    <svg class="w-6 h-6 text-[#007AFF]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                </div>
+                <div>
+                    <p class="text-xs font-semibold text-[#8E8E93] uppercase tracking-wider mb-1">Current Sender</p>
+                    <p id="current-sender-display" class="text-lg font-bold text-[#007AFF]">{{ sender_email }}</p>
+                </div>
+            </div>
+
+            <!-- Alert -->
+            <div id="sender-alert" class="hidden p-4 rounded-2xl text-sm font-semibold"></div>
+
+            <!-- Update form -->
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-[#1C1C1E] mb-3">Update Sender Email</label>
+                    <input type="email" id="sender-email-input"
+                        value="{{ sender_email }}"
+                        placeholder="company@example.com"
+                        class="input-premium">
+                    <p class="text-xs text-[#8E8E93] mt-2 ml-1">Only one active sender email is allowed at a time. Saving this will replace the current one.</p>
+                </div>
+                <button onclick="saveSenderEmail()"
+                    class="w-full py-4 bg-[#007AFF] text-white font-bold rounded-2xl hover:bg-[#0062CC] active:scale-[0.98] transition-all text-sm">
+                    Save Sender Email
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Information -->
+    <div class="card-premium overflow-hidden">
+        <div class="px-5 py-5 sm:px-10 sm:py-8 border-b border-black/5 bg-[#F2F2F7]/50">
+            <h2 class="text-lg sm:text-xl font-bold text-[#1C1C1E]">System Information</h2>
+        </div>
+        <div class="px-5 py-6 sm:px-10 sm:py-10 space-y-5">
+            <div class="p-6 bg-[#F2F2F7] rounded-2xl">
+                <p class="text-xs font-semibold text-[#8E8E93] uppercase tracking-wider mb-2">Dashboard Version</p>
+                <p class="text-sm font-bold text-[#007AFF]">v2.1 Premium Edition</p>
+            </div>
+            <div class="p-6 bg-[#F2F2F7] rounded-2xl">
+                <p class="text-xs font-semibold text-[#8E8E93] uppercase tracking-wider mb-2">Status</p>
+                <span class="inline-block px-3 py-1.5 bg-[#34C759]/10 text-[#34C759] rounded-full text-xs font-bold">Operational</span>
+            </div>
+            <div class="p-6 bg-[#F2F2F7] rounded-2xl">
+                <p class="text-xs font-semibold text-[#8E8E93] uppercase tracking-wider mb-2">Last Updated</p>
+                <p class="text-sm font-bold text-[#1C1C1E]">March 2026</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card-premium overflow-hidden">
+        <div class="px-10 py-8 border-b border-black/5 bg-[#F2F2F7]/50">
+            <h2 class="text-xl font-bold text-[#1C1C1E]">Quick Actions</h2>
+        </div>
+        <div class="px-10 py-10">
+            <button onclick="clearCache()" class="w-full py-4 bg-[#F2F2F7] text-[#1C1C1E] font-semibold rounded-2xl hover:bg-[#E5E5EA] transition-all">Clear Cache</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* ── Role card click → auto-select dropdown ── */
+    // Role → default permissions map (injected from server)
+    const ROLE_PERMS = {
+        {% for key, role in roles.items() %}
+        '{{ key }}': {{ role.permissions | tojson }},
+        {% endfor %}
+    };
+
+    function selectRole(key, label) {
+        const sel = document.getElementById('new-admin-role');
+        if (sel) sel.value = key;
+        document.querySelectorAll('.role-card').forEach(c => {
+            c.style.transform = '';
+            c.style.boxShadow = '';
+        });
+        if (event && event.currentTarget) {
+            event.currentTarget.style.transform = 'scale(1.03)';
+            event.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,.10)';
+        }
+        onRoleChange(key);
+    }
+
+    function onRoleChange(roleKey) {
+        const panel = document.getElementById('perm-panel');
+        if (!roleKey) { panel.classList.add('hidden'); return; }
+        const defaults = ROLE_PERMS[roleKey] || [];
+        // Pre-tick based on role defaults. Dashboard is permanently super-admin-only.
+        document.querySelectorAll('.perm-cb').forEach(cb => {
+            cb.checked = defaults.includes(cb.value);
+        });
+        panel.classList.remove('hidden');
+        panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function toggleAllPerms(checked) {
+        document.querySelectorAll('.perm-cb').forEach(cb => {
+            if (!cb.disabled) cb.checked = checked;
+        });
+    }
+
+    /* ── Grant Full Access ── */
+    async function grantFullAccess() {
+        const name = document.getElementById('full-access-name').value.trim();
+        if (!name) { showFullAccessAlert('Please enter the admin name.', false); return; }
+        try {
+            const res = await fetch('/api/add-admin', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({name, role: 'full_access'})
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('full-access-link-display').value = data.invite_link;
+                document.getElementById('full-access-result').classList.remove('hidden');
+                document.getElementById('full-access-name').value = '';
+                showFullAccessAlert('Full access invite created for ' + name + '!', true);
+                setTimeout(() => location.reload(), 3500);
+            } else {
+                showFullAccessAlert(data.message || 'Failed to create invite.', false);
+            }
+        } catch (e) {
+            showFullAccessAlert('Network error. Please try again.', false);
+        }
+    }
+
+    function showFullAccessAlert(msg, success) {
+        const el = document.getElementById('full-access-alert');
+        if (!el) return;
+        el.textContent = msg;
+        el.className = `p-4 rounded-2xl text-sm font-semibold ${success ? 'bg-[#FF6B00]/10 text-[#FF6B00]' : 'bg-[#FF3B30]/10 text-[#FF3B30]'}`;
+        el.classList.remove('hidden');
+        setTimeout(() => el.classList.add('hidden'), 5000);
+    }
+
+    function copyFullAccessLink() {
+        const inp = document.getElementById('full-access-link-display');
+        inp.select();
+        navigator.clipboard.writeText(inp.value).then(() => {
+            const btn = inp.nextElementSibling;
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy', 2000);
+        }).catch(() => { document.execCommand('copy'); });
+    }
+
+    /* ── Generate invite link ── */
+    async function generateInvite() {
+        const name = document.getElementById('new-admin-name').value.trim();
+        const role = document.getElementById('new-admin-role').value;
+        const resultEl = document.getElementById('invite-result');
+
+        if (!name) { showAdminAlert('Please enter the admin name.', false); return; }
+        if (!role)  { showAdminAlert('Please select a role.', false); return; }
+
+        // Collect checked permissions
+        const permissions = Array.from(document.querySelectorAll('.perm-cb:checked')).map(cb => cb.value);
+        if (permissions.length === 0) {
+            showAdminAlert('Please select at least one section this admin can access.', false);
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/add-admin', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({name, role, permissions})
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('invite-link-display').value = data.invite_link;
+                resultEl.classList.remove('hidden');
+                document.getElementById('new-admin-name').value = '';
+                document.getElementById('new-admin-role').value = '';
+                document.getElementById('perm-panel').classList.add('hidden');
+                document.querySelectorAll('.perm-cb').forEach(cb => { cb.checked = false; });
+                showAdminAlert('Invite link created! Share it with ' + name + '.', true);
+                setTimeout(() => location.reload(), 3000);
+            } else {
+                showAdminAlert(data.message || 'Failed to create invite.', false);
+            }
+        } catch (e) {
+            showAdminAlert('Network error. Please try again.', false);
+        }
+    }
+
+    /* ── Copy invite link ── */
+    function copyInviteLink() {
+        const inp = document.getElementById('invite-link-display');
+        inp.select();
+        navigator.clipboard.writeText(inp.value).then(() => {
+            const btn = inp.nextElementSibling;
+            btn.textContent = 'Copied!';
+            setTimeout(() => btn.textContent = 'Copy', 2000);
+        }).catch(() => {
+            document.execCommand('copy');
+        });
+    }
+
+    /* ── Regenerate invite for pending admin ── */
+    async function regenInvite(adminId) {
+        try {
+            const res = await fetch('/api/regenerate-invite', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({id: adminId})
+            });
+            const data = await res.json();
+            if (data.success) {
+                await navigator.clipboard.writeText(data.invite_link);
+                showAdminAlert('Fresh invite link copied to clipboard!', true);
+            } else {
+                showAdminAlert(data.message || 'Failed to regenerate.', false);
+            }
+        } catch(e) {
+            showAdminAlert('Error regenerating link.', false);
+        }
+    }
+
+    /* ── Remove admin ── */
+    async function removeAdmin(adminId, name) {
+        if (!confirm('Remove ' + name + ' from the admin team? They will lose access immediately.')) return;
+        try {
+            const res = await fetch('/api/remove-admin', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({id: adminId})
+            });
+            const data = await res.json();
+            if (data.success) {
+                const row = document.getElementById('admin-row-' + adminId);
+                if (row) {
+                    row.style.transition = 'opacity .25s, transform .25s';
+                    row.style.opacity = '0';
+                    row.style.transform = 'translateX(20px)';
+                    setTimeout(() => { row.remove(); }, 260);
+                }
+                showAdminAlert(name + ' has been removed.', true);
+            } else {
+                showAdminAlert(data.message || 'Failed to remove admin.', false);
+            }
+        } catch(e) {
+            showAdminAlert('Network error. Please try again.', false);
+        }
+    }
+
+    function showAdminAlert(msg, success) {
+        const el = document.getElementById('add-admin-alert');
+        if (!el) return;
+        el.textContent = msg;
+        el.className = `p-4 rounded-2xl text-sm font-semibold ${success ? 'bg-[#34C759]/10 text-[#34C759]' : 'bg-[#FF3B30]/10 text-[#FF3B30]'}`;
+        el.classList.remove('hidden');
+        setTimeout(() => el.classList.add('hidden'), 5000);
+    }
+
+    document.querySelectorAll('.toggle-password').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const input = this.parentElement.querySelector('.password-input');
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            this.classList.toggle('active');
+        });
+    });
+
+    document.getElementById('password-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const newPass = formData.get('new_password');
+        const confirmPass = formData.get('confirm_password');
+        
+        if (newPass !== confirmPass) {
+            alert('Passwords do not match');
+            return;
+        }
+        
+        const res = await fetch('/api/change-password', { method: 'POST', body: formData });
+        const data = await res.json();
+        alert(data.message || 'Error updating password');
+        if (data.success) e.target.reset();
+    });
+
+    document.getElementById('transfer-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const oldEmail = document.querySelector('input[name="old_admin_email"]').value;
+        const newEmail = document.querySelector('input[name="new_admin_email"]').value;
+        const newAdminId = document.querySelector('input[name="new_admin_id"]').value;
+        const password = document.querySelector('#transfer-form input[name="current_password"]').value;
+        
+        if (!confirm('Are you sure? This will transfer full admin control. You will be logged out.')) return;
+        
+        const res = await fetch('/api/transfer-ownership', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+                old_admin_email: oldEmail,
+                new_admin_email: newEmail,
+                new_admin_id: newAdminId,
+                current_password: password 
+            })
+        });
+        const data = await res.json();
+        
+        if (data.success) {
+            alert('Transfer successful. You will be logged out.');
+            setTimeout(() => location.href = '/logout', 2000);
+        } else {
+            alert(data.message || 'Error transferring ownership');
+        }
+    });
+    
+    function clearCache() {
+        localStorage.clear();
+        location.reload();
+    }
+
+    async function saveSenderEmail() {
+        const input = document.getElementById('sender-email-input');
+        const alertEl = document.getElementById('sender-alert');
+        const email = input.value.trim();
+
+        if (!email) {
+            showSenderAlert('Please enter an email address.', false);
+            return;
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showSenderAlert('Please enter a valid email address.', false);
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/set-sender-email', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email})
+            });
+            const data = await res.json();
+            if (data.success) {
+                document.getElementById('current-sender-display').textContent = data.email;
+                showSenderAlert('Sender email saved successfully.', true);
+            } else {
+                showSenderAlert(data.message || 'Failed to save.', false);
+            }
+        } catch (e) {
+            showSenderAlert('Network error. Please try again.', false);
+        }
+    }
+
+    function showSenderAlert(msg, success) {
+        const el = document.getElementById('sender-alert');
+        el.textContent = msg;
+        el.className = `p-4 rounded-2xl text-sm font-semibold ${success ? 'bg-[#34C759]/10 text-[#34C759]' : 'bg-[#FF3B30]/10 text-[#FF3B30]'}`;
+        el.classList.remove('hidden');
+        setTimeout(() => el.classList.add('hidden'), 4000);
+    }
+</script>
+{% endblock %}

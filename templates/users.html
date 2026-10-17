@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% block title %}Directory | LEEH Exchange{% endblock %}
+{% block content %}
+
+<div class="space-y-8 sm:space-y-12 animate-reveal">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 sm:gap-8">
+        <div>
+            <span class="inline-block px-3 py-1.5 sm:px-4 sm:py-2 bg-primary-100 text-primary-700 text-xs font-black uppercase tracking-widest rounded-full mb-4 sm:mb-6">Users</span>
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black text-slate-900 leading-none">Global directory</h1>
+            <p class="text-slate-500 mt-3 sm:mt-5 text-base sm:text-lg leading-relaxed">Complete overview of your trading community and their lifetime engagement metrics.</p>
+        </div>
+    </div>
+
+    <div class="card-premium overflow-hidden">
+        <div class="px-5 sm:px-8 py-4 sm:py-6 border-b border-black/5">
+            <h2 class="text-base sm:text-lg font-bold text-[#1C1C1E]">Active Accounts ({{ users|length }})</h2>
+        </div>
+        <div class="overflow-x-auto -webkit-overflow-scrolling-touch">
+            {% if users %}
+            <table class="w-full text-left text-sm min-w-[400px]">
+                <thead>
+                    <tr class="bg-[#F2F2F7]/50">
+                        <th class="px-4 sm:px-8 py-4 sm:py-5 text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider whitespace-nowrap">Profile</th>
+                        <th class="px-4 sm:px-8 py-4 sm:py-5 text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider text-center whitespace-nowrap">Engagement</th>
+                        <th class="px-4 sm:px-8 py-4 sm:py-5 text-[11px] font-semibold text-[#8E8E93] uppercase tracking-wider text-right whitespace-nowrap">Join Date</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-black/5">
+                    {% for user in users %}
+                    <tr class="hover:bg-[#F2F2F7]/30 transition-colors">
+                        <td class="px-4 sm:px-8 py-4 sm:py-6">
+                            <div class="flex items-center gap-3 sm:gap-4">
+                                <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#007AFF]/10 text-[#007AFF] flex items-center justify-center font-bold text-sm shrink-0">
+                                    {{ user.username[0]|upper if user.username else 'U' }}
+                                </div>
+                                <div>
+                                    <p class="font-bold text-[#1C1C1E] text-sm">@{{ user.username }}</p>
+                                    <p class="text-[10px] font-medium text-[#8E8E93] tracking-wide mt-0.5">ID: {{ user.user_id }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 sm:px-8 py-4 sm:py-6">
+                            <div class="flex items-center justify-center gap-4 sm:gap-6">
+                                <div class="text-center">
+                                    <p class="text-sm sm:text-[15px] font-bold text-[#1C1C1E]">{{ user.tx_count }}</p>
+                                    <p class="text-[10px] font-medium text-[#8E8E93] uppercase tracking-wider mt-1">Events</p>
+                                </div>
+                                <div class="w-[1px] h-6 sm:h-8 bg-black/5"></div>
+                                <div class="text-center">
+                                    <p class="text-sm sm:text-[15px] font-bold text-[#007AFF]">{{ user.orders }}</p>
+                                    <p class="text-[10px] font-medium text-[#8E8E93] uppercase tracking-wider mt-1">Orders</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-4 sm:px-8 py-4 sm:py-6 text-right">
+                            <p class="text-[12px] sm:text-[13px] font-semibold text-[#1C1C1E] whitespace-nowrap">{{ user.first_seen }}</p>
+                            <span class="inline-block px-2 py-0.5 bg-[#34C759]/10 text-[#34C759] text-[9px] sm:text-[10px] font-bold rounded-full mt-1.5 uppercase tracking-wider">Active</span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="px-8 py-16 sm:py-24 text-center text-slate-400 font-bold uppercase tracking-widest text-sm">No users indexed</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

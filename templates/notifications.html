@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block title %}Notifications | LEEH Exchange{% endblock %}
+{% block content %}
+<div class="animate-reveal space-y-5">
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <div>
+            <h1 class="text-xl font-black text-[#1E293B]">Notifications</h1>
+            <p class="text-[13px] text-[#64748B] mt-0.5">Pending transactions and system alerts</p>
+        </div>
+        <a href="/transactions" class="btn-primary text-[12px] gap-2 shrink-0">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Manage All Orders
+        </a>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="card-premium p-4 border-l-4 border-[#F59E0B]">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">Pending Orders Awaiting Action</p>
+            <p class="text-[22px] font-black text-[#F59E0B] mt-1">{{ pending_transactions|length }}</p>
+        </div>
+        <div class="card-premium p-4 border-l-4 border-[#2563EB]">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">System Alerts</p>
+            <p class="text-[22px] font-black text-[#2563EB] mt-1">0</p>
+        </div>
+        <div class="card-premium p-4 border-l-4 border-[#10B981]">
+            <p class="text-[10.5px] font-semibold text-[#64748B] uppercase tracking-wide">All Systems</p>
+            <p class="text-[22px] font-black text-[#10B981] mt-1">Operational</p>
+        </div>
+    </div>
+
+    <!-- Pending transaction notifications -->
+    <div class="card-premium p-5">
+        <div class="flex items-center justify-between mb-4">
+            <h2 class="text-[15px] font-black text-[#1E293B]">Pending Order Alerts</h2>
+            {% if pending_transactions %}
+            <span class="badge-warning">{{ pending_transactions|length }} pending</span>
+            {% endif %}
+        </div>
+
+        {% if pending_transactions %}
+        <div class="space-y-2">
+            {% for tx in pending_transactions[:20] %}
+            <div class="flex items-center gap-3 p-3 rounded-xl border border-[#FEF3C7] bg-[#FFFBEB] hover:bg-[#FEF3C7] transition-colors">
+                <div class="w-8 h-8 bg-[#F59E0B] rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <p class="text-[12.5px] font-bold text-[#1E293B]">
+                        New Order: <span class="text-[#D97706]">{{ tx.get('Type','Order') }}</span> — @{{ tx.get('Username','user') }}
+                    </p>
+                    <p class="text-[11px] text-[#64748B]">Amount: {{ tx.get('Amount','N/A') }} · {{ tx.get('Timestamp','')[:16] }}</p>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                    <span class="badge-warning text-[10px]">Pending</span>
+                    <a href="/transactions" class="text-[11px] font-bold text-[#2563EB] hover:underline">Review</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="py-12 flex flex-col items-center text-center">
+            <div class="w-14 h-14 bg-[#D1FAE5] rounded-2xl flex items-center justify-center mb-3">
+                <svg class="w-7 h-7 text-[#10B981]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+            </div>
+            <h3 class="text-[14px] font-black text-[#1E293B] mb-1">All Caught Up!</h3>
+            <p class="text-[12px] text-[#64748B]">No pending orders awaiting action.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- System Notifications -->
+    <div class="card-premium p-5">
+        <h2 class="text-[15px] font-black text-[#1E293B] mb-4">System Notifications</h2>
+        <div class="space-y-2">
+            <div class="flex items-center gap-3 p-3 rounded-xl bg-[#EFF6FF] border border-[#DBEAFE]">
+                <div class="w-8 h-8 bg-[#2563EB] rounded-xl flex items-center justify-center flex-shrink-0">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                </div>
+                <div class="flex-1">
+                    <p class="text-[12.5px] font-bold text-[#1E293B]">All systems operational</p>
+                    <p class="text-[11px] text-[#64748B]">Telegram Bot, Payment Gateway, Venora AI — all running normally.</p>
+                </div>
+                <span class="badge-success text-[10px]">Healthy</span>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
